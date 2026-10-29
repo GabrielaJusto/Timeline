@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+<title>Timeline - Progresso</title>
+<link rel="stylesheet" href="{% static 'css/progresso.css' %}"></head>
+<body><header><a href="{% url 'inicio' %}"><strong>Timeline</strong></a>
+<button class="user-btn">Dados do banco</button></header>
+<div class="tela"><h1>Seu Progresso</h1><p class="subtitulo">Siga nesse ritmo</p>
+<div class="cards"><div class="box"><h3>Concluídas</h3>
+<p class="numero">{{ concluidas }} / {{ total }}</p></div>
+<div class="box"><h3>Taxa de conclusão</h3><p class="numero">{{ percentual }}%</p></div></div>
+<div class="box"><h3>Progresso das atividades</h3>
+<div class="bar" style="margin-top:12px;"><div class="fill" style="width:{{ percentual }}%;"></div></div>
+<p class="texto-cinza">{{ concluidas }} de {{ total }} atividades concluídas</p></div>
+<div class="box"><h3>Distribuição de tempo concluído</h3>
+{% for item in por_disciplina %}
+<p class="linha"><span>{{ item.disciplina__nome }}</span>
+<strong>{{ item.minutos|default:0 }} min</strong></p>
+{% empty %}<p class="texto-cinza">Ainda não há tempo registrado em atividades concluídas.</p>
+{% endfor %}</div>
+<a href="{% url 'cadastrar_atividade_cacau' %}">Cadastrar atividade</a>
+</div></body></html>

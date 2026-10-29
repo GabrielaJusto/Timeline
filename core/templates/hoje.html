@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Timeline - Hoje</title>
+    <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
+</head>
+
+<body>
+
+    <!-- MENU LATERAL -->
+    <div class="menu-lateral">
+
+        <div class="logo">
+            <div class="logo-simbolo">
+                <div class="ponteiro"></div>
+            </div>
+            <div class="logo-texto">
+                <h2>Timeline</h2>
+                <p>Plan today. Move at your pace.</p>
+            </div>
+        </div>
+
+        <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+        <div class="menu">
+            <p class="ativo">☼ &nbsp; Hoje</p>
+            <p>◷ &nbsp; Agenda</p>
+            <p>▦ &nbsp; Calendário</p>
+            <p>☷ &nbsp; Tarefas</p>
+            <p>▥ &nbsp; Progresso</p>
+            <p>☷ &nbsp; Configurações</p>
+        </div>
+
+        <div class="frase-lateral">
+            <h3>☼</h3>
+            <h4>No seu ritmo.</h4>
+            <p>Pequenos passos também fazem o dia avançar.</p>
+        </div>
+
+        <div class="usuario">
+            <strong>Seu planejamento</strong>
+            <p>Sem cadastro</p>
+        </div>
+
+    </div>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="conteudo-principal">
+
+        <!-- BARRA SUPERIOR -->
+        <div class="barra-superior">
+
+            <div class="pagina-atual">
+                <strong>Hoje</strong>
+                <span>{% now "l, j \d\e F" %}</span>
+            </div>
+
+            <div class="acoes-superiores">
+                <input type="text" placeholder="Buscar tarefas">
+                <span>🔔</span>
+                <span>☷</span>
+            </div>
+
+        </div>
+
+
+        <!-- ÁREA DA PÁGINA -->
+        <main>
+
+            <!-- TÍTULO -->
+            <div class="inicio">
+
+                <div class="titulo-inicio">
+                    <p>UM DIA DE CADA VEZ</p>
+                    <h1>Seu dia, no seu ritmo.</h1>
+                    <span>Abra espaço para o que importa. Comece pelo próximo passo.</span>
+                </div>
+
+                <a href="adicionar-tarefa.html">+ Adicionar uma tarefa</a>
+
+            </div>
+
+
+            <!-- AVISO -->
+            <div class="aviso-planejamento">
+                <strong>Seu planejamento, sem login</strong>
+                <p>
+                    Crie suas tarefas e comece a organizar a semana.
+                    O acesso fica vinculado a este navegador.
+                </p>
+            </div>
+
+
+            <!-- CARDS DE RESUMO -->
+            <div class="cards-resumo">
+
+                <div class="card-resumo">
+                    <div class="icone-card">▦</div>
+
+                    <div>
+                        <span>Para hoje</span>
+                        <div class="numero-card">
+                            <strong>{{ pendentes }}</strong>
+                            <small>tarefas pendentes</small>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card-resumo">
+                    <div class="icone-card">✓</div>
+
+                    <div>
+                        <span>Seu progresso hoje</span>
+                        <div class="numero-card">
+                            <strong>{{ concluidas }}</strong>
+                            <small>de {{ total_atividades }} concluídas</small>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card-resumo">
+                    <div class="icone-card">☷</div>
+
+                    <div>
+                        <span>Para acompanhar</span>
+                        <div class="numero-card">
+                            <strong>{{ pendentes }}</strong>
+                            <small>tarefas em aberto</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- PARTE INFERIOR -->
+            <div class="area-inferior">
+
+                <!-- TIMELINE -->
+                <div class="timeline-hoje">
+
+                    <div class="topo-timeline">
+                        <div>
+                            <h2>Sua timeline de hoje</h2>
+                            <p>{% now "l, j \d\e F" %}</p>
+                        </div>
+
+                        <span>
+                            {{ atividades|length }}
+                            atividade{{ atividades|length|pluralize }}
+                        </span>
+                    </div>
+
+                    {% if atividades %}
+
+                        {% for atividade in atividades %}
+                            <div class="timeline-vazia">
+                                <h3>{{ atividade.titulo }}</h3>
+
+                                <p>
+                                    Disciplina:
+                                    {% if atividade.disciplina %}
+                                        {{ atividade.disciplina.nome }}
+                                    {% else %}
+                                        Sem disciplina
+                                    {% endif %}
+                                </p>
+
+                                <p>Tipo: {{ atividade.get_tipo_display }}</p>
+
+                                <p>Prazo: {{ atividade.prazo|date:"d/m/Y H:i" }}</p>
+
+                                <p>Status: {{ atividade.get_status_display }}</p>
+                            </div>
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="timeline-vazia">
+                            <div class="icone-timeline">☷</div>
+
+                            <h3>Seu dia pode começar por aqui</h3>
+
+                            <p>
+                                Adicione uma atividade para hoje e encontre
+                                seu próximo passo.
+                            </p>
+
+                            <a href="{% url 'adicionar_tarefa' %}">
+                                + Adicionar uma tarefa
+                            </a>
+                        </div>
+
+                    {% endif %}    
+
+                </div>
+
+
+                <!-- COLUNA DIREITA -->
+                <div class="coluna-direita">
+
+                    <!-- PRÓXIMO PASSO -->
+                    <div class="proximo-passo">
+
+                        <span class="etiqueta">● PRÓXIMO PRAZO</span>
+
+                        <h2>O próximo passo<br>é seu.</h2>
+
+                        <p>
+                            Seus próximos prazos aparecem aqui quando
+                            você adicionar uma tarefa.
+                        </p>
+
+                        <div class="botao-comecar">
+                            <span>Começar</span>
+                            <span>→</span>
+                        </div>
+
+                    </div>
+
+
+                    <!-- VISÃO DA SEMANA -->
+                    <div class="visao-semana">
+
+                        <div class="titulo-semana">
+                            <h2>Visão da semana</h2>
+                            <span>→</span>
+                        </div>
+
+                        <p>
+                            {{ inicio_semana|date:"j \d\e M" }} —
+                            {{ fim_semana|date:"j \d\e M \d\e Y" }}
+                        </p>
+
+                    <div class="dias-semana">
+
+                        {% for dia in dias_semana %}
+
+                            <div {% if dia == data_atual %}class="dia-atual"{% endif %}>
+                                <small>{{ dia|date:"D" }}</small>
+                                <strong>{{ dia|date:"j" }}</strong>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>    
+
+                        <div class="progresso-semana">
+                            <span>0 de 0 tarefas concluídas</span>
+                            <strong>0%</strong>
+                        </div>
+
+                        <p class="link-semana">
+                            Ver tarefas de 30 de set. &nbsp; →
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

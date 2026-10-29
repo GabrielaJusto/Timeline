@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Agenda semanal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/agenda-semana.css' %}">
+</head>
+
+<body>
+
+    <div class="tela">
+
+        <!-- TOPO: TITULO + ABAS -->
+        <header class="topo">
+            <div class="titulo-agenda">
+                <h1>Agenda</h1>
+                <p>
+                    <a href="?semana={{ semana_anterior|date:'Y-m-d' }}" class="troca-semana" title="Semana anterior">&#8249;</a>
+                    {{ titulo_semana }}
+                    <a href="?semana={{ semana_seguinte|date:'Y-m-d' }}" class="troca-semana" title="Próxima semana">&#8250;</a>
+                </p>
+            </div>
+
+            <nav class="abas">
+                <a href="{% url 'hoje' %}" class="aba">Dia</a>
+                <a href="{% url 'agenda_semana' %}" class="aba ativa">Semana</a>
+                <a href="{% url 'agenda' %}" class="aba">Matéria</a>
+                <a href="#" class="aba">Pessoais</a>
+                <a href="#" class="aba">Entregas</a>
+                <a href="#" class="aba">Responsabilidades</a>
+            </nav>
+        </header>
+
+        <div class="layout">
+
+            <!-- VISAO SEMANAL -->
+            <section class="visao-semanal">
+                <div class="visao-topo">
+                    <h2>Visão semanal</h2>
+                    <a href="{% url 'novo_compromisso' %}" class="botao-novo">+ Compromisso</a>
+                </div>
+
+                <div class="dias">
+                    {% for dia in dias %}
+                    <div class="dia">
+                        <h3>{{ dia.nome }}</h3>
+                        {% for evento in dia.eventos %}
+                        <a href="?semana={{ dias.0.data|date:'Y-m-d' }}&evento={{ evento.chave }}"
+                           class="evento{% if selecionado and evento.chave == selecionado.chave %} selecionado{% endif %}">
+                            <span class="evento-hora">{{ evento.hora|time:"H:i" }}</span>
+                            <span class="evento-nome">{{ evento.nome }}</span>
+                        </a>
+                        {% empty %}
+                        <p class="dia-vazio">Nada marcado</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- COLUNA LATERAL -->
+            <aside class="lateral">
+
+                <!-- DETALHES DO EVENTO -->
+                <section class="cartao detalhes">
+                    {% if selecionado %}
+                    <span class="rotulo">Informações completas</span>
+                    <h2>{{ selecionado.nome }}</h2>
+                    <p class="descricao">{{ selecionado.descricao }}</p>
+
+                    <ul class="informacoes">
+                        <li>
+                            <span class="info-rotulo"><span class="icone">&#9719;</span> Horário</span>
+                            <strong>{{ selecionado.hora|time:"H:i" }}</strong>
+                        </li>
+                        <li>
+                            <span class="info-rotulo"><span class="icone">&#9776;</span> Matéria</span>
+                            <strong>{{ selecionado.materia }}</strong>
+                        </li>
+                        <li>
+                            <span class="info-rotulo"><span class="icone">&#9638;</span> Duração</span>
+                            <strong>{{ selecionado.duracao }}</strong>
+                        </li>
+                    </ul>
+
+                    <div class="etiquetas">
+                        <span class="etiqueta atividade">{{ selecionado.tipo }}</span>
+                        {% if selecionado.prioridade %}
+                        <span class="etiqueta prioridade">Prioridade {{ selecionado.prioridade }}</span>
+                        {% endif %}
+                        {% if selecionado.status %}
+                        <span class="etiqueta pendente">{{ selecionado.status }}</span>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <span class="rotulo">Informações completas</span>
+                    <h2>Semana livre</h2>
+                    <p class="descricao">Nenhum evento nesta semana. Cadastre um compromisso para começar.</p>
+                    {% endif %}
+                </section>
+
+                <!-- PROGRESSO -->
+                <section class="cartao progresso">
+                    <div class="progresso-topo">
+                        <span class="icone-grande">&#9641;</span>
+                        <div>
+                            <span class="rotulo">Progresso</span>
+                            <h2>Esta semana</h2>
+                        </div>
+                    </div>
+
+                    <div class="meta">
+                        <div class="meta-linha">
+                            <span>Tarefas concluídas</span>
+                            <strong>{{ tarefas_concluidas }} de {{ tarefas_total }}</strong>
+                        </div>
+                        <div class="barra"><div class="barra-preenchida" style="width: {{ tarefas_percentual }}%;"></div></div>
+                    </div>
+
+                    <div class="meta">
+                        <div class="meta-linha">
+                            <span>Dias organizados</span>
+                            <strong>{{ dias_organizados }} de 5</strong>
+                        </div>
+                        <div class="barra"><div class="barra-preenchida" style="width: {{ dias_percentual }}%;"></div></div>
+                    </div>
+
+                    {% if horas %}
+                    <div class="meta">
+                        <div class="meta-linha">
+                            <span>Horas planejadas</span>
+                            <strong>{{ horas.alocadas|floatformat:"-1" }}h de {{ horas.disponiveis|floatformat:"-1" }}h</strong>
+                        </div>
+                        <div class="barra"><div class="barra-preenchida" style="width: {{ horas.percentual }}%;"></div></div>
+                    </div>
+                    {% endif %}
+                </section>
+
+            </aside>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

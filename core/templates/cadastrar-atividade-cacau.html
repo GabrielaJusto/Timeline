@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><title>Timeline - Nova atividade</title>
+<link rel="stylesheet" href="{% static 'css/notificacoes.css' %}"></head>
+<body>
+<header><a href="{% url 'inicio' %}"><strong>Timeline</strong></a></header>
+<div class="tela">
+<h1>Cadastrar atividade</h1>
+<div class="aviso">
+<form method="post">
+{% csrf_token %}
+{{ form.as_p }}
+<button type="submit">Salvar atividade</button>
+</form>
+</div>
+<a href="{% url 'notificacoes' %}">Voltar às notificações</a>
+</div></body></html>

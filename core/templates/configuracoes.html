@@ -1,0 +1,191 @@
+!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Configurações</title>
+    <link rel="stylesheet" href="configuracoes.css">
+</head>
+
+<body>
+
+    <!-- MENU LATERAL -->
+    <div class="menu-lateral">
+
+        <div class="logo">
+            <div class="logo-simbolo">
+                <div class="ponteiro"></div>
+            </div>
+
+            <div class="logo-texto">
+                <h2>Timeline</h2>
+                <p>Plan today. Move at your pace.</p>
+            </div>
+        </div>
+
+        <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+        <!-- Ajuste os links se os arquivos do projeto tiverem outros nomes. -->
+        <nav class="menu" aria-label="Menu principal">
+            <a href="hoje.html">☼ &nbsp; Hoje</a>
+            <a href="index.html">◷ &nbsp; Agenda</a>
+            <a href="calendario.html">▦ &nbsp; Calendário</a>
+            <a href="tarefas.html">☷ &nbsp; Tarefas</a>
+            <a href="progresso.html">▥ &nbsp; Progresso</a>
+            <a href="configuracoes.html" class="ativo" aria-current="page">
+                ☷ &nbsp; Configurações
+            </a>
+        </nav>
+
+        <div class="frase-lateral">
+            <h3>☼</h3>
+            <h4>No seu ritmo.</h4>
+            <p>Pequenos passos também fazem o dia avançar.</p>
+        </div>
+
+        <div class="usuario">
+            <strong>Seu planejamento</strong>
+            <p>Sem cadastro</p>
+        </div>
+
+    </div>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="conteudo-principal">
+
+        <div class="barra-superior">
+
+            <div class="pagina-atual">
+                <strong>Configurações</strong>
+                <span>Seu planejamento, no seu ritmo.</span>
+            </div>
+
+            <div class="acoes-superiores">
+                <!-- Campo visual: a busca depende da programação do projeto. -->
+                <input
+                    type="search"
+                    placeholder="Buscar tarefas"
+                    aria-label="Buscar tarefas"
+                >
+                <a href="notificacoes.html" aria-label="Notificações">🔔</a>
+                <a href="configuracoes.html" aria-label="Configurações">☷</a>
+            </div>
+
+        </div>
+
+
+        <main>
+
+            <!-- INÍCIO -->
+            <div class="inicio">
+
+                <div class="titulo-inicio">
+                    <p>SEU PLANEJAMENTO</p>
+                    <h1>Configurações</h1>
+                    <span>Como funciona o salvamento nesta versão.</span>
+                </div>
+
+                <a href="adicionar-tarefa.html" class="botao-adicionar">
+                    + Adicionar tarefa
+                </a>
+
+            </div>
+
+
+            <!-- AVISO -->
+            <div class="aviso-planejamento">
+                <strong>Seu planejamento, sem login</strong>
+
+                <p>
+                    Crie suas tarefas e comece a organizar a semana.
+                    O acesso fica vinculado a este navegador; apagar os cookies
+                    faz você perder esse acesso.
+                </p>
+            </div>
+
+
+            <!-- CONFIGURAÇÕES -->
+            <!-- Os textos abaixo seguem o protótipo.
+                 Este HTML e o CSS não implementam servidor ou cookies. -->
+            <div class="card-configuracoes">
+
+                <div class="icone-configuracoes" aria-hidden="true">☷</div>
+
+                <h2>Seu planejamento, sem cadastro</h2>
+
+                <p class="descricao-configuracoes">
+                    As tarefas são salvas no servidor e ficam acessíveis por
+                    este navegador, usando um cookie. Não há sincronização
+                    entre dispositivos. Ao apagar os cookies ou encerrar uma
+                    janela anônima, você pode perder o acesso a essas tarefas.
+                    Quem usar este mesmo navegador poderá vê-las.
+                </p>
+
+
+                <!-- INFORMAÇÕES DA VERSÃO -->
+                <div class="lista-configuracoes">
+
+                    <div class="linha-configuracao">
+                        <strong>Versão</strong>
+                        <span>Protótipo sem login</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Acesso às tarefas</strong>
+                        <span>Vinculado a este navegador</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Idioma</strong>
+                        <span>Português (Brasil)</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Horários</strong>
+                        <span>Fuso local do dispositivo</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Semana</strong>
+                        <span>Segunda a domingo</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Lembretes automáticos</strong>
+                        <span>Ainda não disponíveis</span>
+                    </div>
+
+                </div>
+
+
+                <!-- BOTÕES -->
+                <div class="botoes-configuracoes">
+
+                    <a href="tarefas.html" class="botao-configuracoes">
+                        Minhas tarefas
+                    </a>
+
+                    <a href="progresso.html" class="botao-configuracoes">
+                        Meu progresso
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- RODAPÉ -->
+            <footer class="rodape">
+                <p>Timeline · Protótipo acadêmico — PUC-Rio</p>
+                <p>Plan today. Move at your pace.</p>
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

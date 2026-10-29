@@ -1,0 +1,165 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background-color: #e9e9f3;
+    color: #202238;
+}
+
+.tela {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background-color: #f8f8fc;
+}
+
+
+/* TOPO */
+
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 16px;
+    background-color: white;
+    border-bottom: 1px solid #e3e4ec;
+}
+
+.topo h1 {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.voltar {
+    width: 52px;
+    font-size: 32px;
+    line-height: 20px;
+    color: #202238;
+    text-decoration: none;
+}
+
+.espaco {
+    width: 52px;
+}
+
+
+/* CAMPOS */
+
+.conteudo {
+    padding: 24px 16px 32px 16px;
+}
+
+.campo {
+    margin-bottom: 22px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #62657a;
+}
+
+.campo input[type="text"],
+.campo input[type="datetime-local"],
+.campo select {
+    width: 100%;
+    height: 52px;
+    padding: 0 16px;
+    background-color: white;
+    border: 1px solid #e3e4ec;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #202238;
+}
+
+.campo input[type="text"] {
+    height: 56px;
+    font-weight: 600;
+}
+
+.campo input:focus,
+.campo select:focus {
+    outline: none;
+    border-color: #7477e8;
+}
+
+
+/* OPCAO FLEXIVEL */
+
+.opcao-flexivel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 14px 16px;
+    background-color: #f3f2ff;
+    border: 1px solid #e6e5f8;
+    border-radius: 14px;
+    font-size: 15px;
+    color: #62657a;
+}
+
+.opcao-flexivel input {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    accent-color: #7477e8;
+}
+
+
+/* ERROS */
+
+.erro {
+    margin: 8px 0 0 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #c0392b;
+}
+
+.aviso-erro {
+    margin-bottom: 22px;
+    padding: 14px 16px;
+    background-color: #fbe9e7;
+    border: 1px solid #f0c4be;
+    border-radius: 14px;
+    font-size: 14px;
+    color: #c0392b;
+}
+
+.aviso-erro ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+
+/* BOTAO */
+
+.botao-salvar {
+    display: block;
+    width: 100%;
+    padding: 17px;
+    background-color: #7477e8;
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(116, 119, 232, 0.35);
+    text-align: center;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+}
+
+.botao-salvar:hover {
+    background-color: #5558c9;
+}

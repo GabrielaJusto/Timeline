@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Novo compromisso</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/novo-compromisso.css' %}">
+</head>
+
+<body>
+
+    <div class="tela">
+
+        <!-- TOPO -->
+        <header class="topo">
+            <a href="{% url 'agenda_semana' %}" class="voltar">&#8249;</a>
+            <h1>Novo compromisso</h1>
+            <span class="espaco"></span>
+        </header>
+
+        <main class="conteudo">
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="aviso-erro">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <!-- NOME -->
+                <div class="campo">
+                    <label for="{{ form.titulo.id_for_label }}">{{ form.titulo.label }}</label>
+                    {{ form.titulo }}
+                    {% for erro in form.titulo.errors %}<p class="erro">{{ erro }}</p>{% endfor %}
+                </div>
+
+                <!-- CATEGORIA -->
+                <div class="campo">
+                    <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+                    {{ form.categoria }}
+                    {% for erro in form.categoria.errors %}<p class="erro">{{ erro }}</p>{% endfor %}
+                </div>
+
+                <!-- INICIO E FIM -->
+                <div class="campo">
+                    <label for="{{ form.inicio.id_for_label }}">{{ form.inicio.label }}</label>
+                    {{ form.inicio }}
+                    {% for erro in form.inicio.errors %}<p class="erro">{{ erro }}</p>{% endfor %}
+                </div>
+
+                <div class="campo">
+                    <label for="{{ form.fim.id_for_label }}">{{ form.fim.label }}</label>
+                    {{ form.fim }}
+                    {% for erro in form.fim.errors %}<p class="erro">{{ erro }}</p>{% endfor %}
+                </div>
+
+                <!-- FLEXIVEL -->
+                <label class="opcao-flexivel" for="{{ form.flexivel.id_for_label }}">
+                    {{ form.flexivel }}
+                    <span>{{ form.flexivel.label }}</span>
+                </label>
+
+                <button type="submit" class="botao-salvar">Salvar compromisso</button>
+
+            </form>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,520 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    background-color: #f8f8fc;
+    color: #111936;
+}
+
+
+/* MENU LATERAL */
+
+.menu-lateral {
+    width: 230px;
+    height: 100vh;
+    background-color: white;
+    border-right: 1px solid #ddddE8;
+    padding: 28px 18px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.logo {
+    margin-bottom: 45px;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-simbolo {
+    width: 36px;
+    height: 36px;
+    background-color: #5a59dd;
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.logo-simbolo::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 2px solid white;
+    border-radius: 50%;
+    top: 7px;
+    left: 7px;
+}
+
+.ponteiro {
+    position: absolute;
+    width: 2px;
+    height: 9px;
+    background-color: white;
+    border-radius: 2px;
+    left: 17px;
+    top: 9px;
+    transform-origin: bottom;
+    transform: rotate(35deg);
+}
+
+.ponteiro::after {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 2px;
+    background-color: white;
+    border-radius: 2px;
+    bottom: 0;
+    left: 0;
+    transform-origin: left;
+    transform: rotate(55deg);
+}
+
+.logo-texto h2 {
+    margin: 0 0 2px 0;
+    font-size: 21px;
+}
+
+.logo-texto p {
+    margin: 0;
+    font-size: 8px;
+    color: #8a8da0;
+}
+
+.titulo-menu {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin: 0 0 18px 15px;
+    color: #3f4968;
+}
+
+.menu p {
+    padding: 14px 15px;
+    margin: 3px 0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #48516d;
+}
+
+.menu .ativo {
+    background-color: #eeeeff;
+    color: #5554dd;
+    font-weight: bold;
+}
+
+.frase-lateral {
+    margin-top: auto;
+    background-color: #f5f4ff;
+    border: 1px solid #e2e0ff;
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.frase-lateral h3 {
+    color: #5c5ce6;
+    margin: 0 0 10px 0;
+}
+
+.frase-lateral h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+}
+
+.frase-lateral p {
+    font-size: 12px;
+    line-height: 20px;
+    margin: 0;
+    color: #515a78;
+}
+
+.usuario {
+    margin-top: 20px;
+    padding: 5px 15px;
+}
+
+.usuario strong {
+    font-size: 13px;
+}
+
+.usuario p {
+    font-size: 11px;
+    margin: 4px 0 0 0;
+    color: #6c7289;
+}
+
+
+/* CONTEÚDO PRINCIPAL */
+
+.conteudo-principal {
+    margin-left: 230px;
+    width: calc(100% - 230px);
+    min-height: 100vh;
+}
+
+
+/* BARRA SUPERIOR */
+
+.barra-superior {
+    height: 78px;
+    background-color: white;
+    border-bottom: 1px solid #dedee8;
+    padding: 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagina-atual {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.pagina-atual strong {
+    font-size: 14px;
+    padding-right: 20px;
+    border-right: 1px solid #ddddE8;
+}
+
+.pagina-atual span {
+    font-size: 12px;
+    color: #606985;
+}
+
+.acoes-superiores {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.acoes-superiores input {
+    width: 205px;
+    padding: 11px 15px;
+    border: 1px solid #dcddea;
+    border-radius: 8px;
+    background-color: #fafaff;
+    outline: none;
+}
+
+
+/* CONTEÚDO DA PÁGINA */
+
+main {
+    padding: 38px 32px;
+}
+
+.inicio {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 26px;
+}
+
+.titulo-inicio p {
+    color: #5756e6;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 0 0 12px 0;
+}
+
+.titulo-inicio h1 {
+    font-size: 32px;
+    margin: 0 0 14px 0;
+}
+
+.titulo-inicio span {
+    font-size: 14px;
+    color: #535c78;
+}
+
+.inicio button,
+.timeline-vazia button {
+    background-color: #5a59dd;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/* AVISO */
+
+.aviso-planejamento {
+    background-color: #f7f6ff;
+    border: 1px solid #dcd9ff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 23px;
+}
+
+.aviso-planejamento strong {
+    font-size: 14px;
+}
+
+.aviso-planejamento p {
+    margin: 7px 0 0 0;
+    font-size: 12px;
+    color: #555e7c;
+}
+
+
+/* CARDS SUPERIORES */
+
+.cards-resumo {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.card-resumo {
+    flex: 1;
+    min-height: 106px;
+    background-color: white;
+    border: 1px solid #dedee8;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.icone-card {
+    background-color: #eeeeff;
+    color: #5554dd;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 20px;
+}
+
+.card-resumo span {
+    font-size: 12px;
+    color: #525d7a;
+}
+
+.numero-card {
+    margin-top: 7px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.numero-card strong {
+    font-size: 26px;
+}
+
+.numero-card small {
+    font-size: 11px;
+    color: #525d7a;
+}
+
+
+/* PARTE INFERIOR */
+
+.area-inferior {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+
+/* TIMELINE */
+
+.timeline-hoje {
+    flex: 2;
+    min-height: 465px;
+    background-color: white;
+    border: 1px solid #dedee8;
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.topo-timeline {
+    display: flex;
+    justify-content: space-between;
+}
+
+.topo-timeline h2 {
+    font-size: 15px;
+    margin: 0;
+}
+
+.topo-timeline p {
+    font-size: 12px;
+    color: #5c6580;
+    margin-top: 7px;
+}
+
+.topo-timeline > span {
+    font-size: 11px;
+    background-color: #f8f8fc;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+.timeline-vazia {
+    min-height: 330px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.icone-timeline {
+    color: #5a59dd;
+    background-color: #f2f1ff;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 24px;
+}
+
+.timeline-vazia h3 {
+    font-size: 16px;
+    margin: 20px 0 10px 0;
+}
+
+.timeline-vazia p {
+    max-width: 350px;
+    color: #626a85;
+    font-size: 13px;
+    line-height: 20px;
+    margin: 0 0 22px 0;
+}
+
+
+/* COLUNA DIREITA */
+
+.coluna-direita {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.proximo-passo,
+.visao-semana {
+    background-color: white;
+    border: 1px solid #dedee8;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.proximo-passo {
+    background-color: #f7f6ff;
+    border-color: #dcd9ff;
+}
+
+.etiqueta {
+    color: #5958df;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.proximo-passo h2 {
+    font-size: 23px;
+    margin: 25px 0 12px 0;
+}
+
+.proximo-passo p {
+    color: #525c79;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+.botao-comecar {
+    background-color: white;
+    border: 1px solid #d9d8ee;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 11px 12px;
+    display: flex;
+    justify-content: space-between;
+    color: #5554dd;
+    font-size: 12px;
+}
+
+
+/* VISÃO DA SEMANA */
+
+.titulo-semana {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.titulo-semana h2 {
+    font-size: 16px;
+    margin: 0;
+}
+
+.visao-semana > p {
+    font-size: 11px;
+    color: #535d78;
+}
+
+.dias-semana {
+    display: flex;
+    justify-content: space-between;
+    margin: 25px 0;
+}
+
+.dias-semana div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+}
+
+.dias-semana small {
+    font-size: 9px;
+}
+
+.dias-semana strong {
+    font-size: 13px;
+}
+
+.dias-semana .dia-atual {
+    background-color: #f2f1ff;
+    border: 1px solid #d7d5ff;
+    border-radius: 9px;
+}
+
+.dia-atual strong {
+    background-color: #5958df;
+    color: white;
+    padding: 6px;
+    border-radius: 50%;
+}
+
+.progresso-semana {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #5c6480;
+    border-bottom: 5px solid #eeeeff;
+    padding-bottom: 10px;
+}
+
+.progresso-semana strong {
+    color: #5554dd;
+}
+
+.visao-semana .link-semana {
+    color: #5554dd;
+    margin-top: 22px;
+}

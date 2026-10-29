@@ -1,0 +1,24 @@
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+    body { background: #f8fafc; color: #1e293b; padding: 20px; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    header a { text-decoration: none; color: inherit; }
+    .user-btn { background: #fff; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 15px; font-size: 12px; }
+
+    .grid { display: flex; gap: 20px; max-width: 900px; margin: 0 auto; }
+    .col-main { flex: 2; }
+    .col-side { flex: 1; }
+
+    .tabs { background: #fff; padding: 4px; border: 1px solid #e2e8f0; border-radius: 8px; display: inline-flex; gap: 5px; margin: 15px 0; }
+    .tab { border: none; background: transparent; padding: 6px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; }
+    .tab.active { background: #6366f1; color: #fff; }
+
+    .box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+    .event { border: 1px solid #f1f5f9; padding: 10px; border-radius: 6px; margin-top: 10px; display: flex; gap: 15px; }
+    .time { font-weight: bold; color: #6366f1; font-size: 14px; }
+    
+    .pill { font-size: 10px; padding: 2px 6px; background: #f1f5f9; border-radius: 4px; margin-right: 4px; }
+    .pill-yellow { background: #fef3c7; color: #d97706; }
+
+    .bar { background: #e0e7ff; height: 6px; border-radius: 3px; margin: 5px 0 12px 0; }
+    .fill { background: #6366f1; height: 100%; border-radius: 3px; }

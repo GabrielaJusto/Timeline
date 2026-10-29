@@ -1,0 +1,447 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Timeline - Adicionar tarefa</title>
+    <link rel="stylesheet" href="{% static 'css/adicionar-tarefa.css' %}">
+</head>
+
+<body>
+
+    <!-- MENU LATERAL -->
+    <div class="menu-lateral">
+
+        <div class="logo">
+            <div class="logo-simbolo">
+                <div class="ponteiro"></div>
+            </div>
+
+            <div class="logo-texto">
+                <h2>Timeline</h2>
+                <p>Plan today. Move at your pace.</p>
+            </div>
+        </div>
+
+        <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+        <div class="menu">
+            <p class="ativo">☼ &nbsp; Hoje</p>
+            <p>◷ &nbsp; Agenda</p>
+            <p>▦ &nbsp; Calendário</p>
+            <p>☷ &nbsp; Tarefas</p>
+            <p>▥ &nbsp; Progresso</p>
+            <p>☷ &nbsp; Configurações</p>
+        </div>
+
+        <div class="frase-lateral">
+            <h3>☼</h3>
+            <h4>No seu ritmo.</h4>
+            <p>Pequenos passos também fazem o dia avançar.</p>
+        </div>
+
+        <div class="usuario">
+            <strong>Seu planejamento</strong>
+            <p>Sem cadastro</p>
+        </div>
+
+    </div>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="conteudo-principal">
+
+        <div class="barra-superior">
+
+            <div class="pagina-atual">
+                <strong>Hoje</strong>
+                <span>{{ data_atual|date:"l, j \d\e F" }}</span>
+            </div>
+
+            <div class="acoes-superiores">
+                <input type="text" placeholder="Buscar tarefas">
+                <span>🔔</span>
+                <span>☷</span>
+            </div>
+
+        </div>
+
+
+        <main>
+
+            <!-- INÍCIO -->
+            <div class="inicio">
+
+                <div class="titulo-inicio">
+                    <p>UM DIA DE CADA VEZ</p>
+                    <h1>Seu dia, no seu ritmo.</h1>
+                    <span>
+                        Abra espaço para o que importa. Comece pelo próximo passo.
+                    </span>
+                </div>
+            <a href="{% url 'adicionar_tarefa' %}">
+                <button>+ Adicionar tarefa</button>
+            </a>
+            </div>
+
+
+            <!-- AVISO -->
+            <div class="aviso-planejamento">
+                <strong>Seu planejamento, sem login</strong>
+
+                <p>
+                    Crie suas tarefas e comece a organizar a semana.
+                    O acesso fica vinculado a este navegador; apagar os cookies
+                    faz você perder esse acesso.
+                </p>
+            </div>
+
+
+            <!-- CARDS -->
+            <div class="cards-resumo">
+
+                <div class="card-resumo">
+                    <div class="icone-card">▦</div>
+
+                    <div>
+                        <span>Para hoje</span>
+
+                        <div class="numero-card">
+                            <strong>{{ pendentes }}</strong>
+                            <small>tarefas pendentes</small>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card-resumo">
+                    <div class="icone-card">✓</div>
+
+                    <div>
+                        <span>Seu progresso hoje</span>
+
+                        <div class="numero-card">
+                            <strong>{{ concluidas }}</strong>
+                            <small>de {{ total_atividades }} concluídas</small>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card-resumo">
+                    <div class="icone-card">☷</div>
+
+                    <div>
+                        <span>Para acompanhar</span>
+
+                        <div class="numero-card">
+                            <strong>{{ pendentes }}</strong>
+                            <small>tarefas em aberto</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- PARTE INFERIOR -->
+            <div class="area-inferior">
+
+                <div class="coluna-esquerda">
+
+                    <div class="topo-timeline">
+
+                        <div>
+                            <h2>Sua timeline de hoje</h2>
+                            <p>{% now "l, j \d\e F" %}</p>
+                        </div>
+
+                        <span>{{ total_atividades }} atividades</span>
+
+                    </div>
+
+                    {% if atividades %}
+
+                        <div class="lista-atividades">
+
+                            {% for atividade in atividades %}
+
+                                <div class="atividade-item">
+
+                                    <strong>{{ atividade.titulo }}</strong>
+
+                                    <p>
+                                        {{ atividade.disciplina.nome|default:"Sem disciplina" }}
+                                        — {{ atividade.get_tipo_display }}
+                                    </p>
+
+                                    <small>
+                                         Prazo: {{ atividade.prazo|date:"d/m/Y H:i" }}
+                                        | {{ atividade.get_status_display }}
+                                    </small>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="timeline-vazia">
+
+                            <div class="icone-timeline">☷</div>
+
+                            <h3>Seu dia pode começar por aqui</h3>
+
+                            <p>
+                                Adicione uma atividade para hoje e encontre
+                                seu próximo passo.
+                            </p>
+
+                            <a href="{% url 'adicionar_tarefa' %}">
+                                <button>+ Adicionar uma tarefa</button>
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+            
+                <div class="coluna-direita">
+
+                    <div class="proximo-passo">
+
+                        <span class="etiqueta">● PRÓXIMO PRAZO</span>
+
+                        <h2>
+                            O próximo passo<br>
+                            é seu.
+                        </h2>
+
+                        <p>
+                            Seus próximos prazos aparecem aqui quando
+                            você adicionar uma tarefa.
+                        </p>
+
+                        <div class="botao-comecar">
+                            <span>Começar</span>
+                            <span>→</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="visao-semana">
+
+                        <div class="titulo-semana">
+                            <h2>Visão da semana</h2>
+                            <span>→</span>
+                        </div>
+
+                        <p>{{ inicio_semana|date:"j \d\e M" }} — {{ fim_semana|date:"j \d\e M \d\e Y" }}</p>
+
+                        <div class="dias-semana">
+                            {% for dia in dias_semana %}
+                                <div {% if dia == data_atual %}class="dia-atual"{% endif %}>
+                                    <small>{{ dia|date:"D" }}</small>
+                                    <strong>{{ dia|date:"j" }}</strong>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="progresso-semana">
+                            <span>{{ concluidas }} de {{ total_atividades }} tarefas concluídas</span>
+                            <strong>{{ progresso }}%</strong>
+                        </div>
+
+                        <p class="link-semana">
+                            Ver tarefas de 30 de set. →
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- FUNDO ESCURECIDO -->
+    <div class="fundo-escuro"></div>
+
+
+    <!-- MODAL -->
+    <div class="modal">
+
+        <div class="cabecalho-modal">
+
+            <div>
+                <p>ESPAÇO PARA O PRÓXIMO PASSO</p>
+
+                <h1>Adicionar tarefa</h1>
+
+                <span>
+                    Uma atividade, um prazo. O restante você ajusta no caminho.
+                </span>
+            </div>
+
+            <a href="{% url 'hoje' %}" class="fechar">×</a>
+
+        </div>
+
+
+        <form method="POST" action="{% url 'adicionar_tarefa' %}">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            <div class="campo">
+                <label for="nome">
+                    Nome da tarefa <strong>*</strong>
+                </label>
+
+                {{ form.titulo }}
+                {{ form.titulo.errors }}
+            </div>
+
+
+            <div class="campo">
+                <label for="disciplina">
+                    Disciplina <span>opcional</span>
+                </label>
+
+                {{ form.disciplina }}
+                {{ form.disciplina.errors }}
+            </div>
+
+
+            <div class="linha">
+
+                <div class="campo">
+                    <label for="{{ form.data_entrega.id_for_label }}">
+                        Data de entrega <strong>*</strong>
+                    </label>
+
+                    {{ form.data_entrega }}
+                    {{ form.data_entrega.errors }}
+                </div>
+
+                <div class="campo">
+                    <label for="{{ form.horario.id_for_label }}">
+                        Horário <span>opcional</span>
+                    </label>
+
+                    {{ form.horario }}
+                    {{ form.horario.errors }}
+                </div>
+
+            </div>
+
+
+            <div class="campo">
+                <label for="prioridade">
+                    Prioridade <strong>*</strong>
+                </label>
+
+                <select id="prioridade">
+                    <option>Baixa</option>
+                    <option selected>Média</option>
+                    <option>Alta</option>
+                </select>
+            </div>
+
+
+            <div class="campo categoria">
+                <label for="categoria">
+                    Categoria <strong>*</strong>
+                </label>
+
+                {{ form.tipo }}
+                {{ form.tipo.errors }}
+            </div>
+
+
+            <div class="campo">
+                <label for="link">
+                    Link <span>opcional</span>
+                </label>
+
+                <input
+                    id="link"
+                    type="url"
+                    placeholder="https://..."
+                >
+            </div>
+
+
+            <div class="campo">
+                <label for="local">
+                    Local ou endereço <span>opcional</span>
+                </label>
+
+                <input
+                    id="local"
+                    type="text"
+                    placeholder="Ex.: PUC-Rio, sala 201"
+                >
+            </div>
+
+
+            <div class="campo">
+                <label for="observacoes">
+                    Observações <span>opcional</span>
+                </label>
+
+                <textarea
+                    id="observacoes"
+                    placeholder="Adicione informações importantes sobre a tarefa..."
+                ></textarea>
+            </div>
+
+
+            <div class="campo lembrete">
+                <label for="lembrete">
+                    Lembrete <span>opcional</span>
+                </label>
+
+                <select id="lembrete">
+                    <option selected>Sem lembrete</option>
+                    <option>No horário</option>
+                    <option>30 minutos antes</option>
+                    <option>1 hora antes</option>
+                    <option>1 dia antes</option>
+                </select>
+            </div>
+
+
+            <p class="informacao">
+                Sem horário definido, o prazo será até o fim do dia.
+                Campos com * são obrigatórios.
+            </p>
+
+
+            <div class="botoes">
+
+                <a href="{% url 'hoje' %}" class="cancelar">
+                    Cancelar
+                </a>
+
+                <button type="submit" class="salvar">
+                    ✓ &nbsp; Salvar tarefa
+                </button>
+
+            </div>
+
+        <form action="hoje.html" method="get">
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+    body { background: #f8fafc; color: #1e293b; padding: 20px; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    header a { text-decoration: none; color: inherit; }
+    .user-btn { background: #fff; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 15px; font-size: 12px; }
+
+    .tela { max-width: 450px; margin: 0 auto; }
+    .subtitulo { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+
+    .cards { display: flex; gap: 15px; margin-bottom: 15px; }
+    .box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; flex: 1; }
+    .numero { font-size: 28px; font-weight: bold; color: #6366f1; margin: 5px 0; }
+    .texto-cinza { font-size: 12px; color: #64748b; }
+
+    .bar { background: #e0e7ff; height: 6px; border-radius: 3px; margin: 5px 0 12px 0; }
+    .fill { background: #6366f1; height: 100%; border-radius: 3px; }
+
+    .linha { font-size: 12px; display: flex; justify-content: space-between; margin-top: 10px; }

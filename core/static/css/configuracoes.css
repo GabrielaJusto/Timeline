@@ -1,0 +1,490 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f8fc;
+    color: #111936;
+}
+
+
+
+.menu-lateral {
+    width: 230px;
+    height: 100vh;
+    background-color: white;
+    border-right: 1px solid #dddde8;
+    padding: 28px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+}
+
+.logo {
+    margin-bottom: 45px;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-simbolo {
+    width: 36px;
+    height: 36px;
+    background-color: #5a59dd;
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.logo-simbolo::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 2px solid white;
+    border-radius: 50%;
+    top: 7px;
+    left: 7px;
+}
+
+.ponteiro {
+    position: absolute;
+    width: 2px;
+    height: 9px;
+    background-color: white;
+    border-radius: 2px;
+    left: 17px;
+    top: 9px;
+    transform-origin: bottom;
+    transform: rotate(35deg);
+}
+
+.ponteiro::after {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 2px;
+    background-color: white;
+    border-radius: 2px;
+    bottom: 0;
+    left: 0;
+    transform-origin: left;
+    transform: rotate(55deg);
+}
+
+.logo-texto h2 {
+    margin: 0 0 2px;
+    font-size: 21px;
+}
+
+.logo-texto p {
+    margin: 0;
+    font-size: 8px;
+    color: #8a8da0;
+}
+
+.titulo-menu {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin: 0 0 18px 15px;
+    color: #3f4968;
+}
+
+.menu a {
+    display: block;
+    text-decoration: none;
+    padding: 14px 15px;
+    margin: 3px 0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #48516d;
+}
+
+.menu .ativo {
+    background-color: #eeeeff;
+    color: #5554dd;
+    font-weight: bold;
+}
+
+.frase-lateral {
+    margin-top: auto;
+    background-color: #f5f4ff;
+    border: 1px solid #e2e0ff;
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.frase-lateral h3 {
+    color: #5c5ce6;
+    margin: 0 0 10px;
+}
+
+.frase-lateral h4 {
+    margin: 0 0 10px;
+    font-size: 14px;
+}
+
+.frase-lateral p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 20px;
+    color: #515a78;
+}
+
+.usuario {
+    margin-top: 20px;
+    padding: 5px 15px;
+}
+
+.usuario strong {
+    font-size: 13px;
+}
+
+.usuario p {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: #6c7289;
+}
+
+
+.conteudo-principal {
+    margin-left: 230px;
+    width: calc(100% - 230px);
+    min-height: 100vh;
+}
+
+.barra-superior {
+    height: 78px;
+    background-color: white;
+    border-bottom: 1px solid #dedee8;
+    padding: 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagina-atual {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.pagina-atual strong {
+    font-size: 14px;
+    padding-right: 20px;
+    border-right: 1px solid #dddde8;
+}
+
+.pagina-atual span {
+    font-size: 12px;
+    color: #606985;
+}
+
+.acoes-superiores {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.acoes-superiores input {
+    width: 205px;
+    padding: 11px 15px;
+    border: 1px solid #dcddea;
+    border-radius: 8px;
+    background-color: #fafaff;
+    outline: none;
+}
+
+main {
+    padding: 38px 32px;
+}
+
+
+
+.inicio {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 26px;
+    gap: 20px;
+}
+
+.titulo-inicio p {
+    color: #5756e6;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 0 0 12px;
+}
+
+.titulo-inicio h1 {
+    font-size: 32px;
+    margin: 0 0 14px;
+}
+
+.titulo-inicio span {
+    font-size: 14px;
+    color: #535c78;
+}
+
+.botao-adicionar {
+    display: inline-block;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: #5a59dd;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+
+.aviso-planejamento {
+    background-color: #f7f6ff;
+    border: 1px solid #dcd9ff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 23px;
+}
+
+.aviso-planejamento strong {
+    font-size: 14px;
+}
+
+.aviso-planejamento p {
+    margin: 7px 0 0;
+    font-size: 12px;
+    color: #555e7c;
+    line-height: 20px;
+}
+
+
+
+.card-configuracoes {
+    background-color: white;
+    border: 1px solid #dedee8;
+    border-radius: 12px;
+    padding: 28px;
+}
+
+.icone-configuracoes {
+    width: 52px;
+    height: 52px;
+    background-color: #eeeeff;
+    color: #5554dd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.card-configuracoes h2 {
+    margin: 0 0 14px;
+    font-size: 18px;
+}
+
+.descricao-configuracoes {
+    margin: 0;
+    max-width: 850px;
+    font-size: 14px;
+    line-height: 24px;
+    color: #535c78;
+}
+
+.lista-configuracoes {
+    margin-top: 28px;
+}
+
+.linha-configuracao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 0;
+    border-top: 1px solid #e0e1e9;
+}
+
+.linha-configuracao strong {
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.linha-configuracao span {
+    color: #606985;
+    font-size: 13px;
+    text-align: right;
+}
+
+
+
+
+.botoes-configuracoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.botao-configuracoes {
+    display: inline-block;
+    background-color: white;
+    border: 1px solid #111936;
+    border-radius: 9px;
+    padding: 12px 17px;
+    color: #111936;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.botao-configuracoes:hover {
+    background-color: #f5f4ff;
+    border-color: #5a59dd;
+    color: #5554dd;
+}
+
+.botao-adicionar:hover {
+    background-color: #4948c7;
+}
+
+.menu a:hover {
+    background-color: #f5f4ff;
+}
+
+.acoes-superiores a {
+    text-decoration: none;
+    color: #48516d;
+}
+
+a:focus-visible,
+.acoes-superiores input:focus-visible {
+    outline: 2px solid #5a59dd;
+    outline-offset: 4px;
+}
+
+
+
+.rodape {
+    margin-top: 30px;
+    color: #6c7289;
+    font-size: 11px;
+}
+
+.rodape p {
+    margin: 6px 
+
+@media (max-width: 1100px) {
+    .pagina-atual span {
+        display: none;
+    }
+
+    .pagina-atual strong {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    .inicio {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 760px) {
+    .menu-lateral {
+        position: static;
+        width: 100%;
+        height: auto;
+        padding: 20px 16px;
+        border-right: none;
+        border-bottom: 1px solid #dddde8;
+    }
+
+    .logo {
+        margin-bottom: 24px;
+        padding-left: 0;
+    }
+
+    .titulo-menu {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    .menu {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .menu a {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .frase-lateral,
+    .usuario {
+        display: none;
+    }
+
+    .conteudo-principal {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .barra-superior {
+        height: auto;
+        min-height: 78px;
+        padding: 16px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .acoes-superiores {
+        gap: 14px;
+    }
+
+    .acoes-superiores input {
+        width: 180px;
+    }
+
+    main {
+        padding: 28px 16px;
+    }
+
+    .titulo-inicio h1 {
+        font-size: 28px;
+    }
+
+    .titulo-inicio span {
+        line-height: 22px;
+    }
+
+    .aviso-planejamento,
+    .card-configuracoes {
+        padding: 20px;
+    }
+
+    .linha-configuracao {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 400px) {
+    .linha-configuracao {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .linha-configuracao span {
+        text-align: left;
+    }
+}
