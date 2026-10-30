@@ -25,4 +25,6 @@ urlpatterns = [
     path("adicionar-tarefa/", views.adicionar_tarefa, name="adicionar_tarefa"),
     path("", views.inicio, name="inicio"),
     path("agenda/", views.agenda, name="agenda"),
+    path("agenda/semana/", views.agenda_semanal, name="agenda_semana"),
+    path("novo-compromisso/", views.novo_compromisso, name="novo_compromisso"),
 ]

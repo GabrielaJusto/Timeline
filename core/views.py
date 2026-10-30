@@ -90,3 +90,39 @@ def agenda(request):
   return render(request, "agenda.html", {"aulas": aulas})
 
 
+def agenda_semanal(request):
+    from .models import Aula
+
+    data_atual = timezone.localdate()
+    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
+    dias_semana = [inicio_semana + timedelta(days=i) for i in range(7)]
+
+    dias = []
+
+    for i, data in enumerate(dias_semana, start=1):
+        aulas_do_dia = Aula.objects.filter(
+            dia_semana=i
+        ).select_related("disciplina").order_by("hora_inicio")
+
+        dias.append({
+            "data": data,
+            "aulas": aulas_do_dia,
+        })
+
+    fim_semana = dias_semana[-1]
+
+    aulas = Aula.objects.select_related("disciplina").all().order_by(
+        "dia_semana", "hora_inicio"
+    )
+
+    return render(request, "agenda-semana.html", {
+        "aulas": aulas,
+        "data_atual": data_atual,
+        "inicio_semana": inicio_semana,
+        "fim_semana": fim_semana,
+        "dias_semana": dias_semana,
+        "dias": dias,
+    })
+
+def novo_compromisso(request):
+    return render(request, "novo-compromisso.html")

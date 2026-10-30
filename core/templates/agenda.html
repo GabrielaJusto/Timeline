@@ -45,7 +45,7 @@
 
       <!-- Sistema de abas funcionais -->
       <div class="tabs">
-        <a href="hoje.html"class="tab active">Dia</a>
+        <a href="{% url 'agenda' %}" class="tab active">Dia</a>
         <button class="tab">Semana</button>
         <button class="tab">Matéria</button>
       </div>
@@ -53,26 +53,21 @@
       <div class="box">
         <h3>Compromissos do dia</h3>
 
-        <div class="event">
-          <span class="time">09:00</span>
-          <div>
-            <h4>Aula</h4>
-            <p style="font-size:12px; color:#64748b; margin-bottom:5px;">Cálculo 2</p>
-            <span class="pill">Aula</span>
-            <span class="pill">Pendente</span>
-          </div>
-        </div>
-
-        <div class="event">
-          <span class="time">14:00</span>
-          <div>
-            <h4>Entrega — Lista Contabilidade</h4>
-            <p style="font-size:12px; color:#64748b; margin-bottom:5px;">Contabilidade</p>
-            <span class="pill">Entrega</span>
-            <span class="pill pill-yellow">Prioridade Alta</span>
-          </div>
-        </div>
-      </div>
+{% for aula in aulas %}
+<div class="event">
+    <span class="time">{{ aula.hora_inicio|time:"H:i" }}</span>
+    <div>
+        <h4>Aula</h4>
+        <p style="font-size:12px; color:#64748b; margin-bottom:5px;">
+            {{ aula.disciplina.nome }}
+        </p>
+        <span class="pill">Aula</span>
+        <span class="pill">{{ aula.local }}</span>
+    </div>
+</div>
+{% empty %}
+<p>Nenhuma aula cadastrada.</p>
+{% endfor %}
     </div>
 
     <div class="col-side">

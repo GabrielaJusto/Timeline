@@ -46,9 +46,9 @@
                 </div>
 
                 <div class="dias">
-                    {% for dia in dias %}
+                    {% for dia in dias_semana %}
                     <div class="dia">
-                        <h3>{{ dia.nome }}</h3>
+                        <h3>{{ dia|date:"l, d/m" }}</h3>
                         {% for evento in dia.eventos %}
                         <a href="?semana={{ dias.0.data|date:'Y-m-d' }}&evento={{ evento.chave }}"
                            class="evento{% if selecionado and evento.chave == selecionado.chave %} selecionado{% endif %}">
