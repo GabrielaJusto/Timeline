@@ -3,10 +3,11 @@ from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render
 from .models import Atividade
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from .forms import AtividadeForm
 from datetime import datetime, time
 from .forms import CompromissoForm
+from .models import Atividade, Compromisso
 
 
 def hoje(request):
@@ -142,3 +143,16 @@ def novo_compromisso(request):
         form = CompromissoForm()
 
     return render(request, "novo-compromisso.html", {"form": form})
+
+def excluir_compromisso(request, compromisso_id):
+    compromisso = get_object_or_404(
+        Compromisso,
+        id=compromisso_id,
+        usuario_id=1
+    )
+
+    if request.method == "POST":
+        compromisso.delete()
+        return redirect("agenda_semana")
+
+    return redirect("agenda_semana")
