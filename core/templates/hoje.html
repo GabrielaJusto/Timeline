@@ -80,7 +80,7 @@
                     <span>Abra espaço para o que importa. Comece pelo próximo passo.</span>
                 </div>
 
-                <a href="adicionar-tarefa.html">+ Adicionar uma tarefa</a>
+                <a href="{% url 'adicionar_tarefa' %}">+ Adicionar uma tarefa</a>
 
             </div>
 
@@ -165,7 +165,9 @@
 
                                 <p>
                                     Disciplina:
-                                    {% if atividade.disciplina %}
+                                    {% if atividade.nome_disciplina %}
+                                        {{ atividade.nome_disciplina }}
+                                    {% elif atividade.disciplina %}
                                         {{ atividade.disciplina.nome }}
                                     {% else %}
                                         Sem disciplina
@@ -192,7 +194,7 @@
                                 seu próximo passo.
                             </p>
 
-                            <a href="{% url 'adicionar_tarefa' %}">
+                            <a href="{% url 'adicionar_tarefa' %}">+ Adicionar uma tarefa</a>
                                 + Adicionar uma tarefa
                             </a>
                         </div>

@@ -7,7 +7,7 @@ from django.shortcuts import redirect, get_object_or_404
 from .forms import AtividadeForm
 from datetime import datetime, time
 from .forms import CompromissoForm
-from .models import Atividade, Compromisso
+from .models import Atividade, Compromisso, Disciplina 
 
 
 def hoje(request):
@@ -53,6 +53,11 @@ def adicionar_tarefa(request):
             atividade.prazo = timezone.make_aware(prazo)
 
             atividade.usuario_id = 1  # Provisório para testes
+
+            nome_disciplina = form.cleaned_data["nome_disciplina"].strip()
+
+            atividade.nome_disciplina = nome_disciplina
+
             atividade.save()
 
             return redirect("hoje")
