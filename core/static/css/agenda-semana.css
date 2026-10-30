@@ -395,3 +395,14 @@ body {
     font-size: 13px;
     color: #9699aa;
 }
+.visao-semanal .dias {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+.visao-semanal .dia {
+    min-width: 0;
+    min-height: 250px;
+}

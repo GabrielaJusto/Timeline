@@ -6,6 +6,7 @@ from .models import Atividade
 from django.shortcuts import redirect
 from .forms import AtividadeForm
 from datetime import datetime, time
+from .forms import CompromissoForm
 
 
 def hoje(request):
@@ -91,7 +92,7 @@ def agenda(request):
 
 
 def agenda_semanal(request):
-    from .models import Aula
+    from .models import Aula, Compromisso
 
     data_atual = timezone.localdate()
     inicio_semana = data_atual - timedelta(days=data_atual.weekday())
@@ -104,9 +105,14 @@ def agenda_semanal(request):
             dia_semana=i
         ).select_related("disciplina").order_by("hora_inicio")
 
+        compromissos_do_dia = Compromisso.objects.filter(
+            inicio__date=data
+        ).order_by("inicio")
+
         dias.append({
             "data": data,
             "aulas": aulas_do_dia,
+            "compromissos": compromissos_do_dia,
         })
 
     fim_semana = dias_semana[-1]
@@ -125,4 +131,14 @@ def agenda_semanal(request):
     })
 
 def novo_compromisso(request):
-    return render(request, "novo-compromisso.html")
+    if request.method == "POST":
+        form = CompromissoForm(request.POST)
+        if form.is_valid():
+            compromisso = form.save(commit=False)
+            compromisso.usuario_id = 1  # Provisório para testes
+            compromisso.save()
+            return redirect("agenda_semana")
+    else:
+        form = CompromissoForm()
+
+    return render(request, "novo-compromisso.html", {"form": form})
