@@ -312,12 +312,12 @@
 
 
             <div class="campo">
-                <label for="disciplina">
+                <label for="{{ form.disciplina.id_for_label }}">
                     Disciplina <span>opcional</span>
                 </label>
 
-                {{ form.disciplina }}
-                {{ form.disciplina.errors }}
+                {{ form.nome_disciplina }}
+                {{ form.nome_disciplina.errors }}
             </div>
 
 

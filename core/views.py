@@ -3,10 +3,11 @@ from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render
 from .models import Atividade
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from .forms import AtividadeForm
 from datetime import datetime, time
 from .forms import CompromissoForm
+from .models import Atividade, Compromisso, Disciplina 
 
 
 def hoje(request):
@@ -52,6 +53,11 @@ def adicionar_tarefa(request):
             atividade.prazo = timezone.make_aware(prazo)
 
             atividade.usuario_id = 1  # Provisório para testes
+
+            nome_disciplina = form.cleaned_data["nome_disciplina"].strip()
+
+            atividade.nome_disciplina = nome_disciplina
+
             atividade.save()
 
             return redirect("hoje")
@@ -142,3 +148,39 @@ def novo_compromisso(request):
         form = CompromissoForm()
 
     return render(request, "novo-compromisso.html", {"form": form})
+
+def excluir_compromisso(request, compromisso_id):
+    compromisso = get_object_or_404(
+        Compromisso,
+        id=compromisso_id,
+        usuario_id=1
+    )
+
+    if request.method == "POST":
+        compromisso.delete()
+        return redirect("agenda_semana")
+
+    return redirect("agenda_semana")
+
+def progresso(request):
+    atividades = Atividade.objects.filter(usuario_id=1)
+
+    total = atividades.count()
+
+    concluidas = atividades.filter(
+        status="concluida"
+    ).count()
+
+    percentual = round(
+        (concluidas / total) * 100
+    ) if total > 0 else 0
+
+    return render(request, "progresso.html", {
+        "total": total,
+        "concluidas": concluidas,
+        "percentual": percentual,
+        "por_disciplina": [],
+    })
+
+def configuracoes(request):
+    return render(request, "configuracoes.html")
