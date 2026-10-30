@@ -156,3 +156,26 @@ def excluir_compromisso(request, compromisso_id):
         return redirect("agenda_semana")
 
     return redirect("agenda_semana")
+
+def progresso(request):
+    atividades = Atividade.objects.filter(usuario_id=1)
+
+    total = atividades.count()
+
+    concluidas = atividades.filter(
+        status="concluida"
+    ).count()
+
+    percentual = round(
+        (concluidas / total) * 100
+    ) if total > 0 else 0
+
+    return render(request, "progresso.html", {
+        "total": total,
+        "concluidas": concluidas,
+        "percentual": percentual,
+        "por_disciplina": [],
+    })
+
+def configuracoes(request):
+    return render(request, "configuracoes.html")

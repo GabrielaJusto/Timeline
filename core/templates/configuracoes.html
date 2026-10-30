@@ -1,11 +1,12 @@
-!DOCTYPE html>
+{% load static %}
+<!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline - Configurações</title>
-    <link rel="stylesheet" href="configuracoes.css">
+    <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
 </head>
 
 <body>
@@ -28,12 +29,12 @@
 
         <!-- Ajuste os links se os arquivos do projeto tiverem outros nomes. -->
         <nav class="menu" aria-label="Menu principal">
-            <a href="hoje.html">☼ &nbsp; Hoje</a>
-            <a href="index.html">◷ &nbsp; Agenda</a>
-            <a href="calendario.html">▦ &nbsp; Calendário</a>
-            <a href="tarefas.html">☷ &nbsp; Tarefas</a>
-            <a href="progresso.html">▥ &nbsp; Progresso</a>
-            <a href="configuracoes.html" class="ativo" aria-current="page">
+            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
+            <a href="#">▦ &nbsp; Calendário</a>
+            <a href="#">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+            <a href="{% url 'configuracoes' %}" class="ativo" aria-current="page">
                 ☷ &nbsp; Configurações
             </a>
         </nav>
@@ -69,8 +70,8 @@
                     placeholder="Buscar tarefas"
                     aria-label="Buscar tarefas"
                 >
-                <a href="notificacoes.html" aria-label="Notificações">🔔</a>
-                <a href="configuracoes.html" aria-label="Configurações">☷</a>
+                <a href="#" aria-label="Notificações">🔔</a>
+                <a href="{% url 'configuracoes' %}" aria-label="Configurações">☷</a>
             </div>
 
         </div>
@@ -87,7 +88,7 @@
                     <span>Como funciona o salvamento nesta versão.</span>
                 </div>
 
-                <a href="adicionar-tarefa.html" class="botao-adicionar">
+                <a href="{% url 'adicionar_tarefa' %}" class="botao-adicionar">
                     + Adicionar tarefa
                 </a>
 
@@ -163,11 +164,11 @@
                 <!-- BOTÕES -->
                 <div class="botoes-configuracoes">
 
-                    <a href="tarefas.html" class="botao-configuracoes">
+                    <a href="{% url 'hoje' %}" class="botao-configuracoes">
                         Minhas tarefas
                     </a>
 
-                    <a href="progresso.html" class="botao-configuracoes">
+                    <a href="{% url 'progresso' %}" class="botao-configuracoes">
                         Meu progresso
                     </a>
 
