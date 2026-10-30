@@ -1,0 +1,464 @@
+
+/* Configurações gerais */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f7f7fc;
+    color: #20233c;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+/* Menu lateral */
+aside {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 190px;
+    background: #ffffff;
+    border-right: 1px solid #e6e6f0;
+    padding: 28px 15px;
+}
+
+aside h2 {
+    margin: 0 0 35px;
+    font-size: 22px;
+}
+
+aside nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+aside nav a {
+    display: block;
+    padding: 13px 12px;
+    border-radius: 9px;
+    color: #62667d;
+    text-decoration: none;
+}
+
+aside nav a:hover,
+aside nav a[href="/planejamento/"] {
+    background: #eeeaff;
+    color: #5b45d6;
+}
+
+/* Conteúdo principal */
+main {
+    max-width: 1250px;
+    margin-left: 190px;
+    padding: 32px;
+}
+
+header {
+    position: relative;
+    margin-bottom: 25px;
+    padding-right: 230px;
+}
+
+header > p:first-child {
+    color: #6851d8;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+header h1 {
+    margin: 12px 0;
+    font-size: 30px;
+}
+
+header > p {
+    color: #777b90;
+    line-height: 1.6;
+}
+
+header button {
+    position: absolute;
+    top: 12px;
+    right: 0;
+}
+
+/* Seções */
+section {
+    margin-bottom: 16px;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e4e5ee;
+    border-radius: 15px;
+    box-shadow: 0 3px 12px rgba(35, 35, 75, 0.035);
+}
+
+section h2 {
+    margin: 0 0 8px;
+    font-size: 17px;
+}
+
+section > p {
+    margin: 0 0 22px;
+    color: #888ca0;
+    font-size: 12px;
+}
+
+/* Botões */
+button {
+    padding: 11px 17px;
+    background: #eeeaff;
+    border: 0;
+    border-radius: 9px;
+    color: #5b45d6;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #ddd5ff;
+}
+
+header button,
+section:last-child button:last-child {
+    background: #6048d8;
+    color: #ffffff;
+}
+
+header button:hover,
+section:last-child button:last-child:hover {
+    background: #4d35bd;
+}
+
+/* Disponibilidade semanal */
+section:first-of-type > div {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 20px;
+}
+
+section:first-of-type label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 6px;
+    background: #f8f9fc;
+    border: 1px solid #e7e9f1;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+section:first-of-type input {
+    width: 65px;
+    padding: 8px;
+    border: 1px solid #e0e3ee;
+    border-radius: 7px;
+    text-align: center;
+}
+
+/* Cartões do resumo */
+section:nth-of-type(2) > div {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+section:nth-of-type(2) article {
+    padding: 22px 15px;
+    background: #f8f7ff;
+    border: 1px solid #eae7fa;
+    border-radius: 12px;
+}
+
+section:nth-of-type(2) article:nth-child(2) {
+    background: #f4faff;
+}
+
+section:nth-of-type(2) article:nth-child(3) {
+    background: #f3fbf7;
+}
+
+section:nth-of-type(2) article:nth-child(4) {
+    background: #fff7f8;
+}
+
+section:nth-of-type(2) article h3 {
+    margin: 0 0 8px;
+    font-size: 25px;
+}
+
+section:nth-of-type(2) article p {
+    margin: 0;
+    color: #777b90;
+    font-size: 12px;
+}
+
+/* Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+th, td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e9eaf2;
+    text-align: left;
+}
+
+thead {
+    background: #f5f6fa;
+}
+
+th {
+    color: #555a72;
+    font-weight: 600;
+}
+
+tbody tr:hover {
+    background: #fafaff;
+}
+
+/* Calendário */
+#calendario-semanal {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e5e6ee;
+    border-radius: 12px;
+}
+
+#calendario-semanal table {
+    min-width: 850px;
+}
+
+#calendario-semanal th,
+#calendario-semanal td {
+    min-width: 105px;
+    height: 90px;
+    border: 1px solid #e8e9f2;
+    vertical-align: top;
+}
+
+#calendario-semanal tbody td:not(:empty) {
+    background: #eae4ff;
+    color: #4532a0;
+    font-weight: 600;
+}
+
+/* Ações finais */
+section:last-child {
+    text-align: center;
+}
+
+section:last-child h2 {
+    text-align: left;
+}
+
+section:last-child button {
+    width: 42%;
+    margin: 10px 1%;
+}
+
+/* Telas menores */
+@media (max-width: 900px) {
+    aside {
+        width: 140px;
+    }
+
+    main {
+        margin-left: 140px;
+        padding: 18px;
+    }
+
+    section:first-of-type > div {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    section:nth-of-type(2) > div {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    aside {
+        position: static;
+        width: 100%;
+        padding: 15px;
+    }
+
+    aside nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    main {
+        margin-left: 0;
+        padding: 12px;
+    }
+
+    header {
+        padding-right: 0;
+    }
+
+    header button {
+        position: static;
+        margin-top: 12px;
+    }
+
+    section {
+        padding: 15px;
+    }
+
+    section:first-of-type > div {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    section:last-child button {
+        width: 100%;
+        margin: 6px 0;
+    }
+}
+
+/* Ajustes de largura e alinhamento */
+
+main {
+    max-width: none;
+    min-width: 0;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-right: 0;
+}
+
+header button {
+    position: static;
+    align-self: flex-end;
+    margin-top: -80px;
+    margin-bottom: 25px;
+    white-space: nowrap;
+}
+
+section:first-of-type > div {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+section:first-of-type label {
+    min-width: 0;
+}
+
+section:first-of-type input {
+    width: 100%;
+    max-width: 65px;
+}
+
+/* Ajustes para janelas menores */
+@media (max-width: 1100px) {
+    header button {
+        align-self: flex-start;
+        margin-top: 12px;
+        margin-bottom: 0;
+    }
+
+    section:first-of-type > div {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    section:first-of-type > div {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* Sessões geradas pelo algoritmo */
+
+#calendario-semanal td {
+    vertical-align: top;
+    background: #ffffff;
+}
+
+#calendario-semanal tbody td:not(:empty) {
+    background: #ffffff;
+    color: #20233c;
+    font-weight: normal;
+}
+
+.sessao-estudo {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 9px;
+    background: #eae4ff;
+    color: #4532a0;
+    font-size: 12px;
+}
+
+.sessao-estudo strong {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.sessao-estudo p {
+    margin: 0;
+}
+
+.sem-atividade {
+    color: #9a9dad;
+    font-size: 11px;
+}
+
+#calendario-semanal th small {
+    display: block;
+    margin-top: 5px;
+    font-weight: normal;
+}
+
+
+/* Disponibilidade editável */
+.campos-disponibilidade {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 9px;
+    margin: 20px 0;
+}
+
+.campos-disponibilidade label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 6px;
+    background: #f8f9fc;
+    border: 1px solid #e7e9f1;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.campos-disponibilidade input {
+    width: 65px;
+    padding: 8px;
+    border: 1px solid #e0e3ee;
+    border-radius: 7px;
+    text-align: center;
+}
+
+@media (max-width: 1100px) {
+    .campos-disponibilidade {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .campos-disponibilidade {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+

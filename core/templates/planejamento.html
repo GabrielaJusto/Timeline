@@ -1,0 +1,313 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejamento Inteligente | Timeline</title>
+    <link rel="stylesheet" href="{% static 'css/planejamento.css' %}">
+</head>
+<body>
+
+    <!-- MENU LATERAL -->
+    <aside>
+        <h2>Timeline</h2>
+        <nav>
+            <a href="/hoje/">Hoje</a>
+            <a href="/agenda/">Agenda</a>
+            <a href="/planejamento/">Planejamento</a>
+            <a href="/adicionar-tarefa/">Adicionar tarefa</a>
+        </nav>
+    </aside>
+
+    <main>
+
+        <!-- CABEÇALHO -->
+        <header>
+            <p>ORGANIZAÇÃO SEMANAL</p>
+            <h1>Planejamento Inteligente</h1>
+            <p>
+                Uma sugestão personalizada para organizar
+                seus estudos com leveza.
+            </p>
+            <button type="submit" form="form-disponibilidade">
+                Gerar novo planejamento
+            </button>
+        </header>
+
+        <!-- SEÇÃO 1: DISPONIBILIDADE -->
+        <section>
+            <h2>1. Seleção da semana e disponibilidade</h2>
+            <p>
+                Defina quantas horas você tem disponíveis
+                para estudar em cada dia.
+            </p>
+
+            <h3>
+                Semana de {{ semana_inicio|date:"d/m/Y" }}
+                a {{ semana_fim|date:"d/m/Y" }}
+            </h3>
+
+            <form
+                id="form-disponibilidade"
+                method="get"
+                action="{% url 'planejamento' %}"
+            >
+                <div class="campos-disponibilidade">
+
+                    <label>
+                        Segunda
+                        <input
+                            type="number"
+                            name="horas_0"
+                            value="{{ request.GET.horas_0|default:'4' }}"
+                            min="0"
+                            max="24"
+                            step="0.5"
+                        >
+                        horas
+                    </label>
+
+                    <label>
+                        Terça
+                        <input
+                            type="number"
+                            name="horas_1"
+                            value="{{ request.GET.horas_1|default:'3' }}"
+                            min="0"
+                            max="24"
+                            step="0.5"
+                        >
+                        horas
+                    </label>
+
+                    <label>
+                        Quarta
+                        <input
+                            type="number"
+                            name="horas_2"
+                            value="{{ request.GET.horas_2|default:'4' }}"
+                            min="0"
+                            max="24"
+                            step="0.5"
+                        >
+                        horas
+                    </label>
+
+                    <label>
+                        Quinta
+                        <input
+                            type="number"
+                            name="horas_3"
+                            value="{{ request.GET.horas_3|default:'3' }}"
+                            min="0"
+                            max="24"
+                            step="0.5"
+                        >
+                        horas
+                    </label>
+
+                    <label>
+                        Sexta
+                        <input
+                            type="number"
+                            name="horas_4"
+                            value="{{ request.GET.horas_4|default:'4' }}"
+                            min="0"
+                            max="24"
+                            step="0.5"
+                        >
+                        horas
+                    </label>
+
+                    <label>
+                        Sábado
+                        <input
+                            type="number"
+                            name="horas_5"
+                            value="{{ request.GET.horas_5|default:'6' }}"
+                            min="0"
+                            max="24"
+                            step="0.5"
+                        >
+                        horas
+                    </label>
+
+                    <label>
+                        Domingo
+                        <input
+                            type="number"
+                            name="horas_6"
+                            value="{{ request.GET.horas_6|default:'2' }}"
+                            min="0"
+                            max="24"
+                            step="0.5"
+                        >
+                        horas
+                    </label>
+
+                </div>
+
+                <button type="submit">
+                    Atualizar planejamento
+                </button>
+            </form>
+        </section>
+
+        
+<!-- SEÇÃO 2: RESUMO -->
+<section>
+    <h2>2. Resumo das atividades da semana</h2>
+
+    <div>
+        <article>
+            <h3>{{ total_atividades }}</h3>
+            <p>Atividades na semana</p>
+        </article>
+
+        <article>
+            <h3>{{ total_horas }}h</h3>
+            <p>Tempo total estimado</p>
+        </article>
+
+        <article>
+            <h3>{{ total_disciplinas }}</h3>
+            <p>Disciplinas</p>
+        </article>
+
+        <article>
+            <h3>{{ prazos_importantes }}</h3>
+            <p>Prazos importantes</p>
+        </article>
+    </div>
+</section>
+
+        
+
+        <!-- SEÇÃO 3: ATIVIDADES PRIORITÁRIAS -->
+        <section>
+            <h2>3. Atividades prioritárias</h2>
+            <p>
+                Ranking baseado em prazo, importância,
+                dificuldade e peso na nota.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Prioridade</th>
+                        <th>Atividade</th>
+                        <th>Disciplina</th>
+                        <th>Prazo</th>
+                        <th>Tempo</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in prioridades %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.atividade.titulo }}</td>
+                        <td>
+                            {{ item.atividade.disciplina.nome|default:"Sem disciplina" }}
+                        </td>
+                        <td>{{ item.atividade.prazo|date:"d/m/Y" }}</td>
+                        <td>
+                            {{ item.atividade.duracao_estimada_min|default_if_none:"60" }}
+                            min
+                        </td>
+                        <td>{{ item.score }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            Nenhuma atividade pendente cadastrada.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SEÇÃO 4: PLANEJAMENTO SUGERIDO -->
+        <section>
+            <h2>4. Planejamento sugerido</h2>
+            <p>
+                Sessões de estudo distribuídas automaticamente
+                de acordo com a prioridade e o tempo disponível.
+            </p>
+
+            <div id="calendario-semanal">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for dia in dias_semana %}
+                            <th>
+                                {{ dia.nome }}
+                                <small>
+                                    {{ dia.data|date:"d/m" }}
+                                </small>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            {% for dia in dias_semana %}
+                            <td>
+                                {% for sessao in dia.sessoes %}
+                                <div class="sessao-estudo">
+                                    <strong>
+                                        {{ sessao.atividade }}
+                                    </strong>
+                                    <p>
+                                        {{ sessao.duracao_min }} minutos
+                                    </p>
+                                </div>
+                                {% empty %}
+                                <span class="sem-atividade">
+                                    Sem estudo planejado
+                                </span>
+                                {% endfor %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        
+
+<!-- SEÇÃO 5: FINALIZAÇÃO -->
+<section>
+    <h2>5. Finalize seu planejamento</h2>
+
+    {% if mensagem %}
+        <p class="mensagem-sucesso">
+            {{ mensagem }}
+        </p>
+    {% endif %}
+
+    <button
+    type="button"
+    onclick="document.getElementById('form-disponibilidade').scrollIntoView({behavior: 'smooth'});"
+>
+    Ajustar planejamento
+</button>
+
+    <form method="post" action="{{ request.get_full_path }}">
+        {% csrf_token %}
+
+        <input type="hidden" name="acao" value="aceitar">
+
+        <button type="submit">
+            Aceitar planejamento
+        </button>
+    </form>
+</section>
+
