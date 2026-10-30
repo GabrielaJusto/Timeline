@@ -216,3 +216,25 @@ class AlertaCarga(models.Model):
 
     def __str__(self):
         return f"Alerta de carga {self.planejamento_id} - {self.nivel}"
+
+
+
+class SessaoPlanejada(models.Model):
+    planejamento = models.ForeignKey(
+        Planejamento,
+        on_delete=models.CASCADE,
+        related_name="sessoes"
+    )
+    atividade = models.ForeignKey(
+        Atividade,
+        on_delete=models.CASCADE
+    )
+    data = models.DateField()
+    duracao_min = models.PositiveIntegerField()
+
+    def __str__(self):
+        return (
+            f"{self.atividade.titulo} - "
+            f"{self.data} - {self.duracao_min} min"
+        )
+
