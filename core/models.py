@@ -131,6 +131,7 @@ class Atividade(models.Model):
         null=True, blank=True
     )
     titulo = models.CharField(max_length=120)
+    nome_disciplina = models.CharField(max_length=120, blank=True, default="")
     tipo = models.CharField(max_length=20, choices=TIPOS)
     prazo = models.DateTimeField()
     dificuldade = models.IntegerField(null=True, blank=True)

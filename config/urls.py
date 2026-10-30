@@ -31,3 +31,9 @@ urlpatterns = [
 
 
 
+    path("agenda/semana/", views.agenda_semanal, name="agenda_semana"),
+    path("novo-compromisso/", views.novo_compromisso, name="novo_compromisso"),
+    path("excluir-compromisso/<int:compromisso_id>/", views.excluir_compromisso, name="excluir_compromisso"),
+    path("progresso/", views.progresso, name="progresso"),
+    path("configuracoes/", views.configuracoes, name="configuracoes"),
+]

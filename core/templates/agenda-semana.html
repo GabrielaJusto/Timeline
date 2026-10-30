@@ -48,16 +48,36 @@
                 <div class="dias">
                     {% for dia in dias %}
                     <div class="dia">
-                        <h3>{{ dia.nome }}</h3>
-                        {% for evento in dia.eventos %}
-                        <a href="?semana={{ dias.0.data|date:'Y-m-d' }}&evento={{ evento.chave }}"
-                           class="evento{% if selecionado and evento.chave == selecionado.chave %} selecionado{% endif %}">
-                            <span class="evento-hora">{{ evento.hora|time:"H:i" }}</span>
-                            <span class="evento-nome">{{ evento.nome }}</span>
-                        </a>
-                        {% empty %}
-                        <p class="dia-vazio">Nada marcado</p>
+                        <h3>{{ dia.data|date:"l, d/m" }}</h3>
+                        {% for aula in dia.aulas %}
+                             <div class="evento">
+                                <span class="evento-hora">{{ aula.hora_inicio|time:"H:i" }}</span>
+                                <span class="evento-nome">{{ aula.disciplina.nome }}</span>
+                            </div>
                         {% endfor %}
+
+                        {% for compromisso in dia.compromissos %}
+                            <div class="evento">
+                                <span class="evento-hora">
+                                    {{ compromisso.inicio|date:"H:i" }}
+                                </span>
+
+                                <span class="evento-nome">
+                                    {{ compromisso.titulo }}
+                                </span>
+                                <form method="POST" action="{% url 'excluir_compromisso' compromisso.id %}" onsubmit="return confirm('Deseja realmente excluir este compromisso?')">
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="botao-excluir">
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+
+                        {% if not dia.aulas and not dia.compromissos %}
+                            <p class="dia-vazio">Nada marcado</p>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>

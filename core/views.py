@@ -19,6 +19,13 @@ from .planej import (
     distribuir_tempo,
 )
 
+from django.shortcuts import render
+from .models import Atividade
+from django.shortcuts import redirect, get_object_or_404
+from .forms import AtividadeForm
+from datetime import datetime, time
+from .forms import CompromissoForm
+from .models import Atividade, Compromisso, Disciplina 
 
 # ==========================================
 # PÁGINA HOJE
@@ -74,6 +81,11 @@ def adicionar_tarefa(request):
             atividade.prazo = timezone.make_aware(prazo)
 
             atividade.usuario_id = 1  # Provisório para testes
+
+            nome_disciplina = form.cleaned_data["nome_disciplina"].strip()
+
+            atividade.nome_disciplina = nome_disciplina
+
             atividade.save()
 
             return redirect("hoje")
@@ -347,3 +359,90 @@ def planejamento(request):
         "planejamento.html",
         contexto
     )
+def agenda_semanal(request):
+    from .models import Aula, Compromisso
+
+    data_atual = timezone.localdate()
+    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
+    dias_semana = [inicio_semana + timedelta(days=i) for i in range(7)]
+
+    dias = []
+
+    for i, data in enumerate(dias_semana, start=1):
+        aulas_do_dia = Aula.objects.filter(
+            dia_semana=i
+        ).select_related("disciplina").order_by("hora_inicio")
+
+        compromissos_do_dia = Compromisso.objects.filter(
+            inicio__date=data
+        ).order_by("inicio")
+
+        dias.append({
+            "data": data,
+            "aulas": aulas_do_dia,
+            "compromissos": compromissos_do_dia,
+        })
+
+    fim_semana = dias_semana[-1]
+
+    aulas = Aula.objects.select_related("disciplina").all().order_by(
+        "dia_semana", "hora_inicio"
+    )
+
+    return render(request, "agenda-semana.html", {
+        "aulas": aulas,
+        "data_atual": data_atual,
+        "inicio_semana": inicio_semana,
+        "fim_semana": fim_semana,
+        "dias_semana": dias_semana,
+        "dias": dias,
+    })
+
+def novo_compromisso(request):
+    if request.method == "POST":
+        form = CompromissoForm(request.POST)
+        if form.is_valid():
+            compromisso = form.save(commit=False)
+            compromisso.usuario_id = 1  # Provisório para testes
+            compromisso.save()
+            return redirect("agenda_semana")
+    else:
+        form = CompromissoForm()
+
+    return render(request, "novo-compromisso.html", {"form": form})
+
+def excluir_compromisso(request, compromisso_id):
+    compromisso = get_object_or_404(
+        Compromisso,
+        id=compromisso_id,
+        usuario_id=1
+    )
+
+    if request.method == "POST":
+        compromisso.delete()
+        return redirect("agenda_semana")
+
+    return redirect("agenda_semana")
+
+def progresso(request):
+    atividades = Atividade.objects.filter(usuario_id=1)
+
+    total = atividades.count()
+
+    concluidas = atividades.filter(
+        status="concluida"
+    ).count()
+
+    percentual = round(
+        (concluidas / total) * 100
+    ) if total > 0 else 0
+
+    return render(request, "progresso.html", {
+        "total": total,
+        "concluidas": concluidas,
+        "percentual": percentual,
+        "por_disciplina": [],
+    })
+
+def configuracoes(request):
+    return render(request, "configuracoes.html")
