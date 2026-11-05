@@ -150,8 +150,45 @@ def agenda(request):
         .order_by("dia_semana", "hora_inicio")
     )
 
+    # Identificar o dia da semana atual
+    data_atual = timezone.localdate()
+    dia_atual = data_atual.isoweekday()
+
+    # Buscar somente as aulas de hoje
+    aulas_hoje = aulas.filter(dia_semana=dia_atual)
+
+    # Buscar os compromissos cadastrados para hoje
+    compromissos_hoje = (
+        Compromisso.objects
+        .filter(inicio__date=data_atual)
+        .order_by("inicio")
+)
+
+    # Buscar as tarefas cadastradas
+    atividades = Atividade.objects.all()
+
+    # Buscar as tarefas que ainda não foram concluídas
+    tarefas_pendentes = atividades.exclude(status="concluida").order_by("prazo")[:5]
+
+    # Calcular o progresso real
+    total_tarefas = atividades.count()
+    tarefas_concluidas = atividades.filter(status="concluida").count()
+
+    # Calcular a porcentagem
+    if total_tarefas > 0:
+        percentual_tarefas = round(
+            (tarefas_concluidas / total_tarefas) * 100
+        )
+    else:
+        percentual_tarefas = 0
+
     return render(request, "agenda.html", {
-        "aulas": aulas
+        "aulas": aulas_hoje,
+        "compromissos": compromissos_hoje,
+        "total_tarefas": total_tarefas,
+        "tarefas_concluidas": tarefas_concluidas,
+        "percentual_tarefas": percentual_tarefas,
+        "tarefas_pendentes": tarefas_pendentes,
     })
 
 
