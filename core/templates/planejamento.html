@@ -14,10 +14,13 @@
     <aside>
         <h2>Timeline</h2>
         <nav>
-            <a href="/hoje/">Hoje</a>
-            <a href="/agenda/">Agenda</a>
-            <a href="/planejamento/">Planejamento</a>
-            <a href="/adicionar-tarefa/">Adicionar tarefa</a>
+            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
+            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'planejamento' %}" class="ativo">✧ &nbsp; Planejamento Inteligente</a>
+            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
         </nav>
     </aside>
 

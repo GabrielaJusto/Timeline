@@ -5,6 +5,8 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
 
 from .forms import AtividadeForm
 from .models import (
@@ -32,7 +34,7 @@ from .models import Atividade, Compromisso, Disciplina
 # ==========================================
 
 def hoje(request):
-    atividades = Atividade.objects.all().order_by("prazo")
+    atividades = Atividade.objects.exclude(status="concluida").order_by("prazo")
 
     data_atual = timezone.localdate()
     inicio_semana = data_atual - timedelta(days=data_atual.weekday())
@@ -44,9 +46,9 @@ def hoje(request):
 
     fim_semana = dias_semana[-1]
 
-    total_atividades = atividades.count()
-    concluidas = atividades.filter(status="concluida").count()
-    pendentes = atividades.exclude(status="concluida").count()
+    total_atividades = Atividade.objects.count()
+    concluidas = Atividade.objects.filter(status="concluida").count()
+    pendentes = Atividade.objects.exclude(status="concluida").count()
 
     return render(request, "hoje.html", {
         "atividades": atividades,
@@ -446,3 +448,33 @@ def progresso(request):
 
 def configuracoes(request):
     return render(request, "configuracoes.html")
+
+
+def tarefas(request):
+    atividades = Atividade.objects.all().order_by("prazo")
+
+    pendentes = atividades.exclude(status="concluida").count()
+    concluidas = atividades.filter(status="concluida").count()
+
+    return render(request, "tarefas.html", {
+        "atividades": atividades,
+        "pendentes": pendentes,
+        "concluidas": concluidas,
+    })
+
+
+@require_POST
+def alternar_status_tarefa(request, atividade_id):
+    atividade = get_object_or_404(Atividade, id=atividade_id)
+
+    if atividade.status == "concluida":
+        atividade.status = "planejada"
+    else:
+        atividade.status = "concluida"
+
+    atividade.save(update_fields=["status"])
+
+    return redirect("tarefas")
+
+def notificacoes(request):
+    return render(request, "notificacoes.html")

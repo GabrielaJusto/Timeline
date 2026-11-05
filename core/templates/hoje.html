@@ -26,12 +26,13 @@
         <h3 class="titulo-menu">SEU ESPAÇO</h3>
 
         <div class="menu">
-            <p class="ativo">☼ &nbsp; Hoje</p>
-            <p>◷ &nbsp; Agenda</p>
-            <p>▦ &nbsp; Calendário</p>
-            <p>☷ &nbsp; Tarefas</p>
-            <p>▥ &nbsp; Progresso</p>
-            <p>☷ &nbsp; Configurações</p>
+            <a href="{% url 'hoje' %}" class="ativo">☼ &nbsp; Hoje</a>
+            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
+            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
         </div>
 
         <div class="frase-lateral">
@@ -61,7 +62,7 @@
 
             <div class="acoes-superiores">
                 <input type="text" placeholder="Buscar tarefas">
-                <span>🔔</span>
+                <a href="{% url 'notificacoes' %}" style="text-decoration: none; color: inherit;">🔔</a>
                 <span>☷</span>
             </div>
 
@@ -258,9 +259,9 @@
                             <strong>0%</strong>
                         </div>
 
-                        <p class="link-semana">
-                            Ver tarefas de 30 de set. &nbsp; →
-                        </p>
+                        <a href="{% url 'agenda_semana' %}" class="link-semana">
+                            Ver programação da semana &nbsp; →
+                        </a>
 
                     </div>
 

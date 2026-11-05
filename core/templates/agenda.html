@@ -5,7 +5,11 @@
   <title>Timeline - Agenda</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-    body { background: #f8fafc; color: #1e293b; padding: 20px; }
+    body {
+        background: #f8fafc;
+        color: #1e293b;
+        padding: 20px 20px 20px 270px;
+    }
 
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     header a { text-decoration: none; color: inherit; }
@@ -28,9 +32,60 @@
 
     .bar { background: #e0e7ff; height: 6px; border-radius: 3px; margin: 5px 0 12px 0; }
     .fill { background: #6366f1; height: 100%; border-radius: 3px; }
+
+    .sidebar-agenda {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        height: 100vh;
+        background: #fff;
+        border-right: 1px solid #e2e8f0;
+        padding: 30px 18px;
+        overflow-y: auto;
+    }
+
+    .sidebar-agenda h2 {
+        color: #5554dd;
+        margin-bottom: 35px;
+        font-size: 24px;
+    }
+
+    .menu-agenda a {
+        display: block;
+        padding: 14px 15px;
+        margin: 3px 0;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #48516d;
+        text-decoration: none;
+    }
+
+    .menu-agenda a:hover {
+        background: #f5f5ff;
+    }
+
+    .menu-agenda .ativo {
+        background: #eeeeff;
+        color: #5554dd;
+        font-weight: bold;
+    }
   </style>
 </head>
 <body>
+  
+  <aside class="sidebar-agenda">
+    <h2>Timeline</h2>
+    <nav class="menu-agenda">
+      <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+      <a href="{% url 'agenda' %}" class="ativo">◷ &nbsp; Agenda</a>
+      <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+      <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+      <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+      <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+      <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+    </nav>
+  </aside>
 
   <header>
     <!-- Clicar no nome volta para a página inicial -->

@@ -1,33 +1,111 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8"><title>Timeline - Notificações</title>
-<link rel="stylesheet" href="{% static 'css/notificacoes.css' %}"></head>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Notificações</title>
+    <link rel="stylesheet" href="{% static 'css/notificacoes.css' %}">
+</head>
+
 <body>
-<header><a href="{% url 'inicio' %}"><strong>Timeline</strong></a>
-<button class="user-btn">Dados do banco</button></header>
-<div class="tela"><h1>Notificações</h1>
-{% for alerta in alertas %}
-<div class="aviso amarelo"><h4>⚠ {{ alerta.nivel }}</h4>
-<p>{{ alerta.recomendacao|default:"Verifique seu planejamento." }}</p>
-<a href="{% url 'progresso' %}">Ver progresso</a></div>
-{% endfor %}
-{% if total_semana >= 3 %}
-<div class="aviso amarelo"><h4>⚠ Semana com muitas atividades</h4>
-<p>{{ total_semana }} atividades previstas nos próximos 7 dias.</p>
-<a href="{% url 'progresso' %}">Ver progresso</a></div>
-{% endif %}
-{% for atividade in atrasadas %}
-<div class="aviso vermelho"><h4>! Atividade atrasada</h4>
-<p>{{ atividade.titulo }} — {{ atividade.prazo|date:"d/m/Y H:i" }}</p></div>
-{% endfor %}
-{% for atividade in atividades %}
-<div class="aviso"><h4>ⓘ Atividade próxima</h4>
-<p>{{ atividade.titulo }}{% if atividade.disciplina %} — {{ atividade.disciplina.nome }}{% endif %} ({{ atividade.prazo|date:"d/m/Y H:i" }})</p></div>
-{% empty %}
-{% if not atrasadas and not alertas %}<div class="aviso verde"><h4>✓ Tudo em dia</h4>
-<p>Nenhuma atividade próxima cadastrada.</p></div>{% endif %}
-{% endfor %}
-<hr><div class="aviso verde"><h4>✓ Nova atividade</h4>
-<a href="{% url 'cadastrar_atividade_cacau' %}">Cadastrar atividade</a></div>
-</div></body></html>
+
+    <!-- MENU LATERAL -->
+    <aside class="sidebar-notificacoes">
+        <h2>Timeline</h2>
+
+        <nav class="menu-notificacoes">
+            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
+            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+        </nav>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="conteudo-notificacoes">
+
+        <header>
+            <div>
+                <h1>Notificações</h1>
+                <p class="subtitulo">
+                    Acompanhe seus avisos e mantenha suas atividades em dia.
+                </p>
+            </div>
+
+            <span class="user-btn">Dados do banco</span>
+        </header>
+
+        <!-- ALERTAS DO PLANEJAMENTO -->
+        {% for alerta in alertas %}
+            <div class="aviso amarelo">
+                <h4>⚠ {{ alerta.nivel }}</h4>
+                <p>
+                    {{ alerta.recomendacao|default:"Verifique seu planejamento." }}
+                </p>
+                <a href="{% url 'progresso' %}">Ver progresso</a>
+            </div>
+        {% endfor %}
+
+        <!-- SEMANA COM MUITAS ATIVIDADES -->
+        {% if total_semana >= 3 %}
+            <div class="aviso amarelo">
+                <h4>⚠ Semana com muitas atividades</h4>
+                <p>
+                    {{ total_semana }} atividades previstas nos próximos 7 dias.
+                </p>
+                <a href="{% url 'progresso' %}">Ver progresso</a>
+            </div>
+        {% endif %}
+
+        <!-- ATIVIDADES ATRASADAS -->
+        {% for atividade in atrasadas %}
+            <div class="aviso vermelho">
+                <h4>! Atividade atrasada</h4>
+                <p>
+                    {{ atividade.titulo }} —
+                    {{ atividade.prazo|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+        {% endfor %}
+
+        <!-- ATIVIDADES PRÓXIMAS -->
+        {% for atividade in atividades %}
+            <div class="aviso">
+                <h4>ⓘ Atividade próxima</h4>
+                <p>
+                    {{ atividade.titulo }}
+
+                    {% if atividade.disciplina %}
+                        — {{ atividade.disciplina.nome }}
+                    {% endif %}
+
+                    ({{ atividade.prazo|date:"d/m/Y H:i" }})
+                </p>
+            </div>
+        {% empty %}
+            {% if not atrasadas and not alertas %}
+                <div class="aviso verde">
+                    <h4>✓ Tudo em dia</h4>
+                    <p>Nenhuma atividade próxima cadastrada.</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <!-- CADASTRAR ATIVIDADE -->
+        <div class="aviso verde">
+            <h4>+ Nova atividade</h4>
+            <a href="{% url 'adicionar_tarefa' %}">
+                Cadastrar atividade
+            </a>
+        </div>
+
+    </main>
+
+</body>
+</html>
