@@ -1,21 +1,144 @@
+
 {% load static %}
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
-<title>Timeline - Progresso</title>
-<link rel="stylesheet" href="{% static 'css/progresso.css' %}"></head>
-<body><header><a href="{% url 'inicio' %}"><strong>Timeline</strong></a>
-<button class="user-btn">Dados do banco</button></header>
-<div class="tela"><h1>Seu Progresso</h1><p class="subtitulo">Siga nesse ritmo</p>
-<div class="cards"><div class="box"><h3>Concluídas</h3>
-<p class="numero">{{ concluidas }} / {{ total }}</p></div>
-<div class="box"><h3>Taxa de conclusão</h3><p class="numero">{{ percentual }}%</p></div></div>
-<div class="box"><h3>Progresso das atividades</h3>
-<div class="bar" style="margin-top:12px;"><div class="fill" style="width:{{ percentual }}%;"></div></div>
-<p class="texto-cinza">{{ concluidas }} de {{ total }} atividades concluídas</p></div>
-<div class="box"><h3>Distribuição de tempo concluído</h3>
-{% for item in por_disciplina %}
-<p class="linha"><span>{{ item.disciplina__nome }}</span>
-<strong>{{ item.minutos|default:0 }} min</strong></p>
-{% empty %}<p class="texto-cinza">Ainda não há tempo registrado em atividades concluídas.</p>
-{% endfor %}</div>
-<a href="{% url 'adicionar_tarefa' %}">Cadastrar atividade</a>
-</div></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Progresso</title>
+    <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
+    <link rel="stylesheet" href="{% static 'css/progresso.css' %}">
+</head>
+
+<body>
+
+    
+    <!-- MENU LATERAL -->
+    <div class="menu-lateral">
+
+        <div class="logo">
+            <div class="logo-simbolo">
+                <div class="ponteiro"></div>
+            </div>
+
+            <div class="logo-texto">
+                <h2>Timeline</h2>
+                <p>Plan today. Move at your pace.</p>
+            </div>
+        </div>
+
+        <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+        <div class="menu">
+            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
+            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+            <a href="{% url 'progresso' %}" class="ativo">▥ &nbsp; Progresso</a>
+            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+        </div>
+
+        <div class="frase-lateral">
+            <h3>☼</h3>
+            <h4>No seu ritmo.</h4>
+            <p>Pequenos passos também fazem o dia avançar.</p>
+        </div>
+
+        <div class="usuario">
+            <strong>Seu planejamento</strong>
+            <p>Sem cadastro</p>
+        </div>
+
+    </div>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="conteudo-principal">
+
+        
+        <!-- BARRA SUPERIOR -->
+            <div class="barra-superior">
+
+                <div class="pagina-atual">
+                    <strong>Progresso</strong>
+                    <span>Acompanhe sua evolução</span>
+                </div>
+
+                <div class="acoes-superiores">
+                    <input type="text" placeholder="Buscar tarefas">
+
+                    <a href="{% url 'notificacoes' %}"
+                    style="text-decoration: none; color: inherit;">
+                        🔔
+                    </a>
+
+                    <span>☷</span>
+                </div>
+
+            </div>
+
+        <!-- ÁREA DA PÁGINA -->
+            <main class="conteudo-progresso">
+
+        <header>
+            <div>
+                <h1>Seu Progresso</h1>
+                <p class="subtitulo">Acompanhe sua evolução e suas conquistas.</p>
+            </div>
+
+            <span class="user-btn">Dados do banco</span>
+        </header>
+
+        <!-- INDICADORES -->
+        <section class="cards">
+            <div class="box">
+                <h3>Atividades concluídas</h3>
+                <p class="numero">{{ concluidas }} / {{ total }}</p>
+            </div>
+
+            <div class="box">
+                <h3>Taxa de conclusão</h3>
+                <p class="numero">{{ percentual }}%</p>
+            </div>
+        </section>
+
+        <!-- PROGRESSO GERAL -->
+        <section class="box">
+            <h3>Progresso das atividades</h3>
+
+            <div class="bar">
+                <div class="fill" style="width: {{ percentual }}%;"></div>
+            </div>
+
+            <p class="texto-cinza">
+                {{ concluidas }} de {{ total }} atividades concluídas
+            </p>
+        </section>
+
+        <!-- TEMPO POR DISCIPLINA -->
+        <section class="box">
+            <h3>Distribuição de tempo concluído</h3>
+
+            {% for item in por_disciplina %}
+                <div class="linha">
+                    <span>{{ item.disciplina__nome }}</span>
+                    <strong>{{ item.minutos|default:0 }} min</strong>
+                </div>
+            {% empty %}
+                <p class="texto-cinza">
+                    Ainda não há tempo registrado em atividades concluídas.
+                </p>
+            {% endfor %}
+        </section>
+
+        <a href="{% url 'adicionar_tarefa' %}" class="botao-tarefa">
+            + Nova tarefa
+        </a>
+
+    </main>
+</div>
+
+</body>
+</html>

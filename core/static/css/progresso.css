@@ -1,19 +1,154 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-    body { background: #f8fafc; color: #1e293b; padding: 20px; }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    header a { text-decoration: none; color: inherit; }
-    .user-btn { background: #fff; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 15px; font-size: 12px; }
+/* CONFIGURAÇÕES GERAIS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
 
-    .tela { max-width: 450px; margin: 0 auto; }
-    .subtitulo { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+body {
+    background: #f7f8fc;
+    color: #202642;
+}
 
-    .cards { display: flex; gap: 15px; margin-bottom: 15px; }
-    .box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; flex: 1; }
-    .numero { font-size: 28px; font-weight: bold; color: #6366f1; margin: 5px 0; }
-    .texto-cinza { font-size: 12px; color: #64748b; }
+/*
+   A barra lateral e a barra superior utilizam
+   os estilos compartilhados de hoje.css.
+*/
 
-    .bar { background: #e0e7ff; height: 6px; border-radius: 3px; margin: 5px 0 12px 0; }
-    .fill { background: #6366f1; height: 100%; border-radius: 3px; }
+/* CONTEÚDO PRINCIPAL */
+.conteudo-principal .conteudo-progresso {
+    margin: 0;
+    padding: 25px 24px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
 
-    .linha { font-size: 12px; display: flex; justify-content: space-between; margin-top: 10px; }
+/* CABEÇALHO */
+.conteudo-progresso header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 25px;
+}
+
+.conteudo-progresso header h1 {
+    font-size: 30px;
+    color: #202642;
+    margin-bottom: 8px;
+}
+
+.conteudo-progresso .subtitulo {
+    font-size: 14px;
+    color: #7c8299;
+}
+
+.conteudo-progresso .user-btn {
+    background: #ffffff;
+    border: 1px solid #e6e8f0;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #64708b;
+}
+
+/* INDICADORES */
+.conteudo-progresso .cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.conteudo-progresso .box {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e6e8f0;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px rgba(30, 40, 80, 0.03);
+}
+
+.conteudo-progresso .cards .box {
+    margin-bottom: 0;
+}
+
+.conteudo-progresso .box h3 {
+    font-size: 16px;
+    color: #48516d;
+    margin-bottom: 15px;
+}
+
+.conteudo-progresso .numero {
+    font-size: 36px;
+    font-weight: bold;
+    color: #6366f1;
+}
+
+.conteudo-progresso .texto-cinza {
+    font-size: 13px;
+    color: #7c8299;
+    margin-top: 12px;
+}
+
+/* BARRA DE PROGRESSO */
+.conteudo-progresso .bar {
+    background: #e9e9ff;
+    height: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.conteudo-progresso .fill {
+    background: #6366f1;
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* TEMPO POR DISCIPLINA */
+.conteudo-progresso .linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f1f6;
+    font-size: 14px;
+    color: #48516d;
+}
+
+.conteudo-progresso .linha strong {
+    color: #6366f1;
+}
+
+/* BOTÃO NOVA TAREFA */
+.conteudo-progresso .botao-tarefa {
+    display: inline-block;
+    background: #6366f1;
+    color: white;
+    padding: 13px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.conteudo-progresso .botao-tarefa:hover {
+    background: #5554dd;
+}
+
+/* TELAS MENORES */
+@media (max-width: 850px) {
+    .conteudo-principal .conteudo-progresso {
+        padding: 20px;
+    }
+
+    .conteudo-progresso .cards {
+        grid-template-columns: 1fr;
+    }
+}
