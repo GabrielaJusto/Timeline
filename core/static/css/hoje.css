@@ -97,12 +97,15 @@ body {
     color: #3f4968;
 }
 
-.menu p {
+.menu a,
+.menu span {
+    display: block;
     padding: 14px 15px;
     margin: 3px 0;
     border-radius: 10px;
     font-size: 14px;
     color: #48516d;
+    text-decoration: none;
 }
 
 .menu .ativo {

@@ -1,11 +1,17 @@
-﻿<!DOCTYPE html>
+﻿{% load static %}
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <title>Timeline - Agenda</title>
+  <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-    body { background: #f8fafc; color: #1e293b; padding: 20px; }
+    body {
+        background: #f8fafc;
+        color: #1e293b;
+        padding: 20px 20px 20px 270px;
+    }
 
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
     header a { text-decoration: none; color: inherit; }
@@ -28,20 +34,168 @@
 
     .bar { background: #e0e7ff; height: 6px; border-radius: 3px; margin: 5px 0 12px 0; }
     .fill { background: #6366f1; height: 100%; border-radius: 3px; }
+
+    .sidebar-agenda {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        height: 100vh;
+        background: #fff;
+        border-right: 1px solid #e2e8f0;
+        padding: 30px 18px;
+        overflow-y: auto;
+    }
+
+    .sidebar-agenda h2 {
+        color: #5554dd;
+        margin-bottom: 35px;
+        font-size: 24px;
+    }
+
+    .menu-agenda a {
+        display: block;
+        padding: 14px 15px;
+        margin: 3px 0;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #48516d;
+        text-decoration: none;
+    }
+
+    .menu-agenda a:hover {
+        background: #f5f5ff;
+    }
+
+    .menu-agenda .ativo {
+        background: #eeeeff;
+        color: #5554dd;
+        font-weight: bold;
+    }
+
+  /* LAYOUT DA AGENDA */
+
+  body {
+      display: block;
+      padding: 0;
+  }
+
+  /* Conteúdo */
+  body > .grid {
+      display: flex;
+      gap: 24px;
+      margin: 0 0 0 250px;
+      padding: 30px 24px;
+      width: calc(100% - 250px);
+        max-width: none;
+      box-sizing: border-box;
+      align-items: flex-start;
+  }
+
+  body > .grid > .col-main {
+      flex: 3;
+      min-width: 0;
+  }
+
+  body > .grid > .col-side {
+      flex: 1;
+      min-width: 0;
+  }
+
+  body > .grid > .col-side .box {
+      width: 100%;
+  }
+
+  .grid .box {
+      padding: 24px;
+      border-radius: 14px;
+  } 
+
+  /* BARRA SUPERIOR DA AGENDA */
+  body > .barra-superior {
+      position: relative;
+      left: 0;
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      padding: 0 16px;
+      box-sizing: border-box;
+  }
+
+  body > .barra-superior {
+      transform: translateX(-24px);
+      width: calc(100% - 226px);
+  }
+
   </style>
 </head>
 <body>
 
-  <header>
-    <!-- Clicar no nome volta para a página inicial -->
-    <a href="index.html"><strong>Timeline</strong></a>
-    <button class="user-btn">Dados de demonstração</button>
-  </header>
+  <!-- MENU LATERAL -->
+  <div class="menu-lateral">
+
+      <div class="logo">
+          <div class="logo-simbolo">
+              <div class="ponteiro"></div>
+          </div>
+
+          <div class="logo-texto">
+              <h2>Timeline</h2>
+              <p>Plan today. Move at your pace.</p>
+          </div>
+      </div>
+
+      <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+      <div class="menu">
+          <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+          <a href="{% url 'agenda' %}" class="ativo">◷ &nbsp; Agenda</a>
+          <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+          <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+          <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+          <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+          <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+      </div>
+
+      <div class="frase-lateral">
+          <h3>☼</h3>
+          <h4>No seu ritmo.</h4>
+          <p>Pequenos passos também fazem o dia avançar.</p>
+      </div>
+
+      <div class="usuario">
+          <strong>Seu planejamento</strong>
+          <p>Sem cadastro</p>
+      </div>
+
+  </div>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="barra-superior">
+
+      <div class="pagina-atual">
+          <strong>Agenda</strong>
+          <span>Organize seus compromissos</span>
+      </div>
+
+      <div class="acoes-superiores">
+          <input type="text" placeholder="Buscar tarefas">
+
+          <a href="{% url 'notificacoes' %}"
+            style="text-decoration: none; color: inherit;">
+              🔔
+          </a>
+
+          <span>☷</span>
+      </div>
+
+  </div>
 
   <div class="grid">
     <div class="col-main">
       <h1>Agenda</h1>
-      <p style="font-size: 13px; color: #64748b;">Semana 1 a 5 de setembro</p>
+      <p style="font-size: 13px; color: #64748b;">
+        Hoje: {%now "d/m/Y" %} 
+      </p>
 
       <!-- Sistema de abas funcionais -->
       <div class="tabs">
@@ -50,44 +204,106 @@
         <button class="tab">Matéria</button>
       </div>
 
+      
       <div class="box">
-        <h3>Compromissos do dia</h3>
+          <h3>Compromissos do dia</h3>
 
-{% for aula in aulas %}
-<div class="event">
-    <span class="time">{{ aula.hora_inicio|time:"H:i" }}</span>
-    <div>
-        <h4>Aula</h4>
-        <p style="font-size:12px; color:#64748b; margin-bottom:5px;">
-            {{ aula.disciplina.nome }}
-        </p>
-        <span class="pill">Aula</span>
-        <span class="pill">{{ aula.local }}</span>
-    </div>
-</div>
-{% empty %}
-<p>Nenhuma aula cadastrada.</p>
-{% endfor %}
-    </div>
+          
+          {% for compromisso in compromissos_hoje %}
+              <div class="event" style="display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
 
-    <div class="col-side">
-      <div class="box">
-        <h3>Revisão de exercícios</h3>
-        <p style="font-size: 12px; color: #64748b;">Separar dúvidas antes da aula.</p>
+                  <span class="time" style="font-size: 14px; font-weight: 600; color: #6366f1; min-width: 55px;">
+                      {{ compromisso.inicio|date:"H:i" }}
+                  </span>
+
+                  <div>
+                      <h4 style="font-size: 14px; margin-bottom: 5px;">
+                          {{ compromisso.titulo }}
+                      </h4>
+
+                      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <span class="pill">{{ compromisso.categoria }}</span>
+                        <span class="pill">
+                            Até {{ compromisso.fim|date:"H:i" }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+
+
+          {% for aula in aulas_hoje %}
+              <div class="event" style="display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
+
+                  <span class="time" style="font-size: 14px; font-weight: 600; color: #6366f1; min-width: 55px;">
+                      {{ aula.hora_inicio|time:"H:i" }}
+                  </span>
+
+                  <div>
+                      <h4 style="font-size: 14px; margin-bottom: 5px;">
+                          {{ aula.disciplina.nome }}
+                      </h4>
+
+                      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                          <span class="pill">Aula</span>
+
+                          {% if aula.local %}
+                              <span class="pill">{{ aula.local }}</span>
+                          {% endif %}
+                      </div>
+                  </div>
+
+              </div>
+          {% endfor %}
+
+          {% if not aulas_hoje and not compromissos_hoje %}
+            <p style="font-size: 12px; color: #64748b; margin-top: 10px;">
+                Nenhum compromisso cadastrado para hoje.
+            </p>
+          {% endif %}
       </div>
 
-      <div class="box">
-        <h3>Esta semana</h3>
-        
-        <p style="font-size:12px; display:flex; justify-content:space-between; margin-top:10px;">
-          <span>Tarefas concluídas</span><strong>3 de 5</strong>
-        </p>
-        <div class="bar"><div class="fill" style="width: 60%;"></div></div>
 
-        <p style="font-size:12px; display:flex; justify-content:space-between;">
-          <span>Metas da semana</span><strong>4 de 6</strong>
+    <div class="col-side">
+      
+    <div class="box">
+        <h3>Tarefas pendentes</h3>
+
+        {% for tarefa in tarefas_pendentes %}
+            <div style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                <strong style="font-size: 13px;">
+                    {{ tarefa.titulo }}
+                </strong>
+
+                <p style="font-size: 12px; color: #64748b; margin-top: 4px;">
+                    Prazo: {{ tarefa.prazo|date:"d/m/Y" }}
+                </p>
+            </div>
+        {% empty %}
+            <p style="font-size: 12px; color: #64748b;">
+                Nenhuma tarefa pendente no momento.
+            </p>
+        {% endfor %}
+    </div>
+
+
+      
+      <div class="box">
+        <h3>Progresso das tarefas</h3>
+
+        <p style="font-size:12px; display:flex; justify-content:space-between; margin-top:10px;">
+            <span>Tarefas concluídas</span>
+            <strong>{{ tarefas_concluidas }} de {{ total_tarefas }}</strong>
         </p>
-        <div class="bar"><div class="fill" style="width: 66%;"></div></div>
+
+        <div class="bar">
+            <div class="fill" style="width: {{ percentual_tarefas }}%;"></div>
+        </div>
+
+        <p style="font-size:12px; color:#64748b; margin-top:12px;">
+            Progresso geral das atividades cadastradas.
+        </p>
       </div>
     </div>
   </div>

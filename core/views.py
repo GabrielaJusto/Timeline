@@ -5,6 +5,8 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
 
 from .forms import AtividadeForm
 from .models import (
@@ -32,7 +34,7 @@ from .models import Atividade, Compromisso, Disciplina
 # ==========================================
 
 def hoje(request):
-    atividades = Atividade.objects.all().order_by("prazo")
+    atividades = Atividade.objects.exclude(status="concluida").order_by("prazo")
 
     data_atual = timezone.localdate()
     inicio_semana = data_atual - timedelta(days=data_atual.weekday())
@@ -44,9 +46,9 @@ def hoje(request):
 
     fim_semana = dias_semana[-1]
 
-    total_atividades = atividades.count()
-    concluidas = atividades.filter(status="concluida").count()
-    pendentes = atividades.exclude(status="concluida").count()
+    total_atividades = Atividade.objects.count()
+    concluidas = Atividade.objects.filter(status="concluida").count()
+    pendentes = Atividade.objects.exclude(status="concluida").count()
 
     return render(request, "hoje.html", {
         "atividades": atividades,
@@ -133,7 +135,7 @@ def adicionar_tarefa(request):
 # ==========================================
 
 def inicio(request):
-    return render(request, "index.html")
+    return hoje(request)
 
 
 # ==========================================
@@ -148,8 +150,45 @@ def agenda(request):
         .order_by("dia_semana", "hora_inicio")
     )
 
+    # Identificar o dia da semana atual
+    data_atual = timezone.localdate()
+    dia_atual = data_atual.isoweekday()
+
+    # Buscar somente as aulas de hoje
+    aulas_hoje = aulas.filter(dia_semana=dia_atual)
+
+    # Buscar os compromissos cadastrados para hoje
+    compromissos_hoje = (
+        Compromisso.objects
+        .filter(inicio__date=data_atual)
+        .order_by("inicio")
+)
+
+    # Buscar as tarefas cadastradas
+    atividades = Atividade.objects.all()
+
+    # Buscar as tarefas que ainda não foram concluídas
+    tarefas_pendentes = atividades.exclude(status="concluida").order_by("prazo")[:5]
+
+    # Calcular o progresso real
+    total_tarefas = atividades.count()
+    tarefas_concluidas = atividades.filter(status="concluida").count()
+
+    # Calcular a porcentagem
+    if total_tarefas > 0:
+        percentual_tarefas = round(
+            (tarefas_concluidas / total_tarefas) * 100
+        )
+    else:
+        percentual_tarefas = 0
+
     return render(request, "agenda.html", {
-        "aulas": aulas
+        "aulas": aulas_hoje,
+        "compromissos": compromissos_hoje,
+        "total_tarefas": total_tarefas,
+        "tarefas_concluidas": tarefas_concluidas,
+        "percentual_tarefas": percentual_tarefas,
+        "tarefas_pendentes": tarefas_pendentes,
     })
 
 
@@ -446,3 +485,33 @@ def progresso(request):
 
 def configuracoes(request):
     return render(request, "configuracoes.html")
+
+
+def tarefas(request):
+    atividades = Atividade.objects.all().order_by("prazo")
+
+    pendentes = atividades.exclude(status="concluida").count()
+    concluidas = atividades.filter(status="concluida").count()
+
+    return render(request, "tarefas.html", {
+        "atividades": atividades,
+        "pendentes": pendentes,
+        "concluidas": concluidas,
+    })
+
+
+@require_POST
+def alternar_status_tarefa(request, atividade_id):
+    atividade = get_object_or_404(Atividade, id=atividade_id)
+
+    if atividade.status == "concluida":
+        atividade.status = "planejada"
+    else:
+        atividade.status = "concluida"
+
+    atividade.save(update_fields=["status"])
+
+    return redirect("tarefas")
+
+def notificacoes(request):
+    return render(request, "notificacoes.html")

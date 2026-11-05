@@ -27,17 +27,19 @@
 
         <h3 class="titulo-menu">SEU ESPAÇO</h3>
 
-        <!-- Ajuste os links se os arquivos do projeto tiverem outros nomes. -->
+        <!-- Ajuste os links se os arquivos do projeto tiverem outros nomes. -->       
         <nav class="menu" aria-label="Menu principal">
             <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
             <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
-            <a href="#">▦ &nbsp; Calendário</a>
-            <a href="#">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
             <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
             <a href="{% url 'configuracoes' %}" class="ativo" aria-current="page">
                 ☷ &nbsp; Configurações
             </a>
         </nav>
+
 
         <div class="frase-lateral">
             <h3>☼</h3>
