@@ -133,7 +133,7 @@ def adicionar_tarefa(request):
 # ==========================================
 
 def inicio(request):
-    return render(request, "index.html")
+    return hoje(request)
 
 
 # ==========================================
