@@ -21,6 +21,7 @@ from .planej import (
     ordenar_atividades,
     distribuir_tempo,
     gerar_proposta_reagendamento,
+    calcular_tempo_restante,
 )
 
 from django.shortcuts import render
@@ -378,6 +379,29 @@ def planejamento(request):
         if atividade.disciplina_id is not None
     }
 
+    # Alerta: compara o trabalho restante da semana com as horas disponiveis.
+    # Desconsidera tarefas concluidas e tempo ja realizado.
+    minutos_pendentes = sum(
+        calcular_tempo_restante(atividade)
+        for atividade in atividades_semana
+    )
+    # Se ja existe plano salvo, usa sua disponibilidade; em uma nova
+    # simulacao usa os valores informados pelo usuario no formulario.
+    simulando = any(chave.startswith("horas_") for chave in request.GET)
+    if planejamento_salvo and not simulando and planejamento_salvo.disponibilidade_diaria:
+        capacidade_minutos = sum(
+            max(0, int(float(horas) * 60))
+            for dia, horas in planejamento_salvo.disponibilidade_diaria.items()
+            if dia >= hoje.isoformat()
+        )
+    else:
+        capacidade_minutos = sum(int(horas * 60) for horas in disponibilidade.values())
+    deficit_minutos = max(0, minutos_pendentes - capacidade_minutos)
+    alerta_sobrecarga = deficit_minutos > 0
+    horas_pendentes = round(minutos_pendentes / 60, 1)
+    horas_disponiveis = round(capacidade_minutos / 60, 1)
+    horas_excedentes = round(deficit_minutos / 60, 1)
+
     total_disciplinas = len(disciplinas)
 
     prazos_importantes = sum(
@@ -415,6 +439,10 @@ def planejamento(request):
         "semana_fim": domingo,
         "total_atividades": total_atividades,
         "total_horas": total_horas,
+        "alerta_sobrecarga": alerta_sobrecarga,
+        "horas_pendentes": horas_pendentes,
+        "horas_disponiveis": horas_disponiveis,
+        "horas_excedentes": horas_excedentes,
         "total_disciplinas": total_disciplinas,
         "prazos_importantes": prazos_importantes,
         "mensagem": mensagem,

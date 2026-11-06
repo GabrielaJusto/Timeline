@@ -185,6 +185,16 @@
             </div>
         </section>
 
+        <!-- ALERTA DE SOBRECARGA -->
+        {% if alerta_sobrecarga %}
+        <section role="alert" style="border:2px solid #c2410c; border-radius:12px; padding:18px; margin:18px 0; background:#fff7ed; color:#7c2d12;">
+            <h2>⚠ Sobrecarga de atividades</h2>
+            <p>Você tem <strong>{{ horas_pendentes }}h</strong> de atividades pendentes nesta semana,
+               mas apenas <strong>{{ horas_disponiveis }}h</strong> disponíveis nos dias restantes.</p>
+            <p><strong>Faltam {{ horas_excedentes }}h.</strong> Aumente a disponibilidade ou reorganize suas atividades.</p>
+        </section>
+        {% endif %}
+
         <!-- SEÇÃO 3: ATIVIDADES PRIORITÁRIAS -->
         <section>
             <h2>3. Atividades prioritárias</h2>
