@@ -1,11 +1,11 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline - Agenda semanal</title>
+    <title>Timeline - Calendário semanal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/agenda-semana.css' %}">
@@ -19,8 +19,7 @@
 
         <nav class="menu-calendario">
             <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
-            <a href="{% url 'agenda_semana' %}" class="ativo">▦ &nbsp; Calendário</a>
+            <a href="{% url 'agenda' %}" class="ativo">▦ &nbsp; Calendário</a>
             <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
             <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
             <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
@@ -33,7 +32,7 @@
         <!-- TOPO: TITULO + ABAS -->
         <header class="topo">
             <div class="titulo-agenda">
-                <h1>Agenda</h1>
+                <h1>Calendário</h1>
                 <p>
                     <a href="?semana={{ semana_anterior|date:'Y-m-d' }}" class="troca-semana" title="Semana anterior">&#8249;</a>
                     {{ titulo_semana }}
@@ -42,12 +41,9 @@
             </div>
 
             <nav class="abas">
-                <a href="{% url 'hoje' %}" class="aba">Dia</a>
+                <a href="{% url 'agenda' %}" class="aba">Dia</a>
                 <a href="{% url 'agenda_semana' %}" class="aba ativa">Semana</a>
-                <a href="{% url 'agenda' %}" class="aba">Matéria</a>
-                <a href="#" class="aba">Pessoais</a>
-                <a href="#" class="aba">Entregas</a>
-                <a href="#" class="aba">Responsabilidades</a>
+                <a href="{% url 'agenda_mes' %}" class="aba">Mês</a>
             </nav>
         </header>
 
@@ -184,3 +180,5 @@
 </body>
 
 </html>
+
+

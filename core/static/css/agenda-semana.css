@@ -452,3 +452,70 @@ body {
 body {
     padding-left: 250px;
 }
+/* PADRONIZAÇÃO DAS VISUALIZAÇÕES */
+.tela {
+    max-width: none;
+    margin: 0;
+    padding: 30px 28px 48px;
+}
+
+.abas {
+    display: flex;
+    grid-template-columns: none;
+    gap: 4px;
+}
+
+.layout {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.visao-semanal {
+    min-width: 0;
+}
+
+.visao-semanal .dias {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.visao-semanal .dia {
+    min-width: 0;
+    min-height: 250px;
+    padding: 12px 8px;
+}
+
+.visao-semanal .dia h3 {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.visao-semanal .evento {
+    padding: 9px 7px;
+    overflow-wrap: anywhere;
+}
+
+.visao-semanal .evento-nome {
+    font-size: 12px;
+}
+
+.lateral {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+    .visao-semanal .dias {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .visao-semanal .dias {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lateral {
+        grid-template-columns: 1fr;
+    }
+}

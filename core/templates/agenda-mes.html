@@ -1,0 +1,81 @@
+﻿
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Calendário mensal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/agenda-semana.css' %}">
+    <link rel="stylesheet" href="{% static 'css/agenda-mes.css' %}">
+</head>
+<body>
+    <aside class="sidebar-calendario">
+        <h2>Timeline</h2>
+        <nav class="menu-calendario">
+            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+            <a href="{% url 'agenda' %}" class="ativo">▦ &nbsp; Calendário</a>
+            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+            <a href="{% url 'configuracoes' %}">⚙ &nbsp; Configurações</a>
+        </nav>
+    </aside>
+
+    <div class="tela">
+        <header class="topo">
+            <div class="titulo-agenda">
+                <h1>Calendário</h1>
+                <p class="navegacao-mes">
+                    <a href="?mes={{ mes_anterior|date:'Y-m-d' }}" class="troca-semana" title="Mês anterior">&#8249;</a>
+                    <span>{{ titulo_mes }}</span>
+                    <a href="?mes={{ proximo_mes|date:'Y-m-d' }}" class="troca-semana" title="Próximo mês">&#8250;</a>
+                </p>
+            </div>
+
+            <nav class="abas">
+                <a href="{% url 'agenda' %}" class="aba">Dia</a>
+                <a href="{% url 'agenda_semana' %}" class="aba">Semana</a>
+                <a href="{% url 'agenda_mes' %}" class="aba ativa">Mês</a>
+            </nav>
+        </header>
+
+        <div class="layout">
+            <section class="visao-semanal calendario-mensal">
+                <div class="visao-topo">
+                    <h2>Visão mensal</h2>
+                    <a href="{% url 'novo_compromisso' %}" class="botao-novo">+ Compromisso</a>
+                </div>
+
+                <div class="grade-mensal">
+                    <div class="cabecalho-dia">Seg</div>
+                    <div class="cabecalho-dia">Ter</div>
+                    <div class="cabecalho-dia">Qua</div>
+                    <div class="cabecalho-dia">Qui</div>
+                    <div class="cabecalho-dia">Sex</div>
+                    <div class="cabecalho-dia">Sáb</div>
+                    <div class="cabecalho-dia">Dom</div>
+
+                    {% for semana in semanas %}
+                        {% for dia in semana %}
+                            <div class="celula-dia {% if not dia.mes_atual %}fora-mes{% endif %} {% if dia.hoje %}dia-atual{% endif %}">
+                                <div class="numero-dia">{{ dia.data|date:"d" }}</div>
+
+                                {% for compromisso in dia.compromissos %}
+                                    <div class="evento-mensal" title="{{ compromisso.titulo }}">
+                                        <span class="hora-evento">{{ compromisso.inicio|date:"H:i" }}</span>
+                                        <span class="nome-evento">{{ compromisso.titulo }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>
+

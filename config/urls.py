@@ -17,6 +17,7 @@ urlpatterns = [
     path("agenda/", views.agenda, name="agenda"),
     path("planejamento/", views.planejamento, name="planejamento"),
     path("agenda/semana/", views.agenda_semanal, name="agenda_semana"),
+    path("agenda/mes/", views.agenda_mensal, name="agenda_mes"),  
     path("novo-compromisso/", views.novo_compromisso, name="novo_compromisso"),
     path("excluir-compromisso/<int:compromisso_id>/", views.excluir_compromisso, name="excluir_compromisso"),
     path("progresso/", views.progresso, name="progresso"),

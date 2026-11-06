@@ -1,5 +1,6 @@
 
-from datetime import datetime, time, timedelta
+from datetime import date,datetime, time, timedelta
+from urllib import request
 
 from django.db import transaction
 from django.http import HttpResponse
@@ -401,8 +402,22 @@ def planejamento(request):
 def agenda_semanal(request):
     from .models import Aula, Compromisso
 
+    
     data_atual = timezone.localdate()
-    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
+
+    semana_parametro = request.GET.get("semana")
+
+    if semana_parametro:
+        try:
+            data_referencia = date.fromisoformat(semana_parametro)
+        except ValueError:
+            data_referencia = data_atual
+    else:
+        data_referencia = data_atual
+
+    inicio_semana = data_referencia - timedelta(days=data_referencia.weekday())
+    semana_anterior = inicio_semana - timedelta(days=7)
+    semana_seguinte = inicio_semana + timedelta(days=7)
     dias_semana = [inicio_semana + timedelta(days=i) for i in range(7)]
 
     dias = []
@@ -423,6 +438,10 @@ def agenda_semanal(request):
         })
 
     fim_semana = dias_semana[-1]
+    titulo_semana = (
+    f"{inicio_semana.strftime('%d/%m')} a "
+    f"{fim_semana.strftime('%d/%m/%Y')}"
+)
 
     aulas = Aula.objects.select_related("disciplina").all().order_by(
         "dia_semana", "hora_inicio"
@@ -435,6 +454,9 @@ def agenda_semanal(request):
         "fim_semana": fim_semana,
         "dias_semana": dias_semana,
         "dias": dias,
+        "semana_anterior": semana_anterior,
+        "semana_seguinte": semana_seguinte,
+        "titulo_semana": titulo_semana,
     })
 
 def novo_compromisso(request):
@@ -515,3 +537,80 @@ def alternar_status_tarefa(request, atividade_id):
 
 def notificacoes(request):
     return render(request, "notificacoes.html")
+
+import calendar
+
+def agenda_mensal(request):
+    hoje = timezone.localdate()
+
+    mes_parametro = request.GET.get("mes")
+
+    try:
+        data_referencia = (
+            date.fromisoformat(mes_parametro)
+            if mes_parametro else hoje
+        )
+    except ValueError:
+        data_referencia = hoje
+
+    primeiro_dia = data_referencia.replace(day=1)
+
+    if primeiro_dia.month == 12:
+        proximo_mes = primeiro_dia.replace(
+            year=primeiro_dia.year + 1, month=1
+        )
+    else:
+        proximo_mes = primeiro_dia.replace(
+            month=primeiro_dia.month + 1
+        )
+
+    mes_anterior = primeiro_dia - timedelta(days=1)
+    ultimo_dia = proximo_mes - timedelta(days=1)
+
+    
+    calendario = calendar.Calendar(firstweekday=0)
+    semanas = calendario.monthdatescalendar(
+        primeiro_dia.year, primeiro_dia.month
+    )
+
+    compromissos = Compromisso.objects.filter(
+        inicio__date__range=(primeiro_dia, ultimo_dia)
+    )
+
+    compromissos_por_dia = {}
+
+    for compromisso in compromissos:
+        data_compromisso = timezone.localtime(compromisso.inicio).date()
+
+        compromissos_por_dia.setdefault(
+            data_compromisso, []
+        ).append(compromisso)
+
+    semanas_calendario = []
+
+    for semana in semanas:
+        dias = []
+        for dia in semana:
+            dias.append({
+                "data": dia,
+                "mes_atual": dia.month == primeiro_dia.month,
+                "hoje": dia == hoje,
+                "compromissos": compromissos_por_dia.get(dia, []),
+            })
+        semanas_calendario.append(dias)
+
+    meses = [
+        "janeiro", "fevereiro", "março", "abril",
+        "maio", "junho", "julho", "agosto",
+        "setembro", "outubro", "novembro", "dezembro"
+    ]
+
+    return render(request, "agenda-mes.html", {
+        "semanas": semanas_calendario,
+        "titulo_mes": (
+            f"{meses[primeiro_dia.month - 1].capitalize()} "
+            f"{primeiro_dia.year}"
+        ),
+        "mes_anterior": mes_anterior,
+        "proximo_mes": proximo_mes,
+    })
