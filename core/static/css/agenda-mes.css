@@ -1,0 +1,114 @@
+
+.calendario-mensal {
+    width: 100%;
+    min-width: 0;
+}
+
+.calendario-mensal .visao-topo {
+    margin-bottom: 20px;
+}
+
+.navegacao-mes {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.grade-mensal {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1px;
+    background: #e5e7eb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.cabecalho-dia {
+    background: #f8f9fc;
+    padding: 14px 6px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.celula-dia {
+    background: white;
+    min-height: 115px;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.numero-dia {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.fora-mes {
+    background: #f8f9fc;
+    color: #a1a1aa;
+}
+
+.dia-atual {
+    box-shadow: inset 0 0 0 2px #7c3aed;
+}
+
+.dia-atual .numero-dia {
+    color: #7c3aed;
+}
+
+.evento-mensal {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    background: #ede9fe;
+    color: #5b21b6;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.hora-evento {
+    font-weight: 700;
+}
+
+.nome-evento {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 800px) {
+    .grade-mensal {
+        overflow-x: auto;
+        min-width: 650px;
+    }
+
+    .calendario-mensal {
+        overflow-x: auto;
+    }
+}
+
+/* AJUSTES DE CONSISTÊNCIA */
+.calendario-mensal {
+    width: 100%;
+}
+
+.grade-mensal {
+    border-radius: 14px;
+}
+
+.celula-dia {
+    min-height: 125px;
+}
+
+.evento-mensal {
+    background: #eeeeff;
+    color: #5554dd;
+}
+
+.dia-atual {
+    box-shadow: inset 0 0 0 2px #7477e8;
+}

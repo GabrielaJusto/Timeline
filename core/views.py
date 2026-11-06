@@ -1,5 +1,6 @@
 
-from datetime import datetime, time, timedelta
+from datetime import date,datetime, time, timedelta
+from urllib import request
 
 from django.db import transaction
 from django.http import HttpResponse
@@ -29,10 +30,10 @@ from django.shortcuts import redirect, get_object_or_404
 from .forms import AtividadeForm
 from datetime import datetime, time
 from .forms import CompromissoForm
-from .models import Atividade, Compromisso, Disciplina 
+from .models import Atividade, Compromisso, Disciplina
 
 # ==========================================
-# PÁGINA HOJE
+# PÃGINA HOJE
 # ==========================================
 
 def hoje(request):
@@ -84,7 +85,7 @@ def adicionar_tarefa(request):
             prazo = datetime.combine(data, horario)
             atividade.prazo = timezone.make_aware(prazo)
 
-            atividade.usuario_id = 1  # Provisório para testes
+            atividade.usuario_id = 1  # ProvisÃ³rio para testes
 
             nome_disciplina = form.cleaned_data["nome_disciplina"].strip()
 
@@ -133,7 +134,7 @@ def adicionar_tarefa(request):
 
 
 # ==========================================
-# PÁGINA INICIAL
+# PÃGINA INICIAL
 # ==========================================
 
 def inicio(request):
@@ -151,7 +152,7 @@ def agenda(request):
         .all()
         .order_by("dia_semana", "hora_inicio")
     )
- 
+
     # Identificar o dia da semana atual
     data_atual = timezone.localdate()
     dia_atual = data_atual.isoweekday()
@@ -169,7 +170,7 @@ def agenda(request):
     # Buscar as tarefas cadastradas
     atividades = Atividade.objects.all()
 
-    # Buscar as tarefas que ainda não foram concluídas
+    # Buscar as tarefas que ainda nÃ£o foram concluÃ­das
     tarefas_pendentes = atividades.exclude(status="concluida").order_by("prazo")[:5]
 
     # Calcular o progresso real
@@ -198,9 +199,9 @@ def agenda(request):
 # ==========================================
 
 def planejamento(request):
-    usuario_id = 1  # Provisório para testes
+    usuario_id = 1  # ProvisÃ³rio para testes
 
-    # Busca as atividades do usuário.
+    # Busca as atividades do usuÃ¡rio.
     atividades = Atividade.objects.filter(
         usuario_id=usuario_id
     )
@@ -220,7 +221,7 @@ def planejamento(request):
     hoje = timezone.localdate()
     segunda = hoje - timedelta(days=hoje.weekday())
     domingo = segunda + timedelta(days=6)
-   # Recebe as horas disponíveis do formulário.
+   # Recebe as horas disponÃ­veis do formulÃ¡rio.
     valores_padrao = [4, 3, 4, 3, 4, 6, 2]
     horas_por_dia = []
 
@@ -238,7 +239,7 @@ def planejamento(request):
 
         horas_por_dia.append(horas)
 
-    # Impede alocação em dias que já passaram.
+    # Impede alocaÃ§Ã£o em dias que jÃ¡ passaram.
     disponibilidade = {
         (segunda + timedelta(days=i)).isoformat(): (
             horas
@@ -248,14 +249,14 @@ def planejamento(request):
         for i, horas in enumerate(horas_por_dia)
     }
 
-    
-    # Gera uma sugestão de planejamento
+
+    # Gera uma sugestÃ£o de planejamento
     sessoes = distribuir_tempo(
         atividades_ordenadas,
         disponibilidade
     )
 
-    # Se já existe um planejamento salvo, mostra as sessões reais
+    # Se jÃ¡ existe um planejamento salvo, mostra as sessÃµes reais
     planejamento_salvo = Planejamento.objects.filter(
         usuario_id=usuario_id,
         semana_inicio=segunda,
@@ -263,8 +264,8 @@ def planejamento(request):
         status="ativo"
     ).first()
 
-    # Um plano já salvo é a fonte da verdade: aceitar novamente não pode
-    # apagar as sessões de um reagendamento previamente confirmado.
+    # Um plano jÃ¡ salvo Ã© a fonte da verdade: aceitar novamente nÃ£o pode
+    # apagar as sessÃµes de um reagendamento previamente confirmado.
     mensagem = None
     if request.method == "POST" and request.POST.get("acao") == "aceitar":
         with transaction.atomic():
@@ -275,7 +276,7 @@ def planejamento(request):
                 status="ativo",
             ).first()
             if plano_existente:
-                mensagem = "Planejamento já salvo; sessões preservadas."
+                mensagem = "Planejamento jÃ¡ salvo; sessÃµes preservadas."
             else:
                 plano_existente = Planejamento.objects.create(
                     usuario_id=usuario_id,
@@ -299,8 +300,8 @@ def planejamento(request):
                 ])
                 mensagem = "Planejamento aceito e salvo com sucesso!"
 
-    # Só exibe uma nova simulação quando o usuário informa horas no GET.
-    # Em acessos normais, sempre mostra as sessões realmente persistidas.
+    # SÃ³ exibe uma nova simulaÃ§Ã£o quando o usuÃ¡rio informa horas no GET.
+    # Em acessos normais, sempre mostra as sessÃµes realmente persistidas.
     if planejamento_salvo and not any(
         chave.startswith("horas_") for chave in request.GET
     ):
@@ -316,18 +317,18 @@ def planejamento(request):
         ]
 
     # ======================================
-    # CALENDÁRIO SEMANAL
+    # CALENDÃRIO SEMANAL
     # ======================================
 
     dias_semana = []
 
     nomes_dias = [
         "Segunda",
-        "Terça",
+        "TerÃ§a",
         "Quarta",
         "Quinta",
         "Sexta",
-        "Sábado",
+        "SÃ¡bado",
         "Domingo",
     ]
 
@@ -347,7 +348,7 @@ def planejamento(request):
         })
 
     # ======================================
-    # RESUMO AUTOMÁTICO
+    # RESUMO AUTOMÃTICO
     # ======================================
 
     atividades_semana = [
@@ -394,8 +395,8 @@ def planejamento(request):
     # ENVIA OS DADOS PARA O HTML
     # ======================================
 
- 
-    # Mensagens geradas ao marcar uma tarefa como não concluída.
+
+    # Mensagens geradas ao marcar uma tarefa como nÃ£o concluÃ­da.
     from django.contrib import messages as django_messages
     avisos = [str(aviso) for aviso in django_messages.get_messages(request)]
     if avisos:
@@ -430,8 +431,22 @@ def planejamento(request):
 def agenda_semanal(request):
     from .models import Aula, Compromisso
 
+
     data_atual = timezone.localdate()
-    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
+
+    semana_parametro = request.GET.get("semana")
+
+    if semana_parametro:
+        try:
+            data_referencia = date.fromisoformat(semana_parametro)
+        except ValueError:
+            data_referencia = data_atual
+    else:
+        data_referencia = data_atual
+
+    inicio_semana = data_referencia - timedelta(days=data_referencia.weekday())
+    semana_anterior = inicio_semana - timedelta(days=7)
+    semana_seguinte = inicio_semana + timedelta(days=7)
     dias_semana = [inicio_semana + timedelta(days=i) for i in range(7)]
 
     dias = []
@@ -453,6 +468,10 @@ def agenda_semanal(request):
 
 
     fim_semana = dias_semana[-1]
+    titulo_semana = (
+    f"{inicio_semana.strftime('%d/%m')} a "
+    f"{fim_semana.strftime('%d/%m/%Y')}"
+)
 
     aulas = Aula.objects.select_related("disciplina").all().order_by(
         "dia_semana", "hora_inicio"
@@ -465,6 +484,9 @@ def agenda_semanal(request):
         "fim_semana": fim_semana,
         "dias_semana": dias_semana,
         "dias": dias,
+        "semana_anterior": semana_anterior,
+        "semana_seguinte": semana_seguinte,
+        "titulo_semana": titulo_semana,
     })
 
 def novo_compromisso(request):
@@ -472,7 +494,7 @@ def novo_compromisso(request):
         form = CompromissoForm(request.POST)
         if form.is_valid():
             compromisso = form.save(commit=False)
-            compromisso.usuario_id = 1  # Provisório para testes
+            compromisso.usuario_id = 1  # ProvisÃ³rio para testes
             compromisso.save()
             return redirect("agenda_semana")
     else:
@@ -497,7 +519,7 @@ def progresso(request):
     atividades = Atividade.objects.filter(usuario_id=1)
 
     total = atividades.count()
-    
+
     concluidas = atividades.filter(
         status="concluida"
     ).count()
@@ -518,17 +540,49 @@ def configuracoes(request):
 
 
 def tarefas(request):
-    atividades = Atividade.objects.all().order_by("prazo")
+    from django.db.models import Q
 
-    pendentes = atividades.exclude(status="concluida").count()
-    concluidas = atividades.filter(status="concluida").count()
+    atividades = Atividade.objects.all()
+
+    busca = request.GET.get("busca", "").strip()
+    status = request.GET.get("status", "").strip()
+    tipo = request.GET.get("tipo", "").strip()
+    ordem = request.GET.get("ordem", "prazo")
+
+    if busca:
+        atividades = atividades.filter(
+            Q(titulo__icontains=busca) |
+            Q(nome_disciplina__icontains=busca) |
+            Q(disciplina__nome__icontains=busca)
+        ).distinct()
+
+    status_validos = {item[0] for item in Atividade.STATUS}
+    tipos_validos = {item[0] for item in Atividade.TIPOS}
+
+    if status in status_validos:
+        atividades = atividades.filter(status=status)
+
+    if tipo in tipos_validos:
+        atividades = atividades.filter(tipo=tipo)
+
+    if ordem == "prazo_desc":
+        atividades = atividades.order_by("-prazo", "id")
+    elif ordem == "titulo":
+        atividades = atividades.order_by("titulo", "id")
+    else:
+        atividades = atividades.order_by("prazo", "id")
 
     return render(request, "tarefas.html", {
         "atividades": atividades,
-        "pendentes": pendentes,
-        "concluidas": concluidas,
+        "pendentes": atividades.exclude(status="concluida").count(),
+        "concluidas": atividades.filter(status="concluida").count(),
+        "busca": busca,
+        "status_selecionado": status,
+        "tipo_selecionado": tipo,
+        "ordem_selecionada": ordem,
+        "opcoes_status": Atividade.STATUS,
+        "opcoes_tipo": Atividade.TIPOS,
     })
-
 
 @require_POST
 
@@ -572,16 +626,93 @@ def marcar_atividade_nao_concluida(request, atividade_id):
             PropostaReagendamento.objects.create(
                 planejamento=planejamento_atual, sessoes_propostas=sessoes
             )
-            messages.info(request, "Nova proposta de reagendamento disponível em Planejamento.")
+            messages.info(request, "Nova proposta de reagendamento disponÃ­vel em Planejamento.")
         else:
-            messages.warning(request, "Atividade marcada como não concluída. Não foi possível gerar uma proposta: confira a disponibilidade diária e o prazo.")
+            messages.warning(request, "Atividade marcada como nÃ£o concluÃ­da. NÃ£o foi possÃ­vel gerar uma proposta: confira a disponibilidade diÃ¡ria e o prazo.")
     else:
-        messages.warning(request, "Atividade marcada como não concluída, mas não há planejamento ativo para esta semana.")
+        messages.warning(request, "Atividade marcada como nÃ£o concluÃ­da, mas nÃ£o hÃ¡ planejamento ativo para esta semana.")
     return redirect("planejamento")
 
 
 def notificacoes(request):
     return render(request, "notificacoes.html")
+
+import calendar
+
+def agenda_mensal(request):
+    hoje = timezone.localdate()
+
+    mes_parametro = request.GET.get("mes")
+
+    try:
+        data_referencia = (
+            date.fromisoformat(mes_parametro)
+            if mes_parametro else hoje
+        )
+    except ValueError:
+        data_referencia = hoje
+
+    primeiro_dia = data_referencia.replace(day=1)
+
+    if primeiro_dia.month == 12:
+        proximo_mes = primeiro_dia.replace(
+            year=primeiro_dia.year + 1, month=1
+        )
+    else:
+        proximo_mes = primeiro_dia.replace(
+            month=primeiro_dia.month + 1
+        )
+
+    mes_anterior = primeiro_dia - timedelta(days=1)
+    ultimo_dia = proximo_mes - timedelta(days=1)
+
+
+    calendario = calendar.Calendar(firstweekday=0)
+    semanas = calendario.monthdatescalendar(
+        primeiro_dia.year, primeiro_dia.month
+    )
+
+    compromissos = Compromisso.objects.filter(
+        inicio__date__range=(primeiro_dia, ultimo_dia)
+    )
+
+    compromissos_por_dia = {}
+
+    for compromisso in compromissos:
+        data_compromisso = timezone.localtime(compromisso.inicio).date()
+
+        compromissos_por_dia.setdefault(
+            data_compromisso, []
+        ).append(compromisso)
+
+    semanas_calendario = []
+
+    for semana in semanas:
+        dias = []
+        for dia in semana:
+            dias.append({
+                "data": dia,
+                "mes_atual": dia.month == primeiro_dia.month,
+                "hoje": dia == hoje,
+                "compromissos": compromissos_por_dia.get(dia, []),
+            })
+        semanas_calendario.append(dias)
+
+    meses = [
+        "janeiro", "fevereiro", "marÃ§o", "abril",
+        "maio", "junho", "julho", "agosto",
+        "setembro", "outubro", "novembro", "dezembro"
+    ]
+
+    return render(request, "agenda-mes.html", {
+        "semanas": semanas_calendario,
+        "titulo_mes": (
+            f"{meses[primeiro_dia.month - 1].capitalize()} "
+            f"{primeiro_dia.year}"
+        ),
+        "mes_anterior": mes_anterior,
+        "proximo_mes": proximo_mes,
+    })
 
 @require_POST
 def rejeitar_proposta_reagendamento(request, proposta_id):
@@ -606,7 +737,7 @@ def rejeitar_proposta_reagendamento(request, proposta_id):
 def aceitar_proposta_reagendamento(request, proposta_id):
     """
     Aceita uma proposta e atualiza o planejamento
-    somente após a confirmação do estudante.
+    somente apÃ³s a confirmaÃ§Ã£o do estudante.
     """
 
     with transaction.atomic():
@@ -620,7 +751,7 @@ def aceitar_proposta_reagendamento(request, proposta_id):
         planejamento = proposta.planejamento
         novas_sessoes = proposta.sessoes_propostas
 
-        # Valida todas as sessões antes de alterar o plano.
+        # Valida todas as sessÃµes antes de alterar o plano.
         sessoes_validadas = []
 
         for sessao in novas_sessoes:
@@ -645,7 +776,7 @@ def aceitar_proposta_reagendamento(request, proposta_id):
                 )
             ):
                 raise ValueError(
-                    "A proposta contém uma sessão inválida."
+                    "A proposta contÃ©m uma sessÃ£o invÃ¡lida."
                 )
 
 
@@ -658,7 +789,7 @@ def aceitar_proposta_reagendamento(request, proposta_id):
                 )
             )
 
-        # Só modifica o planejamento após validar tudo.
+        # SÃ³ modifica o planejamento apÃ³s validar tudo.
         planejamento.sessoes.all().delete()
 
         SessaoPlanejada.objects.bulk_create(

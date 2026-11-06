@@ -125,7 +125,7 @@ def gerar_proposta_reagendamento(planejamento, atividades, disponibilidade=None)
             return None
         proposta.extend(alocadas)
     proposta.sort(key=lambda s: (s['dia'], s['atividade_id']))
-    
+
     original = sorted(
         [
             {
@@ -139,4 +139,3 @@ def gerar_proposta_reagendamento(planejamento, atividades, disponibilidade=None)
     )
 
     return proposta if proposta != original else None
-

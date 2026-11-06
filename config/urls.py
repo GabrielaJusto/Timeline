@@ -54,6 +54,8 @@ urlpatterns = [
         name="excluir_compromisso",
     ),
 
+    path("agenda/mes/", views.agenda_mensal, name="agenda_mes"),
+
     # Planejamento inteligente
     path(
         "planejamento/",
