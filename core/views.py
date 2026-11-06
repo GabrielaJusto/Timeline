@@ -14,11 +14,13 @@ from .models import (
     Aula,
     Planejamento,
     SessaoPlanejada,
+    PropostaReagendamento,
 )
 from .planej import (
     calcular_prioridade,
     ordenar_atividades,
     distribuir_tempo,
+    gerar_proposta_reagendamento,
 )
 
 from django.shortcuts import render
@@ -149,7 +151,7 @@ def agenda(request):
         .all()
         .order_by("dia_semana", "hora_inicio")
     )
-
+ 
     # Identificar o dia da semana atual
     data_atual = timezone.localdate()
     dia_atual = data_atual.isoweekday()
@@ -173,8 +175,7 @@ def agenda(request):
     # Calcular o progresso real
     total_tarefas = atividades.count()
     tarefas_concluidas = atividades.filter(status="concluida").count()
-
-    # Calcular a porcentagem
+ # Calcular a porcentagem
     if total_tarefas > 0:
         percentual_tarefas = round(
             (tarefas_concluidas / total_tarefas) * 100
@@ -219,8 +220,7 @@ def planejamento(request):
     hoje = timezone.localdate()
     segunda = hoje - timedelta(days=hoje.weekday())
     domingo = segunda + timedelta(days=6)
-
-    # Recebe as horas disponíveis do formulário.
+   # Recebe as horas disponíveis do formulário.
     valores_padrao = [4, 3, 4, 3, 4, 6, 2]
     horas_por_dia = []
 
@@ -248,18 +248,43 @@ def planejamento(request):
         for i, horas in enumerate(horas_por_dia)
     }
 
-    # Gera as sessões de estudo.
+    
+    # Gera uma sugestão de planejamento
     sessoes = distribuir_tempo(
         atividades_ordenadas,
         disponibilidade
     )
+
+    # Se já existe um planejamento salvo, mostra as sessões reais
+    planejamento_salvo = Planejamento.objects.filter(
+        usuario_id=usuario_id,
+        semana_inicio=segunda,
+        semana_fim=domingo,
+        status="ativo"
+    ).first()
+
+    if planejamento_salvo and not (
+        request.method == "POST"
+        and request.POST.get("acao") == "aceitar"
+    ):
+        sessoes = [
+            {
+                "atividade_id": sessao.atividade_id,
+                "atividade": sessao.atividade.titulo,
+                "dia": sessao.data.isoformat(),
+                "duracao_min": sessao.duracao_min,
+                "prioridade": calcular_prioridade(sessao.atividade),
+            }
+            for sessao in planejamento_salvo.sessoes.select_related("atividade")
+        ]
+
 
     # ======================================
     # ACEITAR E SALVAR PLANEJAMENTO
     # ======================================
 
     mensagem = None
-
+  
     if (
         request.method == "POST"
         and request.POST.get("acao") == "aceitar"
@@ -276,19 +301,25 @@ def planejamento(request):
                     semana_fim=domingo,
                     status="ativo",
                     defaults={
-                        "horas_disponiveis": sum(
-                            horas_por_dia
-                        ),
-                        "horas_alocadas": sum(
-                            sessao["duracao_min"]
-                            for sessao in sessoes
-                        ) / 60,
-                    },
+    "horas_disponiveis": sum(horas_por_dia),
+    "horas_alocadas": sum(
+        sessao["duracao_min"]
+        for sessao in sessoes
+    ) / 60,
+    "disponibilidade_diaria": {
+        (segunda + timedelta(days=i)).isoformat(): horas
+        for i, horas in enumerate(horas_por_dia)
+    },
+},
+
                 )
             )
 
             # Remove as sessões anteriores
             # para evitar duplicações.
+            PropostaReagendamento.objects.filter(
+                planejamento=planejamento_salvo, status="pendente"
+            ).update(status="rejeitada")
             planejamento_salvo.sessoes.all().delete()
 
             # Salva as sessões atualizadas.
@@ -304,6 +335,7 @@ def planejamento(request):
             "Planejamento aceito e salvo com sucesso!"
         )
 
+            
     # ======================================
     # CALENDÁRIO SEMANAL
     # ======================================
@@ -349,6 +381,7 @@ def planejamento(request):
 
     total_atividades = len(atividades_semana)
 
+
     total_minutos = sum(
         atividade.duracao_estimada_min or 60
         for atividade in atividades_semana
@@ -358,6 +391,7 @@ def planejamento(request):
         total_minutos / 60,
         1
     )
+
 
     disciplinas = {
         atividade.disciplina_id
@@ -381,6 +415,20 @@ def planejamento(request):
     # ENVIA OS DADOS PARA O HTML
     # ======================================
 
+ 
+    # Mensagens geradas ao marcar uma tarefa como não concluída.
+    from django.contrib import messages as django_messages
+    avisos = [str(aviso) for aviso in django_messages.get_messages(request)]
+    if avisos:
+        mensagem = " ".join(avisos)
+
+    # Busca as propostas de reagendamento pendentes
+    propostas_pendentes = PropostaReagendamento.objects.filter(
+        planejamento__usuario_id=usuario_id,
+        planejamento__semana_inicio=segunda,
+        status="pendente"
+    ).order_by("-criada_em")
+
     contexto = {
         "prioridades": prioridades,
         "dias_semana": dias_semana,
@@ -391,6 +439,7 @@ def planejamento(request):
         "total_disciplinas": total_disciplinas,
         "prazos_importantes": prazos_importantes,
         "mensagem": mensagem,
+        "propostas_pendentes": propostas_pendentes,
     }
 
     return render(
@@ -398,6 +447,7 @@ def planejamento(request):
         "planejamento.html",
         contexto
     )
+
 def agenda_semanal(request):
     from .models import Aula, Compromisso
 
@@ -421,6 +471,7 @@ def agenda_semanal(request):
             "aulas": aulas_do_dia,
             "compromissos": compromissos_do_dia,
         })
+
 
     fim_semana = dias_semana[-1]
 
@@ -467,7 +518,7 @@ def progresso(request):
     atividades = Atividade.objects.filter(usuario_id=1)
 
     total = atividades.count()
-
+    
     concluidas = atividades.filter(
         status="concluida"
     ).count()
@@ -501,6 +552,7 @@ def tarefas(request):
 
 
 @require_POST
+
 def alternar_status_tarefa(request, atividade_id):
     atividade = get_object_or_404(Atividade, id=atividade_id)
 
@@ -513,5 +565,136 @@ def alternar_status_tarefa(request, atividade_id):
 
     return redirect("tarefas")
 
+
+@require_POST
+def marcar_atividade_nao_concluida(request, atividade_id):
+    from django.contrib import messages
+
+    atividade = get_object_or_404(Atividade, id=atividade_id, usuario_id=1)
+    atividade.status = "nao_concluida"
+    atividade.save(update_fields=["status"])
+
+    hoje = timezone.localdate()
+    planejamento_atual = (
+        Planejamento.objects.filter(
+            usuario_id=atividade.usuario_id,
+            semana_inicio__lte=hoje,
+            semana_fim__gte=hoje,
+            status="ativo",
+        ).order_by("-versao", "-id").first()
+    )
+    if planejamento_atual:
+        atividades = list(Atividade.objects.filter(usuario_id=atividade.usuario_id))
+        sessoes = gerar_proposta_reagendamento(planejamento_atual, atividades)
+        if sessoes is not None:
+            PropostaReagendamento.objects.filter(
+                planejamento=planejamento_atual, status="pendente"
+            ).update(status="rejeitada")
+            PropostaReagendamento.objects.create(
+                planejamento=planejamento_atual, sessoes_propostas=sessoes
+            )
+            messages.info(request, "Nova proposta de reagendamento disponível em Planejamento.")
+        else:
+            messages.warning(request, "Atividade marcada como não concluída. Não foi possível gerar uma proposta: confira a disponibilidade diária e o prazo.")
+    else:
+        messages.warning(request, "Atividade marcada como não concluída, mas não há planejamento ativo para esta semana.")
+    return redirect("planejamento")
+
+
 def notificacoes(request):
     return render(request, "notificacoes.html")
+
+@require_POST
+def rejeitar_proposta_reagendamento(request, proposta_id):
+    """
+    Rejeita uma proposta sem alterar
+    o planejamento original.
+    """
+
+    proposta = get_object_or_404(
+        PropostaReagendamento,
+        id=proposta_id,
+        planejamento__usuario_id=1,
+        status="pendente"
+    )
+
+    proposta.status = "rejeitada"
+    proposta.save(update_fields=["status"])
+
+    return redirect("planejamento")
+
+@require_POST
+def aceitar_proposta_reagendamento(request, proposta_id):
+    """
+    Aceita uma proposta e atualiza o planejamento
+    somente após a confirmação do estudante.
+    """
+
+    with transaction.atomic():
+        proposta = get_object_or_404(
+            PropostaReagendamento.objects.select_for_update(),
+            id=proposta_id,
+            planejamento__usuario_id=1,
+            status="pendente"
+        )
+
+        planejamento = proposta.planejamento
+        novas_sessoes = proposta.sessoes_propostas
+
+        # Valida todas as sessões antes de alterar o plano.
+        sessoes_validadas = []
+
+        for sessao in novas_sessoes:
+            atividade = get_object_or_404(
+                Atividade,
+                id=sessao["atividade_id"],
+                usuario_id=planejamento.usuario_id
+            )
+
+            data = datetime.fromisoformat(
+                sessao["dia"]
+            ).date()
+
+            duracao = int(sessao["duracao_min"])
+
+            if (
+                duracao <= 0
+                or not (
+                    planejamento.semana_inicio
+                    <= data
+                    <= planejamento.semana_fim
+                )
+            ):
+                raise ValueError(
+                    "A proposta contém uma sessão inválida."
+                )
+
+
+            sessoes_validadas.append(
+                SessaoPlanejada(
+                    planejamento=planejamento,
+                    atividade=atividade,
+                    data=data,
+                    duracao_min=duracao
+                )
+            )
+
+        # Só modifica o planejamento após validar tudo.
+        planejamento.sessoes.all().delete()
+
+        SessaoPlanejada.objects.bulk_create(
+            sessoes_validadas
+        )
+
+        planejamento.horas_alocadas = (
+            sum(s.duracao_min for s in sessoes_validadas) / 60
+        )
+        planejamento.save(update_fields=["horas_alocadas"])
+
+        PropostaReagendamento.objects.filter(
+            planejamento=planejamento, status="pendente"
+        ).exclude(id=proposta.id).update(status="rejeitada")
+        proposta.status = "aceita"
+        proposta.save(update_fields=["status"])
+
+    return redirect("planejamento")
