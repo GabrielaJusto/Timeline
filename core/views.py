@@ -24,6 +24,7 @@ from .planej import (
     ordenar_atividades,
     distribuir_tempo,
     gerar_proposta_reagendamento,
+    calcular_tempo_restante,
 )
 
 from django.shortcuts import render
@@ -274,7 +275,16 @@ def planejamento(request):
 
     # Define a semana atual.
     hoje = timezone.localdate()
-    segunda = hoje - timedelta(days=hoje.weekday())
+    # REFORMULACAO_SPRINT9: semana selecionavel, sempre iniciando segunda.
+    from datetime import date
+    segunda_atual = hoje - timedelta(days=hoje.weekday())
+    try:
+        semana_solicitada = date.fromisoformat(request.GET.get('semana', '') or request.POST.get('semana', ''))
+        segunda = semana_solicitada - timedelta(days=semana_solicitada.weekday())
+        if segunda < segunda_atual:
+            segunda = segunda_atual
+    except (ValueError, TypeError):
+        segunda = segunda_atual
     domingo = segunda + timedelta(days=6)
    # Recebe as horas disponÃ­veis do formulÃ¡rio.
     valores_padrao = [4, 3, 4, 3, 4, 6, 2]
@@ -323,6 +333,18 @@ def planejamento(request):
     # apagar as sessÃµes de um reagendamento previamente confirmado.
     mensagem = None
     if request.method == "POST" and request.POST.get("acao") == "aceitar":
+        # O POST confirma exatamente a proposta visualizada no GET.
+        # A disponibilidade vai em campos ocultos, sem alterar planos existentes.
+        for i, padrao in enumerate(valores_padrao):
+            try:
+                horas_por_dia[i] = max(0, min(24, float(request.POST.get(f'horas_{i}', padrao))))
+            except (ValueError, TypeError):
+                horas_por_dia[i] = padrao
+        disponibilidade = {
+            (segunda + timedelta(days=i)).isoformat(): (horas if segunda + timedelta(days=i) >= hoje else 0)
+            for i, horas in enumerate(horas_por_dia)
+        }
+        sessoes = distribuir_tempo(atividades_ordenadas, disponibilidade)
         with transaction.atomic():
             plano_existente = Planejamento.objects.select_for_update().filter(
                 usuario_id=usuario_id,
@@ -359,7 +381,7 @@ def planejamento(request):
     # Em acessos normais, sempre mostra as sessÃµes realmente persistidas.
     if planejamento_salvo and not any(
         chave.startswith("horas_") for chave in request.GET
-    ):
+    ) and request.method != 'POST':
         sessoes = [
             {
                 "atividade_id": sessao.atividade_id,
@@ -434,6 +456,29 @@ def planejamento(request):
         if atividade.disciplina_id is not None
     }
 
+    # Alerta: compara o trabalho restante da semana com as horas disponiveis.
+    # Desconsidera tarefas concluidas e tempo ja realizado.
+    minutos_pendentes = sum(
+        calcular_tempo_restante(atividade)
+        for atividade in atividades_semana
+    )
+    # Se ja existe plano salvo, usa sua disponibilidade; em uma nova
+    # simulacao usa os valores informados pelo usuario no formulario.
+    simulando = any(chave.startswith("horas_") for chave in request.GET)
+    if planejamento_salvo and not simulando and planejamento_salvo.disponibilidade_diaria:
+        capacidade_minutos = sum(
+            max(0, int(float(horas) * 60))
+            for dia, horas in planejamento_salvo.disponibilidade_diaria.items()
+            if dia >= hoje.isoformat()
+        )
+    else:
+        capacidade_minutos = sum(int(horas * 60) for horas in disponibilidade.values())
+    deficit_minutos = max(0, minutos_pendentes - capacidade_minutos)
+    alerta_sobrecarga = deficit_minutos > 0
+    horas_pendentes = round(minutos_pendentes / 60, 1)
+    horas_disponiveis = round(capacidade_minutos / 60, 1)
+    horas_excedentes = round(deficit_minutos / 60, 1)
+
     total_disciplinas = len(disciplinas)
 
     prazos_importantes = sum(
@@ -469,8 +514,15 @@ def planejamento(request):
         "dias_semana": dias_semana,
         "semana_inicio": segunda,
         "semana_fim": domingo,
+        "semana_iso": segunda.isoformat(),
+        "proposta_em_visualizacao": any(k.startswith('horas_') for k in request.GET),
+        "planejamento_ja_salvo": bool(planejamento_salvo),
         "total_atividades": total_atividades,
         "total_horas": total_horas,
+        "alerta_sobrecarga": alerta_sobrecarga,
+        "horas_pendentes": horas_pendentes,
+        "horas_disponiveis": horas_disponiveis,
+        "horas_excedentes": horas_excedentes,
         "total_disciplinas": total_disciplinas,
         "prazos_importantes": prazos_importantes,
         "mensagem": mensagem,
@@ -863,3 +915,29 @@ def aceitar_proposta_reagendamento(request, proposta_id):
         proposta.save(update_fields=["status"])
 
     return redirect("planejamento")
+
+
+# Historico de planejamentos aceitos
+def historico_planejamentos(request):
+    usuario_id = 1  # Mesmo usuario provisorio da tela de planejamento
+    planos = (
+        Planejamento.objects.filter(usuario_id=usuario_id)
+        .prefetch_related("sessoes__atividade")
+        .order_by("-semana_inicio", "-versao", "-gerado_em")
+    )
+    nomes = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
+    historico = []
+    for plano in planos:
+        sessoes_por_data = {}
+        for sessao in plano.sessoes.all():
+            sessoes_por_data.setdefault(sessao.data, []).append(sessao)
+        dias = [
+            {
+                "nome": nome,
+                "data": plano.semana_inicio + timedelta(days=i),
+                "sessoes": sessoes_por_data.get(plano.semana_inicio + timedelta(days=i), []),
+            }
+            for i, nome in enumerate(nomes)
+        ]
+        historico.append({"plano": plano, "dias": dias})
+    return render(request, "historico-planejamentos.html", {"historico": historico})

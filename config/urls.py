@@ -81,6 +81,13 @@ urlpatterns = [
         name="rejeitar_proposta_reagendamento",
     ),
 
+    # Historico de planejamentos
+    path(
+        "planejamento/historico/",
+        views.historico_planejamentos,
+        name="historico_planejamentos",
+    ),
+
     # Progresso
     path("progresso/", views.progresso, name="progresso"),
 
