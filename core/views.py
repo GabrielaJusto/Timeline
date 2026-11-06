@@ -263,9 +263,46 @@ def planejamento(request):
         status="ativo"
     ).first()
 
-    if planejamento_salvo and not (
-        request.method == "POST"
-        and request.POST.get("acao") == "aceitar"
+    # Um plano já salvo é a fonte da verdade: aceitar novamente não pode
+    # apagar as sessões de um reagendamento previamente confirmado.
+    mensagem = None
+    if request.method == "POST" and request.POST.get("acao") == "aceitar":
+        with transaction.atomic():
+            plano_existente = Planejamento.objects.select_for_update().filter(
+                usuario_id=usuario_id,
+                semana_inicio=segunda,
+                semana_fim=domingo,
+                status="ativo",
+            ).first()
+            if plano_existente:
+                mensagem = "Planejamento já salvo; sessões preservadas."
+            else:
+                plano_existente = Planejamento.objects.create(
+                    usuario_id=usuario_id,
+                    semana_inicio=segunda,
+                    semana_fim=domingo,
+                    status="ativo",
+                    horas_disponiveis=sum(horas_por_dia),
+                    horas_alocadas=sum(s["duracao_min"] for s in sessoes) / 60,
+                    disponibilidade_diaria={
+                        (segunda + timedelta(days=i)).isoformat(): horas
+                        for i, horas in enumerate(horas_por_dia)
+                    },
+                )
+                SessaoPlanejada.objects.bulk_create([
+                    SessaoPlanejada(
+                        planejamento=plano_existente,
+                        atividade_id=s["atividade_id"],
+                        data=s["dia"],
+                        duracao_min=s["duracao_min"],
+                    ) for s in sessoes
+                ])
+                mensagem = "Planejamento aceito e salvo com sucesso!"
+
+    # Só exibe uma nova simulação quando o usuário informa horas no GET.
+    # Em acessos normais, sempre mostra as sessões realmente persistidas.
+    if planejamento_salvo and not any(
+        chave.startswith("horas_") for chave in request.GET
     ):
         sessoes = [
             {
@@ -278,64 +315,6 @@ def planejamento(request):
             for sessao in planejamento_salvo.sessoes.select_related("atividade")
         ]
 
-
-    # ======================================
-    # ACEITAR E SALVAR PLANEJAMENTO
-    # ======================================
-
-    mensagem = None
-  
-    if (
-        request.method == "POST"
-        and request.POST.get("acao") == "aceitar"
-    ):
-
-        # Salva o planejamento e suas sessões
-        # como uma única operação no banco.
-        with transaction.atomic():
-
-            planejamento_salvo, criado = (
-                Planejamento.objects.update_or_create(
-                    usuario_id=usuario_id,
-                    semana_inicio=segunda,
-                    semana_fim=domingo,
-                    status="ativo",
-                    defaults={
-    "horas_disponiveis": sum(horas_por_dia),
-    "horas_alocadas": sum(
-        sessao["duracao_min"]
-        for sessao in sessoes
-    ) / 60,
-    "disponibilidade_diaria": {
-        (segunda + timedelta(days=i)).isoformat(): horas
-        for i, horas in enumerate(horas_por_dia)
-    },
-},
-
-                )
-            )
-
-            # Remove as sessões anteriores
-            # para evitar duplicações.
-            PropostaReagendamento.objects.filter(
-                planejamento=planejamento_salvo, status="pendente"
-            ).update(status="rejeitada")
-            planejamento_salvo.sessoes.all().delete()
-
-            # Salva as sessões atualizadas.
-            for sessao in sessoes:
-                SessaoPlanejada.objects.create(
-                    planejamento=planejamento_salvo,
-                    atividade_id=sessao["atividade_id"],
-                    data=sessao["dia"],
-                    duracao_min=sessao["duracao_min"],
-                )
-
-        mensagem = (
-            "Planejamento aceito e salvo com sucesso!"
-        )
-
-            
     # ======================================
     # CALENDÁRIO SEMANAL
     # ======================================
