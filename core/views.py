@@ -510,17 +510,49 @@ def configuracoes(request):
 
 
 def tarefas(request):
-    atividades = Atividade.objects.all().order_by("prazo")
+    from django.db.models import Q
 
-    pendentes = atividades.exclude(status="concluida").count()
-    concluidas = atividades.filter(status="concluida").count()
+    atividades = Atividade.objects.all()
+
+    busca = request.GET.get("busca", "").strip()
+    status = request.GET.get("status", "").strip()
+    tipo = request.GET.get("tipo", "").strip()
+    ordem = request.GET.get("ordem", "prazo")
+
+    if busca:
+        atividades = atividades.filter(
+            Q(titulo__icontains=busca) |
+            Q(nome_disciplina__icontains=busca) |
+            Q(disciplina__nome__icontains=busca)
+        ).distinct()
+
+    status_validos = {item[0] for item in Atividade.STATUS}
+    tipos_validos = {item[0] for item in Atividade.TIPOS}
+
+    if status in status_validos:
+        atividades = atividades.filter(status=status)
+
+    if tipo in tipos_validos:
+        atividades = atividades.filter(tipo=tipo)
+
+    if ordem == "prazo_desc":
+        atividades = atividades.order_by("-prazo", "id")
+    elif ordem == "titulo":
+        atividades = atividades.order_by("titulo", "id")
+    else:
+        atividades = atividades.order_by("prazo", "id")
 
     return render(request, "tarefas.html", {
         "atividades": atividades,
-        "pendentes": pendentes,
-        "concluidas": concluidas,
+        "pendentes": atividades.exclude(status="concluida").count(),
+        "concluidas": atividades.filter(status="concluida").count(),
+        "busca": busca,
+        "status_selecionado": status,
+        "tipo_selecionado": tipo,
+        "ordem_selecionada": ordem,
+        "opcoes_status": Atividade.STATUS,
+        "opcoes_tipo": Atividade.TIPOS,
     })
-
 
 @require_POST
 def alternar_status_tarefa(request, atividade_id):

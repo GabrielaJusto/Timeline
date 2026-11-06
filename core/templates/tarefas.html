@@ -152,8 +152,7 @@
 
         <div class="menu">
             <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
-            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+<a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
             <a href="{% url 'tarefas' %}" class="ativo">☷ &nbsp; Tarefas</a>
             <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
             <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
@@ -180,6 +179,107 @@
             <div>
                 <span class="etiqueta-tarefas">SEU ESPAÇO</span>
                 <h1>Minhas Tarefas</h1>
+
+<!-- FILTROS FUNCIONAIS DE TAREFAS -->
+<style>
+.filtros-tarefas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+    margin: 20px 0;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e8e8ef;
+    border-radius: 14px;
+}
+.filtros-tarefas label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+}
+.filtros-tarefas input,
+.filtros-tarefas select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font: inherit;
+    min-width: 140px;
+}
+.filtros-tarefas button {
+    background: #7477e8;
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 18px;
+    cursor: pointer;
+}
+.filtros-tarefas .limpar {
+    padding: 10px;
+    color: #7477e8;
+    text-decoration: none;
+}
+</style>
+
+<form method="get" action="{% url 'tarefas' %}" class="filtros-tarefas">
+    <label>
+        Buscar
+        <input type="search" name="busca"
+               value="{{ busca }}"
+               placeholder="Título ou disciplina">
+    </label>
+
+    <label>
+        Status
+        <select name="status">
+            <option value="">Todos</option>
+            {% for valor, nome in opcoes_status %}
+                <option value="{{ valor }}"
+                    {% if status_selecionado == valor %}selected{% endif %}>
+                    {{ nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <label>
+        Tipo
+        <select name="tipo">
+            <option value="">Todos</option>
+            {% for valor, nome in opcoes_tipo %}
+                <option value="{{ valor }}"
+                    {% if tipo_selecionado == valor %}selected{% endif %}>
+                    {{ nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <label>
+        Ordenar
+        <select name="ordem">
+            <option value="prazo"
+                {% if ordem_selecionada == "prazo" %}selected{% endif %}>
+                Prazo mais próximo
+            </option>
+            <option value="prazo_desc"
+                {% if ordem_selecionada == "prazo_desc" %}selected{% endif %}>
+                Prazo mais distante
+            </option>
+            <option value="titulo"
+                {% if ordem_selecionada == "titulo" %}selected{% endif %}>
+                Título A-Z
+            </option>
+        </select>
+    </label>
+
+    <button type="submit">Filtrar</button>
+    <a class="limpar" href="{% url 'tarefas' %}">Limpar</a>
+</form>
+
                 <p class="subtitulo-tarefas">
                     Organize e acompanhe todas as suas atividades.
                 </p>
@@ -259,3 +359,4 @@
 
 </body>
 </html>
+
