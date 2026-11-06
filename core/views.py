@@ -7,6 +7,8 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
 
 from .forms import AtividadeForm
 from .models import (
@@ -28,6 +30,59 @@ from .forms import AtividadeForm
 from datetime import datetime, time
 from .forms import CompromissoForm
 from .models import Atividade, Compromisso, Disciplina 
+
+
+def pagina_login(request):
+    if request.user.is_authenticated:
+        return redirect("hoje")
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        usuario = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if usuario is not None:
+            login(request, usuario)
+            return redirect("hoje")
+
+        return render(
+            request,
+            "login.html",
+            {"erro": "Usuário ou senha incorretos."}
+        )
+
+    return render(request, "login.html")
+
+def pagina_cadastro(request):
+    if request.user.is_authenticated:
+        return redirect("hoje")
+
+    if request.method == "POST":
+        formulario = UserCreationForm(request.POST)
+
+        if formulario.is_valid():
+            usuario = formulario.save()
+            login(request, usuario)
+            return redirect("hoje")
+    else:
+        formulario = UserCreationForm()
+
+    return render(
+        request,
+        "cadastro.html",
+        {"formulario": formulario}
+    )
+
+@require_POST
+def pagina_logout(request):
+    logout(request)
+    return redirect("login")
+
 
 # ==========================================
 # PÁGINA HOJE

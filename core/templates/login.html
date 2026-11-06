@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Timeline</title>
+</head>
+<body>
+
+    <main>
+        <h1>Timeline</h1>
+        <p>Entre na sua conta para organizar sua rotina.</p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div>
+                <label for="usuario">Usuário</label>
+                <input
+                    type="text"
+                    id="usuario"
+                    name="username"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="senha">Senha</label>
+                <input
+                    type="password"
+                    id="senha"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            {% if erro %}
+                <p role="alert">{{ erro }}</p>
+            {% endif %}
+
+            <button type="submit">Entrar</button>
+        </form>
+    </main>
+
+</body>
+</html>

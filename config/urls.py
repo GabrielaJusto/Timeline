@@ -5,6 +5,9 @@ from core import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("login/", views.pagina_login, name="login"),
+    path("logout/", views.pagina_logout, name="logout"),
+    path("cadastro/", views.pagina_cadastro, name="cadastro"),
     path("hoje/", views.hoje, name="hoje"),
     path("tarefas/", views.tarefas, name="tarefas"),
     path(
