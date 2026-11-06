@@ -289,6 +289,12 @@
                                     <p>
                                         {{ sessao.duracao_min }} minutos
                                     </p>
+                                    {% if sessao.id %}
+    <a href="{% url 'editar_sessao_planejamento' sessao.id %}"
+       class="botao-editar-sessao">
+        ✏️ Editar
+    </a>
+{% endif %}
                                 </div>
                                 {% empty %}
                                 <span class="sem-atividade">

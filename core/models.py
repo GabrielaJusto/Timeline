@@ -233,6 +233,7 @@ class SessaoPlanejada(models.Model):
     )
     data = models.DateField()
     duracao_min = models.PositiveIntegerField()
+    hora_inicio = models.TimeField(null=True, blank = True)
 
     def __str__(self):
         return (

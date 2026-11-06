@@ -61,6 +61,13 @@ urlpatterns = [
         name="planejamento",
     ),
 
+        # Edicao manual das sessoes do planejamento
+    path(
+        "planejamento/sessao/<int:sessao_id>/editar/",
+        views.editar_sessao_planejamento,
+        name="editar_sessao_planejamento",
+    ),
+
     # Aceitar proposta de reagendamento
     path(
         "planejamento/proposta/<int:proposta_id>/aceitar/",

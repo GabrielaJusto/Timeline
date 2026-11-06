@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editar sessao | Timeline</title><link rel="stylesheet" href="{% static 'css/planejamento.css' %}">
+<style>
+.edicao-card{background:#fff;padding:28px;border-radius:14px;max-width:760px;margin:24px 0;box-shadow:0 3px 18px #20123d12}
+.edicao-card label{display:block;font-weight:600;margin:16px 0 7px}.edicao-card input[type=date],.edicao-card input[type=time]{display:block;padding:10px;border:1px solid #ccc;border-radius:8px;max-width:260px;width:100%}
+.edicao-card button{background:#6048d8;color:white;border:0;border-radius:9px;padding:12px 18px;cursor:pointer;margin-top:18px}
+.edicao-card .aviso{background:#fff3dd;border-left:4px solid #ce8c16;padding:14px;margin-top:20px;border-radius:6px}
+.edicao-card .erro{background:#ffe7e7;border-left:4px solid #d94444;padding:12px;margin:16px 0}
+.edicao-card .escolha{display:block;padding:9px 0;font-weight:400}
+.edicao-card a{color:#49318a}
+</style></head><body>
+<aside><h2>Timeline</h2><nav><a href="{% url 'hoje' %}">Hoje</a><a href="{% url 'agenda' %}">Agenda</a><a href="{% url 'agenda_semana' %}">Calendario</a><a href="{% url 'tarefas' %}">Tarefas</a><a href="{% url 'planejamento' %}" class="ativo">Planejamento Inteligente</a><a href="{% url 'progresso' %}">Progresso</a></nav></aside>
+<main><header><p>PLANEJAMENTO INTELIGENTE</p><h1>Editar atividade</h1><p>{{ sessao.atividade.titulo }}</p></header>
+<section class="edicao-card"><h2>Escolha o dia e horario</h2>
+<p>Duracao: {{ sessao.duracao_min }} minutos. Semana: {{ sessao.planejamento.semana_inicio|date:'d/m' }} a {{ sessao.planejamento.semana_fim|date:'d/m/Y' }}.</p>
+<form method="post">{% csrf_token %}
+<label for="data">Data</label><input id="data" type="date" name="data" value="{{ data_selecionada }}" min="{{ sessao.planejamento.semana_inicio|date:'Y-m-d' }}" max="{{ sessao.planejamento.semana_fim|date:'Y-m-d' }}" required>
+<label for="hora_inicio">Horario de inicio</label><input id="hora_inicio" type="time" name="hora_inicio" value="{{ hora_inicio }}" required>
+{% if erro %}<div class="erro">{{ erro }}</div>{% endif %}
+{% if conflito %}<div class="aviso"><strong>{{ conflito }}</strong><p>Escolha qual atividade deve permanecer no horario:</p>
+<label class="escolha"><input type="radio" name="decisao" value="manter_editada" {% if request.POST.decisao == 'manter_editada' %}checked{% endif %}> Manter esta atividade no horario escolhido e realocar a outra</label>
+<label class="escolha"><input type="radio" name="decisao" value="manter_outra" {% if request.POST.decisao == 'manter_outra' %}checked{% endif %}> Manter a outra atividade e realocar esta</label>
+{% if sugestao %}<p><strong>Horario sugerido para {{ sugestao.titulo }}:</strong> {{ sugestao.data }} as {{ sugestao.hora }}</p>
+<input type="hidden" name="sugestao_data" value="{{ sugestao.data }}"><input type="hidden" name="sugestao_hora" value="{{ sugestao.hora }}">
+<button type="submit" name="confirmar" value="1">Confirmar realocacao sugerida</button>
+{% else %}<button type="submit">Buscar sugestao</button>{% endif %}
+</div>{% else %}<button type="submit">Salvar horario</button>{% endif %}
+</form><p><a href="{% url 'planejamento' %}?semana={{ sessao.planejamento.semana_inicio|date:'Y-m-d' }}">Voltar ao planejamento</a></p>
+</section></main></body></html>
