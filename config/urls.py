@@ -2,8 +2,12 @@
 from django.contrib import admin
 from django.urls import path
 from core import views
+from core import views_ia
 
 urlpatterns = [
+    path("planejamento/ia/", views_ia.personalizacao_ia, name="personalizacao_ia"),
+    path("planejamento/ia/<int:proposta_id>/aceitar/", views_ia.aceitar_ia, name="aceitar_ia"),
+    path("planejamento/ia/<int:proposta_id>/rejeitar/", views_ia.rejeitar_ia, name="rejeitar_ia"),
     path("admin/", admin.site.urls),
 
     # Página inicial

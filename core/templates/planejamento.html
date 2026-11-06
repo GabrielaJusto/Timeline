@@ -47,6 +47,11 @@
             <a class="botao-historico" href="{% url 'historico_planejamentos' %}">Ver planejamentos anteriores</a>
         </div>
 
+        <section style="border:2px solid #6048d8; border-radius:12px; padding:18px; margin-bottom:20px;">
+            <h2>Personalização com Inteligência Artificial</h2>
+            <p>Descreva em linguagem natural como deseja reorganizar seu planejamento salvo.</p>
+            <a href="{% url 'personalizacao_ia' %}?semana={{ semana_iso }}" style="display:inline-block; padding:12px 18px; border-radius:9px; background:#6048d8; color:white; text-decoration:none;">Personalizar com IA</a>
+        </section>
         <!-- SEÇÃO 1: DISPONIBILIDADE -->
         <section>
             <h2>1. Seleção da semana e disponibilidade</h2>

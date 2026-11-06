@@ -261,3 +261,12 @@ class PropostaReagendamento(models.Model):
 
     def __str__(self):
         return f"Proposta {self.id} - {self.status}"
+
+class PropostaPersonalizacaoIA(models.Model):
+    planejamento = models.ForeignKey(Planejamento, on_delete=models.CASCADE, related_name="propostas_ia")
+    solicitacao = models.TextField()
+    explicacao = models.TextField(blank=True)
+    sessoes_propostas = models.JSONField(default=list)
+    assinatura_original = models.CharField(max_length=64)
+    status = models.CharField(max_length=20, default="pendente", choices=[("pendente", "Pendente"), ("aceita", "Aceita"), ("rejeitada", "Rejeitada")])
+    criada_em = models.DateTimeField(auto_now_add=True)

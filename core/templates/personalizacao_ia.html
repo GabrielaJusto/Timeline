@@ -1,0 +1,22 @@
+{% load static %}
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Personalização IA | Timeline</title><link rel="stylesheet" href="{% static 'css/planejamento.css' %}"><style>.ia-box{background:white;border-radius:12px;padding:24px;margin:20px 0}.ia-box textarea{width:100%;min-height:110px;padding:12px;box-sizing:border-box;border:1px solid #bbb;border-radius:8px}.ia-actions{display:flex;gap:12px;flex-wrap:wrap}.ia-actions button{padding:12px 20px}.ia-table{width:100%;border-collapse:collapse}.ia-table td,.ia-table th{padding:9px;border-bottom:1px solid #ddd;text-align:left}</style></head><body>
+<aside><h2>Timeline</h2><nav>
+<a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+<a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
+<a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+<a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+<a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+<a href="{% url 'personalizacao_ia' %}?semana={{ semana }}" class="ativo">✦ &nbsp; Personalização com IA</a>
+<a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+<a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+</nav></aside><main>
+<header><p>ORGANIZAÇÃO SEMANAL</p><h1>Personalização com IA</h1><p>Semana de {{ plano.semana_inicio|date:"d/m/Y" }} a {{ plano.semana_fim|date:"d/m/Y" }}</p><a href="{% url 'planejamento' %}?semana={{ semana }}">Voltar ao planejamento</a></header>
+<div class="ia-box" style="border-left:4px solid {% if chave_ativa %}#16a34a{% else %}#dc2626{% endif %}">
+<strong>Diagnóstico do servidor nesta página:</strong>
+{% if chave_ativa %}Chave da API reconhecida. Mensagens antigas sobre chave ausente podem ser ignoradas.{% else %}Chave da API ausente neste processo. Inicie o servidor no terminal em que aparece CHAVE OK.{% endif %}
+</div>
+{% for message in messages %}<div class="ia-box" role="alert">{{ message }}</div>{% endfor %}
+<section class="ia-box"><h2>Peça um ajuste em linguagem natural</h2><p><strong>Modo de teste:</strong> o botao verde usa regras locais, sem inteligencia artificial e sem consumir creditos. O botao de IA real continua disponivel para quando houver creditos.</p><p>Exemplo: priorize Matemática na terça de manhã e deixe a sexta mais livre. A IA não altera o planejamento até você aceitar.</p><form method="post">{% csrf_token %}<input type="hidden" name="semana" value="{{ semana }}"><textarea name="pedido" maxlength="1500" required placeholder="Descreva o que gostaria de mudar..."></textarea><p><button type="submit">Gerar proposta com IA real</button> <button type="submit" name="modo" value="simulacao" style="background:#177c60;color:white;margin-left:8px">Testar simulacao gratuita</button></p></form></section>
+{% if proposta %}<section class="ia-box"><h2>Proposta da IA</h2><p><strong>Pedido:</strong> {{ proposta.solicitacao }}</p><p>{{ proposta.explicacao }}</p><table class="ia-table"><thead><tr><th>Atividade</th><th>Dia</th><th>Hora</th><th>Duração</th></tr></thead><tbody>{% for s in sugestoes %}<tr><td>{{ s.nome }}</td><td>{{ s.dia }}</td><td>{{ s.hora_inicio }}</td><td>{{ s.duracao_min }} min</td></tr>{% endfor %}</tbody></table><div class="ia-actions"><form method="post" action="{% url 'aceitar_ia' proposta.id %}">{% csrf_token %}<button type="submit">Aceitar proposta</button></form><form method="post" action="{% url 'rejeitar_ia' proposta.id %}">{% csrf_token %}<button type="submit">Rejeitar proposta</button></form></div><p>Quer outro ajuste? Escreva um novo pedido acima. A proposta anterior será substituída, sem alterar seu plano.</p></section>{% endif %}
+<section class="ia-box"><h2>Planejamento original (preservado até a confirmação)</h2><table class="ia-table"><thead><tr><th>Atividade</th><th>Dia</th><th>Hora</th><th>Duração</th></tr></thead><tbody>{% for s in atuais %}<tr><td>{{ s.nome }}</td><td>{{ s.dia }}</td><td>{{ s.hora_inicio|default:"Sem horário" }}</td><td>{{ s.duracao_min }} min</td></tr>{% endfor %}</tbody></table></section>
+</main></body></html>
