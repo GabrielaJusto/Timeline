@@ -1,0 +1,617 @@
+
+from datetime import datetime, time, timedelta
+
+from django.db import transaction
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.utils import timezone
+
+from .forms import AtividadeForm
+from .models import (
+    AlertaCarga,
+    Atividade,
+    Aula,
+    Planejamento,
+    SessaoPlanejada,
+)
+from .planej import (
+    calcular_prioridade,
+    ordenar_atividades,
+    distribuir_tempo,
+)
+
+from django.shortcuts import render
+from .models import Atividade
+from django.shortcuts import redirect, get_object_or_404
+from .forms import AtividadeForm
+from datetime import datetime, time
+from .forms import CompromissoForm
+from .models import Atividade, Compromisso, Disciplina 
+
+# ==========================================
+# PÁGINA HOJE
+# ==========================================
+
+def hoje(request):
+    atividades = Atividade.objects.all().order_by("prazo")
+
+    data_atual = timezone.localdate()
+    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
+
+    dias_semana = [
+        inicio_semana + timedelta(days=i)
+        for i in range(7)
+    ]
+
+    fim_semana = dias_semana[-1]
+
+    total_atividades = atividades.count()
+    concluidas = atividades.filter(status="concluida").count()
+    pendentes = atividades.exclude(status="concluida").count()
+
+    return render(request, "hoje.html", {
+        "total_avisos": contar_avisos(1),
+        "atividades": atividades,
+        "total_atividades": total_atividades,
+        "concluidas": concluidas,
+        "pendentes": pendentes,
+        "data_atual": data_atual,
+        "inicio_semana": inicio_semana,
+        "fim_semana": fim_semana,
+        "dias_semana": dias_semana,
+    })
+
+
+# ==========================================
+# ADICIONAR TAREFA
+# ==========================================
+
+def adicionar_tarefa(request):
+    if request.method == "POST":
+        form = AtividadeForm(request.POST)
+
+        if form.is_valid():
+            atividade = form.save(commit=False)
+
+            data = form.cleaned_data["data_entrega"]
+            horario = form.cleaned_data["horario"]
+
+            if horario is None:
+                horario = time(23, 59)
+
+            prazo = datetime.combine(data, horario)
+            atividade.prazo = timezone.make_aware(prazo)
+
+            atividade.usuario_id = 1  # Provisório para testes
+
+            nome_disciplina = form.cleaned_data["nome_disciplina"].strip()
+
+            atividade.nome_disciplina = nome_disciplina
+
+            atividade.save()
+
+            return redirect("hoje")
+
+    else:
+        form = AtividadeForm()
+
+    atividades = Atividade.objects.all().order_by("prazo")
+
+    total_atividades = atividades.count()
+    concluidas = atividades.filter(status="concluida").count()
+    pendentes = atividades.exclude(status="concluida").count()
+
+    progresso = (
+        int(concluidas / total_atividades * 100)
+        if total_atividades > 0
+        else 0
+    )
+
+    data_atual = timezone.localdate()
+    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
+
+    dias_semana = [
+        inicio_semana + timedelta(days=i)
+        for i in range(7)
+    ]
+
+    fim_semana = dias_semana[-1]
+
+    return render(request, "adicionar-tarefa.html", {
+        "total_avisos": contar_avisos(1),
+        "form": form,
+        "data_atual": data_atual,
+        "inicio_semana": inicio_semana,
+        "fim_semana": fim_semana,
+        "dias_semana": dias_semana,
+        "atividades": atividades,
+        "total_atividades": total_atividades,
+        "concluidas": concluidas,
+        "pendentes": pendentes,
+    })
+
+
+# ==========================================
+# PÁGINA INICIAL
+# ==========================================
+
+def inicio(request):
+    return render(request, "index.html")
+
+
+# ==========================================
+# AGENDA
+# ==========================================
+
+def agenda(request):
+    aulas = (
+        Aula.objects
+        .select_related("disciplina")
+        .all()
+        .order_by("dia_semana", "hora_inicio")
+    )
+
+    return render(request, "agenda.html", {
+        "aulas": aulas
+    })
+
+
+# ==========================================
+# PLANEJAMENTO INTELIGENTE
+# ==========================================
+
+def planejamento(request):
+    usuario_id = 1  # Provisório para testes
+
+    # Busca as atividades do usuário.
+    atividades = Atividade.objects.filter(
+        usuario_id=usuario_id
+    )
+
+    # Calcula a prioridade das atividades.
+    atividades_ordenadas = ordenar_atividades(atividades)
+
+    prioridades = [
+        {
+            "atividade": atividade,
+            "score": calcular_prioridade(atividade),
+        }
+        for atividade in atividades_ordenadas
+    ]
+
+    # Define a semana atual.
+    hoje = timezone.localdate()
+    segunda = hoje - timedelta(days=hoje.weekday())
+    domingo = segunda + timedelta(days=6)
+
+    # Recebe as horas disponíveis do formulário.
+    valores_padrao = [4, 3, 4, 3, 4, 6, 2]
+    horas_por_dia = []
+
+    for i, valor_padrao in enumerate(valores_padrao):
+        valor = request.GET.get(
+            f"horas_{i}",
+            valor_padrao
+        )
+
+        try:
+            horas = float(valor)
+            horas = max(0, min(24, horas))
+        except (ValueError, TypeError):
+            horas = valor_padrao
+
+        horas_por_dia.append(horas)
+
+    # Impede alocação em dias que já passaram.
+    disponibilidade = {
+        (segunda + timedelta(days=i)).isoformat(): (
+            horas
+            if segunda + timedelta(days=i) >= hoje
+            else 0
+        )
+        for i, horas in enumerate(horas_por_dia)
+    }
+
+    # Gera as sessões de estudo.
+    sessoes = distribuir_tempo(
+        atividades_ordenadas,
+        disponibilidade
+    )
+
+    # ======================================
+    # ACEITAR E SALVAR PLANEJAMENTO
+    # ======================================
+
+    mensagem = None
+
+    if (
+        request.method == "POST"
+        and request.POST.get("acao") == "aceitar"
+    ):
+
+        # Salva o planejamento e suas sessões
+        # como uma única operação no banco.
+        with transaction.atomic():
+
+            planejamento_salvo, criado = (
+                Planejamento.objects.update_or_create(
+                    usuario_id=usuario_id,
+                    semana_inicio=segunda,
+                    semana_fim=domingo,
+                    status="ativo",
+                    defaults={
+                        "horas_disponiveis": sum(
+                            horas_por_dia
+                        ),
+                        "horas_alocadas": sum(
+                            sessao["duracao_min"]
+                            for sessao in sessoes
+                        ) / 60,
+                    },
+                )
+            )
+
+            # Remove as sessões anteriores
+            # para evitar duplicações.
+            planejamento_salvo.sessoes.all().delete()
+
+            # Salva as sessões atualizadas.
+            for sessao in sessoes:
+                SessaoPlanejada.objects.create(
+                    planejamento=planejamento_salvo,
+                    atividade_id=sessao["atividade_id"],
+                    data=sessao["dia"],
+                    duracao_min=sessao["duracao_min"],
+                )
+
+        mensagem = (
+            "Planejamento aceito e salvo com sucesso!"
+        )
+
+    # ======================================
+    # CALENDÁRIO SEMANAL
+    # ======================================
+
+    dias_semana = []
+
+    nomes_dias = [
+        "Segunda",
+        "Terça",
+        "Quarta",
+        "Quinta",
+        "Sexta",
+        "Sábado",
+        "Domingo",
+    ]
+
+    for i, nome in enumerate(nomes_dias):
+        data = segunda + timedelta(days=i)
+
+        sessoes_do_dia = [
+            sessao
+            for sessao in sessoes
+            if sessao["dia"] == data.isoformat()
+        ]
+
+        dias_semana.append({
+            "nome": nome,
+            "data": data,
+            "sessoes": sessoes_do_dia,
+        })
+
+    # ======================================
+    # RESUMO AUTOMÁTICO
+    # ======================================
+
+    atividades_semana = [
+        atividade
+        for atividade in atividades_ordenadas
+        if segunda <= timezone.localtime(
+            atividade.prazo
+        ).date() <= domingo
+    ]
+
+    total_atividades = len(atividades_semana)
+
+    total_minutos = sum(
+        atividade.duracao_estimada_min or 60
+        for atividade in atividades_semana
+    )
+
+    total_horas = round(
+        total_minutos / 60,
+        1
+    )
+
+    disciplinas = {
+        atividade.disciplina_id
+        for atividade in atividades_semana
+        if atividade.disciplina_id is not None
+    }
+
+    total_disciplinas = len(disciplinas)
+
+    prazos_importantes = sum(
+        1
+        for atividade in atividades_semana
+        if 0 <= (
+            timezone.localtime(
+                atividade.prazo
+            ).date() - hoje
+        ).days <= 3
+    )
+
+    # ======================================
+    # ENVIA OS DADOS PARA O HTML
+    # ======================================
+
+    contexto = {
+        "prioridades": prioridades,
+        "dias_semana": dias_semana,
+        "semana_inicio": segunda,
+        "semana_fim": domingo,
+        "total_atividades": total_atividades,
+        "total_horas": total_horas,
+        "total_disciplinas": total_disciplinas,
+        "prazos_importantes": prazos_importantes,
+        "mensagem": mensagem,
+    }
+
+    return render(
+        request,
+        "planejamento.html",
+        contexto
+    )
+def agenda_semanal(request):
+    from .models import Aula, Compromisso
+
+    data_atual = timezone.localdate()
+    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
+    dias_semana = [inicio_semana + timedelta(days=i) for i in range(7)]
+
+    dias = []
+
+    for i, data in enumerate(dias_semana, start=1):
+        aulas_do_dia = Aula.objects.filter(
+            dia_semana=i
+        ).select_related("disciplina").order_by("hora_inicio")
+
+        compromissos_do_dia = Compromisso.objects.filter(
+            inicio__date=data
+        ).order_by("inicio")
+
+        dias.append({
+            "data": data,
+            "aulas": aulas_do_dia,
+            "compromissos": compromissos_do_dia,
+        })
+
+    fim_semana = dias_semana[-1]
+
+    aulas = Aula.objects.select_related("disciplina").all().order_by(
+        "dia_semana", "hora_inicio"
+    )
+
+    return render(request, "agenda-semana.html", {
+        "aulas": aulas,
+        "data_atual": data_atual,
+        "inicio_semana": inicio_semana,
+        "fim_semana": fim_semana,
+        "dias_semana": dias_semana,
+        "dias": dias,
+    })
+
+def novo_compromisso(request):
+    if request.method == "POST":
+        form = CompromissoForm(request.POST)
+        if form.is_valid():
+            compromisso = form.save(commit=False)
+            compromisso.usuario_id = 1  # Provisório para testes
+            compromisso.save()
+            return redirect("agenda_semana")
+    else:
+        form = CompromissoForm()
+
+    return render(request, "novo-compromisso.html", {"form": form})
+
+def excluir_compromisso(request, compromisso_id):
+    compromisso = get_object_or_404(
+        Compromisso,
+        id=compromisso_id,
+        usuario_id=1
+    )
+
+    if request.method == "POST":
+        compromisso.delete()
+        return redirect("agenda_semana")
+
+    return redirect("agenda_semana")
+
+def progresso(request):
+    atividades = Atividade.objects.filter(usuario_id=1)
+
+    total = atividades.count()
+
+    concluidas = atividades.filter(
+        status="concluida"
+    ).count()
+
+    percentual = round(
+        (concluidas / total) * 100
+    ) if total > 0 else 0
+
+    return render(request, "progresso.html", {
+        "total": total,
+        "concluidas": concluidas,
+        "percentual": percentual,
+        "por_disciplina": [],
+    })
+
+def configuracoes(request):
+    return render(request, "configuracoes.html")
+
+
+# ==========================================
+# NOTIFICAÇÕES
+# ==========================================
+
+# Faixas do índice de carga da semana.
+# O índice é a razão entre horas alocadas e horas disponíveis.
+NIVEIS_DE_CARGA = [
+    (1.0, "Carga crítica", (
+        "O planejamento da semana pede mais tempo do que você tem. "
+        "Reduza o escopo ou adie alguma atividade."
+    )),
+    (0.8, "Carga alta", (
+        "Sua semana está quase cheia. "
+        "Evite assumir novos compromissos."
+    )),
+]
+
+
+def alerta_de_carga(usuario_id):
+    """
+    Devolve o alerta de carga do planejamento ativo da semana.
+
+    Retorna uma lista para o template poder percorrer,
+    vazia quando não há planejamento ou a carga está tranquila.
+    """
+
+    hoje = timezone.localdate()
+    segunda = hoje - timedelta(days=hoje.weekday())
+
+    planejamento = (
+        Planejamento.objects
+        .filter(
+            usuario_id=usuario_id,
+            semana_inicio=segunda,
+            status="ativo",
+        )
+        .order_by("-versao")
+        .first()
+    )
+
+    if planejamento is None:
+        return []
+
+    disponiveis = float(planejamento.horas_disponiveis or 0)
+
+    if disponiveis <= 0:
+        return []
+
+    indice = float(planejamento.horas_alocadas or 0) / disponiveis
+
+    for limite, nivel, recomendacao in NIVEIS_DE_CARGA:
+        if indice >= limite:
+            alerta, _ = AlertaCarga.objects.update_or_create(
+                planejamento=planejamento,
+                defaults={
+                    "indice_carga": round(indice, 2),
+                    "nivel": nivel,
+                    "recomendacao": recomendacao,
+                },
+            )
+            return [alerta]
+
+    # A carga voltou ao normal: remove o alerta antigo.
+    AlertaCarga.objects.filter(planejamento=planejamento).delete()
+
+    return []
+
+
+def atividades_em_aviso(usuario_id):
+    """
+    Separa as atividades atrasadas das que vencem em sete dias.
+    """
+
+    agora = timezone.now()
+
+    pendentes = Atividade.objects.filter(
+        usuario_id=usuario_id,
+    ).exclude(
+        status__in=["concluida", "nao_concluida"],
+    )
+
+    atrasadas = pendentes.filter(
+        prazo__lt=agora,
+    ).order_by("prazo")
+
+    proximas = pendentes.filter(
+        prazo__gte=agora,
+        prazo__lte=agora + timedelta(days=7),
+    ).select_related("disciplina").order_by("prazo")
+
+    return atrasadas, proximas
+
+
+def contar_avisos(usuario_id):
+    """
+    Total de avisos exibido no menu lateral.
+
+    Diferente da página de notificações, aqui o alerta de carga
+    é apenas lido, nunca recalculado ou gravado.
+    """
+
+    atrasadas, proximas = atividades_em_aviso(usuario_id)
+
+    alertas = AlertaCarga.objects.filter(
+        planejamento__usuario_id=usuario_id,
+    ).count()
+
+    return atrasadas.count() + proximas.count() + alertas
+
+
+def notificacoes(request):
+    usuario_id = 1  # Provisório para testes
+
+    atrasadas, proximas = atividades_em_aviso(usuario_id)
+
+    alertas = alerta_de_carga(usuario_id)
+
+    total_semana = proximas.count()
+
+    return render(request, "notificacoes.html", {
+        "alertas": alertas,
+        "atrasadas": atrasadas,
+        "atividades": proximas,
+        "total_semana": total_semana,
+        "total_avisos": (
+            len(alertas)
+            + atrasadas.count()
+            + total_semana
+        ),
+    })
+
+
+def cadastrar_atividade_cacau(request):
+    if request.method == "POST":
+        form = AtividadeForm(request.POST)
+
+        if form.is_valid():
+            atividade = form.save(commit=False)
+
+            data = form.cleaned_data["data_entrega"]
+            horario = form.cleaned_data["horario"]
+
+            if horario is None:
+                horario = time(23, 59)
+
+            prazo = datetime.combine(data, horario)
+            atividade.prazo = timezone.make_aware(prazo)
+
+            atividade.usuario_id = 1  # Provisório para testes
+
+            atividade.nome_disciplina = (
+                form.cleaned_data["nome_disciplina"].strip()
+            )
+
+            atividade.save()
+
+            return redirect("notificacoes")
+
+    else:
+        form = AtividadeForm()
+
+    return render(request, "cadastrar-atividade-cacau.html", {
+        "form": form,
+    })
