@@ -1,27 +1,14 @@
-
 from datetime import date, timedelta
 from django.utils import timezone
 
 
 def calcular_prioridade(atividade):
-    """
-    Calcula a prioridade de uma atividade considerando:
-    - proximidade do prazo
-    - importância
-    - dificuldade
-    - peso na nota
-    """
-
     agora = timezone.now()
-
-    # Calcula quantos dias faltam até o prazo.
-    tempo_restante = atividade.prazo - agora
-    dias_restantes = tempo_restante.total_seconds() / 86400
-
-    # Urgência: quanto mais próximo o prazo, maior a pontuação.
-    if dias_restantes < 0:
-        urgencia = 10
-    elif dias_restantes <= 1:
+    if atividade.prazo is None:
+        dias_restantes = float('inf')
+    else:
+        dias_restantes = (atividade.prazo - agora).total_seconds() / 86400
+    if dias_restantes <= 1:
         urgencia = 10
     elif dias_restantes <= 3:
         urgencia = 8
@@ -31,104 +18,124 @@ def calcular_prioridade(atividade):
         urgencia = 4
     else:
         urgencia = 2
-
-    # Escala assumida: importância e dificuldade de 1 a 5.
     importancia = max(1, min(5, atividade.importancia or 3)) * 2
     dificuldade = max(1, min(5, atividade.dificuldade or 3)) * 2
-
-    # Peso na nota: assumimos percentual de 0 a 100.
     peso = max(0, min(100, float(atividade.peso_nota or 0))) / 10
-
-    # Pontuação final: escala aproximada de 0 a 10.
-    score = (
-        urgencia * 0.40
-        + importancia * 0.30
-        + dificuldade * 0.15
-        + peso * 0.15
-    )
-
-    return round(score, 2)
+    return round(urgencia * .40 + importancia * .30 + dificuldade * .15 + peso * .15, 2)
 
 
 def ordenar_atividades(atividades):
-    """
-    Retorna as atividades pendentes em ordem de prioridade.
-    """
+    return sorted((a for a in atividades if a.status != 'concluida'), key=calcular_prioridade, reverse=True)
 
-    pendentes = [
-        atividade
-        for atividade in atividades
-        if atividade.status not in ("concluida", "nao_concluida")
-    ]
 
-    return sorted(
-        pendentes,
-        key=calcular_prioridade,
-        reverse=True
-    )
+def calcular_tempo_restante(atividade):
+    if atividade.status == 'concluida':
+        return 0
+    estimado = atividade.duracao_estimada_min or 60
+    realizado = atividade.duracao_real_min or 0
+    return max(0, estimado - realizado)
 
 
 def distribuir_tempo(atividades, disponibilidade):
-    """
-    Distribui atividades nos dias disponíveis.
-
-    disponibilidade:
-        Dicionário com a data e as horas livres.
-        Exemplo: {"2026-11-02": 3, "2026-11-03": 2}
-
-    Retorna uma lista de sessões de estudo.
-    """
-
-    atividades_ordenadas = ordenar_atividades(atividades)
-
-    # Converte as horas disponíveis para minutos.
-    minutos_disponiveis = {
-        dia: max(0, int(horas * 60))
-        for dia, horas in disponibilidade.items()
-    }
-
-    planejamento = []
-
-    for atividade in atividades_ordenadas:
-        tempo_restante = max(
-            0, atividade.duracao_estimada_min or 60
-        )
-
-        for dia in sorted(minutos_disponiveis):
-            if tempo_restante <= 0:
+    minutos = {dia: max(0, int(float(horas) * 60)) for dia, horas in disponibilidade.items()}
+    sessoes = []
+    for atividade in ordenar_atividades(atividades):
+        restante = calcular_tempo_restante(atividade)
+        for dia in sorted(minutos):
+            if restante <= 0:
                 break
-
-            # Não aloca estudo depois do prazo da atividade.
-            data_estudo = date.fromisoformat(dia)
-            if data_estudo > timezone.localtime(
-                atividade.prazo
-            ).date():
+            if atividade.prazo and date.fromisoformat(dia) > timezone.localtime(atividade.prazo).date():
                 continue
-
-            livre = minutos_disponiveis[dia]
-
-            if livre <= 0:
+            livre = minutos[dia]
+            if livre <= 0 or (not atividade.fragmentavel and livre < restante):
                 continue
+            duracao = min(livre, restante) if atividade.fragmentavel else restante
+            sessoes.append({'atividade_id': atividade.id, 'atividade': atividade.titulo,
+                            'dia': dia, 'duracao_min': duracao,
+                            'prioridade': calcular_prioridade(atividade)})
+            minutos[dia] -= duracao
+            restante -= duracao
+    return sessoes
 
-            # Atividades não fragmentáveis precisam caber
-            # inteiramente em um único dia.
-            if not atividade.fragmentavel:
-                if livre < tempo_restante:
-                    continue
-                minutos_sessao = tempo_restante
-            else:
-                minutos_sessao = min(livre, tempo_restante)
 
-            planejamento.append({
-                "atividade_id": atividade.id,
-                "atividade": atividade.titulo,
-                "dia": dia,
-                "duracao_min": minutos_sessao,
-                "prioridade": calcular_prioridade(atividade),
-            })
+def identificar_sessoes_pendentes(planejamento):
+    return [s for s in planejamento.sessoes.select_related('atividade')
+            if s.atividade.status in ('nao_concluida', 'atrasada')]
 
-            minutos_disponiveis[dia] -= minutos_sessao
-            tempo_restante -= minutos_sessao
 
-    return planejamento
+def calcular_disponibilidade_restante(planejamento, disponibilidade):
+    minutos = {dia: max(0, int(float(horas) * 60)) for dia, horas in disponibilidade.items()}
+    for sessao in planejamento.sessoes.all():
+        dia = sessao.data.isoformat()
+        if dia in minutos:
+            minutos[dia] = max(0, minutos[dia] - sessao.duracao_min)
+    return minutos
 
+
+def gerar_proposta_reagendamento(planejamento, atividades, disponibilidade=None):
+    """Propõe nova lista COMPLETA de sessões sem alterar o banco.
+
+    Somente atividades explicitamente não concluídas/atrasadas são movidas.
+    Sessões de outras atividades são preservadas. Sem capacidade, retorna None.
+    """
+    disponibilidade = disponibilidade if disponibilidade is not None else planejamento.disponibilidade_diaria
+    if not disponibilidade:
+        return None
+    hoje = timezone.localdate()
+    sessoes_originais = list(planejamento.sessoes.select_related('atividade').order_by('data', 'id'))
+    ids_pendentes = {a.id for a in atividades if a.status in ('nao_concluida', 'atrasada')}
+    if not ids_pendentes or not any(s.atividade_id in ids_pendentes for s in sessoes_originais):
+        return None
+    preservadas = [s for s in sessoes_originais if s.atividade_id not in ids_pendentes]
+    minutos = {dia: max(0, int(float(horas) * 60)) for dia, horas in disponibilidade.items()}
+    for sessao in preservadas:
+        dia = sessao.data.isoformat()
+        if dia in minutos:
+            minutos[dia] -= sessao.duracao_min
+    if any(v < 0 for v in minutos.values()):
+        return None
+    proposta = [{'atividade_id': s.atividade_id, 'dia': s.data.isoformat(),
+                 'duracao_min': s.duracao_min} for s in preservadas]
+    pendentes = ordenar_atividades([a for a in atividades if a.id in ids_pendentes])
+    for atividade in pendentes:
+        sessoes_anteriores = [s for s in sessoes_originais if s.atividade_id == atividade.id]
+        if not sessoes_anteriores:
+            continue
+        restante = calcular_tempo_restante(atividade)
+        if restante == 0:
+            continue
+        ultima_data = max(s.data for s in sessoes_anteriores)
+        limite = timezone.localtime(atividade.prazo).date() if atividade.prazo else planejamento.semana_fim
+        # Reagendar somente para depois da sessão perdida, nunca para o passado.
+        dias = [dia for dia in sorted(minutos)
+                if max(hoje, ultima_data + timedelta(days=1)) <= date.fromisoformat(dia)
+                <= min(limite, planejamento.semana_fim)]
+        alocadas = []
+        for dia in dias:
+            if restante <= 0:
+                break
+            livre = minutos[dia]
+            if livre <= 0 or (not atividade.fragmentavel and livre < restante):
+                continue
+            duracao = min(livre, restante) if atividade.fragmentavel else restante
+            alocadas.append({'atividade_id': atividade.id, 'dia': dia, 'duracao_min': duracao})
+            minutos[dia] -= duracao
+            restante -= duracao
+        if restante:
+            return None
+        proposta.extend(alocadas)
+    proposta.sort(key=lambda s: (s['dia'], s['atividade_id']))
+
+    original = sorted(
+        [
+            {
+                'atividade_id': s.atividade_id,
+                'dia': s.data.isoformat(),
+                'duracao_min': s.duracao_min,
+            }
+            for s in planejamento.sessoes.all()
+        ],
+        key=lambda s: (s['dia'], s['atividade_id'])
+    )
+
+    return proposta if proposta != original else None

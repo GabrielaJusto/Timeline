@@ -181,6 +181,7 @@ class Planejamento(models.Model):
         max_digits=7, decimal_places=2, default=0
     )
 
+    disponibilidade_diaria= models.JSONField(default=dict,blank=True)
     def __str__(self):
         return f"Planejamento {self.semana_inicio} - v{self.versao}"
 
@@ -239,3 +240,23 @@ class SessaoPlanejada(models.Model):
             f"{self.data} - {self.duracao_min} min"
         )
 
+class PropostaReagendamento(models.Model):
+    planejamento = models.ForeignKey(
+        Planejamento,
+        on_delete=models.CASCADE,
+        related_name="propostas_reagendamento"
+    )
+    criada_em = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        default="pendente",
+        choices=[
+            ("pendente", "Pendente"),
+            ("aceita", "Aceita"),
+            ("rejeitada", "Rejeitada"),
+        ]
+    )
+    sessoes_propostas = models.JSONField(default=list)
+
+    def __str__(self):
+        return f"Proposta {self.id} - {self.status}"
