@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histórico de Planejamentos | Timeline</title>
+  <link rel="stylesheet" href="{% static 'css/planejamento.css' %}">
+  <style>
+    .voltar { display:inline-block; padding:11px 17px; border-radius:10px; background:#49318a; color:white; text-decoration:none; margin-top:16px; }
+    .voltar:hover { background:#35216e; color:white; }
+    .resumo-historico { margin: 12px 0 18px; }
+    .grade-historico { width:100%; border-collapse:collapse; table-layout:fixed; }
+    .grade-historico th,.grade-historico td { border:1px solid #e7e2f1; padding:12px 8px; vertical-align:top; overflow-wrap:anywhere; }
+    .grade-historico th { background:#f3effb; text-align:center; }
+    .grade-historico th small { display:block; margin-top:4px; }
+    .grade-historico td { min-height:90px; }
+    .grade-historico .sessao-estudo { padding:9px; margin:6px 0; background:#f0ebfa; border-radius:8px; }
+    .grade-historico .sessao-estudo p { margin:5px 0 0; }
+    .sem-atividade { color:#706b7b; font-size:0.88rem; }
+    .tabela-rolagem { overflow-x:auto; }
+    @media(max-width:850px) { .grade-historico { min-width:780px; } }
+  </style>
+
+<style>
+/* CORRECAO_VISUAL_HISTORICO_SPRINT9 */
+/* O CSS compartilhado foi feito para outra estrutura de secoes.
+   Estes ajustes impedem que ele transforme o calendario em uma grade estreita. */
+main { min-width: 0; max-width: none; }
+main section { display: block; width: 100%; min-width: 0; text-align: left; }
+main section:first-of-type > div,
+main section:nth-of-type(2) > div,
+main section:last-child > div {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-top: 12px;
+}
+main section:last-child { text-align: left; }
+main section:last-child h2 { text-align: left; }
+main header { display: block; padding-right: 0; }
+main header a, main header button {
+  display: inline-block;
+  position: static;
+  margin: 10px 0 0;
+  padding: 11px 17px;
+  border-radius: 9px;
+  background: #6048d8;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: normal;
+}
+main header a:hover, main header button:hover { background: #4d35bd; color: #fff; }
+main section table, main section #calendario-semanal table {
+  width: 100%;
+  min-width: 770px;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+main section table th, main section table td,
+main section #calendario-semanal th, main section #calendario-semanal td {
+  width: 14.2857%;
+  min-width: 105px;
+  padding: 12px 8px;
+  vertical-align: top;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+  line-height: 1.45;
+  border: 1px solid #e8e9f2;
+}
+main section table th { background: #f5f6fa; color: #555a72; }
+main section table td { background: #fff; color: #20233c; }
+main section table td .sessao-estudo {
+  display: block;
+  background: #eae4ff;
+  color: #4532a0;
+  padding: 10px;
+  border-radius: 9px;
+  margin: 4px 0;
+}
+main section table td .sem-atividade { color: #9a9dad; font-size: 11px; }
+/* Permite rolagem horizontal somente no calendario, sem comprimir as colunas. */
+main section { overflow-x: auto; }
+main section h2, main section h3, main section p { overflow-wrap: normal; }
+@media (max-width: 900px) {
+  main section table { min-width: 770px; }
+}
+</style>
+
+</head>
+<body>
+  <aside>
+    <h2>Timeline</h2>
+    <nav>
+      <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+      <a href="{% url 'agenda' %}">▷ &nbsp; Agenda</a>
+      <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+      <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+      <a href="{% url 'planejamento' %}" class="ativo">✧ &nbsp; Planejamento Inteligente</a>
+      <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+      <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+    </nav>
+  </aside>
+  <main>
+    <header>
+      <p>ORGANIZAÇÃO SEMANAL</p>
+      <h1>Histórico de Planejamentos</h1>
+      <p>Consulte os planejamentos salvos e veja o que estava previsto para cada dia.</p>
+      <a class="voltar" href="{% url 'planejamento' %}">Voltar ao Planejamento Inteligente</a>
+    </header>
+    {% for item in historico %}
+      <section>
+        <h2>Semana de {{ item.plano.semana_inicio|date:"d/m/Y" }} a {{ item.plano.semana_fim|date:"d/m/Y" }}</h2>
+        <p class="resumo-historico">
+          <strong>Status:</strong> {{ item.plano.status|capfirst }} &nbsp; · &nbsp;
+          <strong>Versão:</strong> {{ item.plano.versao }} &nbsp; · &nbsp;
+          <strong>Salvo em:</strong> {{ item.plano.gerado_em|date:"d/m/Y H:i" }}
+        </p>
+        <p><strong>Horas disponíveis:</strong> {{ item.plano.horas_disponiveis }}h &nbsp; · &nbsp;
+          <strong>Horas planejadas:</strong> {{ item.plano.horas_alocadas }}h</p>
+        <h3>Atividades por dia</h3>
+        <div class="tabela-rolagem">
+          <table class="grade-historico">
+            <thead><tr>
+              {% for dia in item.dias %}
+                <th>{{ dia.nome }} <small>{{ dia.data|date:"d/m" }}</small></th>
+              {% endfor %}
+            </tr></thead>
+            <tbody><tr>
+              {% for dia in item.dias %}
+                <td>
+                  {% for sessao in dia.sessoes %}
+                    <div class="sessao-estudo">
+                      <strong>{{ sessao.atividade.titulo }}</strong>
+                      <p>{{ sessao.duracao_min }} minutos</p>
+                    </div>
+                  {% empty %}
+                    <span class="sem-atividade">Sem estudo planejado</span>
+                  {% endfor %}
+                </td>
+              {% endfor %}
+            </tr></tbody>
+          </table>
+        </div>
+      </section>
+    {% empty %}
+      <section><p>Nenhum planejamento salvo ainda. Aceite um planejamento para vê-lo aqui.</p></section>
+    {% endfor %}
+  </main>
+</body>
+</html>

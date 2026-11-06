@@ -729,3 +729,29 @@ def aceitar_proposta_reagendamento(request, proposta_id):
         proposta.save(update_fields=["status"])
 
     return redirect("planejamento")
+
+
+# Historico de planejamentos aceitos
+def historico_planejamentos(request):
+    usuario_id = 1  # Mesmo usuario provisorio da tela de planejamento
+    planos = (
+        Planejamento.objects.filter(usuario_id=usuario_id)
+        .prefetch_related("sessoes__atividade")
+        .order_by("-semana_inicio", "-versao", "-gerado_em")
+    )
+    nomes = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
+    historico = []
+    for plano in planos:
+        sessoes_por_data = {}
+        for sessao in plano.sessoes.all():
+            sessoes_por_data.setdefault(sessao.data, []).append(sessao)
+        dias = [
+            {
+                "nome": nome,
+                "data": plano.semana_inicio + timedelta(days=i),
+                "sessoes": sessoes_por_data.get(plano.semana_inicio + timedelta(days=i), []),
+            }
+            for i, nome in enumerate(nomes)
+        ]
+        historico.append({"plano": plano, "dias": dias})
+    return render(request, "historico-planejamentos.html", {"historico": historico})
