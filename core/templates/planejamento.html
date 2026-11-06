@@ -158,35 +158,32 @@
             </form>
         </section>
 
-        
-<!-- SEÇÃO 2: RESUMO -->
-<section>
-    <h2>2. Resumo das atividades da semana</h2>
+        <!-- SEÇÃO 2: RESUMO -->
+        <section>
+            <h2>2. Resumo das atividades da semana</h2>
 
-    <div>
-        <article>
-            <h3>{{ total_atividades }}</h3>
-            <p>Atividades na semana</p>
-        </article>
+            <div>
+                <article>
+                    <h3>{{ total_atividades }}</h3>
+                    <p>Atividades na semana</p>
+                </article>
 
-        <article>
-            <h3>{{ total_horas }}h</h3>
-            <p>Tempo total estimado</p>
-        </article>
+                <article>
+                    <h3>{{ total_horas }}h</h3>
+                    <p>Tempo total estimado</p>
+                </article>
 
-        <article>
-            <h3>{{ total_disciplinas }}</h3>
-            <p>Disciplinas</p>
-        </article>
+                <article>
+                    <h3>{{ total_disciplinas }}</h3>
+                    <p>Disciplinas</p>
+                </article>
 
-        <article>
-            <h3>{{ prazos_importantes }}</h3>
-            <p>Prazos importantes</p>
-        </article>
-    </div>
-</section>
-
-        
+                <article>
+                    <h3>{{ prazos_importantes }}</h3>
+                    <p>Prazos importantes</p>
+                </article>
+            </div>
+        </section>
 
         <!-- SEÇÃO 3: ATIVIDADES PRIORITÁRIAS -->
         <section>
@@ -283,34 +280,94 @@
             </div>
         </section>
 
+        <!-- SEÇÃO 5: FINALIZAÇÃO -->
+        <section>
+            <h2>5. Finalize seu planejamento</h2>
 
-        
+            {% if mensagem %}
+                <p class="mensagem-sucesso">
+                    {{ mensagem }}
+                </p>
+            {% endif %}
 
-<!-- SEÇÃO 5: FINALIZAÇÃO -->
-<section>
-    <h2>5. Finalize seu planejamento</h2>
+            <button
+                type="button"
+                onclick="document.getElementById('form-disponibilidade').scrollIntoView({behavior: 'smooth'});"
+            >
+                Ajustar planejamento
+            </button>
 
-    {% if mensagem %}
-        <p class="mensagem-sucesso">
-            {{ mensagem }}
-        </p>
-    {% endif %}
+            <form method="post" action="{{ request.get_full_path }}">
+                {% csrf_token %}
 
-    <button
-    type="button"
-    onclick="document.getElementById('form-disponibilidade').scrollIntoView({behavior: 'smooth'});"
->
-    Ajustar planejamento
-</button>
+                <input type="hidden" name="acao" value="aceitar">
 
-    <form method="post" action="{{ request.get_full_path }}">
-        {% csrf_token %}
+                <button type="submit">
+                    Aceitar planejamento
+                </button>
+            </form>
+        </section>
 
-        <input type="hidden" name="acao" value="aceitar">
+        <!-- SEÇÃO 6: PROPOSTAS DE REAGENDAMENTO -->
+        {% if propostas_pendentes %}
+        <section>
+            <h2>6. Propostas de reagendamento</h2>
 
-        <button type="submit">
-            Aceitar planejamento
-        </button>
-    </form>
-</section>
+            <p>
+                O Timeline encontrou uma sugestão de reorganização
+                para suas atividades.
+                Confira a proposta antes de aceitar.
+            </p>
 
+            {% for proposta in propostas_pendentes %}
+            <article>
+                <h3>Proposta #{{ proposta.id }}</h3>
+
+                <p>
+                    Criada em:
+                    {{ proposta.criada_em|date:"d/m/Y H:i" }}
+                </p>
+
+                <h4>Nova distribuição sugerida:</h4>
+
+                <ul>
+                    {% for sessao in proposta.sessoes_propostas %}
+                    <li>
+                        Atividade #{{ sessao.atividade_id }}
+                        — {{ sessao.dia }}
+                        — {{ sessao.duracao_min }} minutos
+                    </li>
+                    {% empty %}
+                    <li>
+                        Nenhuma sessão incluída na proposta.
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <form
+                    method="post"
+                    action="{% url 'aceitar_proposta_reagendamento' proposta.id %}"
+                >
+                    {% csrf_token %}
+                    <button type="submit">
+                        Aceitar proposta
+                    </button>
+                </form>
+
+                <form
+                    method="post"
+                    action="{% url 'rejeitar_proposta_reagendamento' proposta.id %}"
+                >
+                    {% csrf_token %}
+                    <button type="submit">
+                        Rejeitar proposta
+                    </button>
+                </form>
+            </article>
+            {% endfor %}
+        </section>
+        {% endif %}
+
+    </main>
+</body>
+</html>

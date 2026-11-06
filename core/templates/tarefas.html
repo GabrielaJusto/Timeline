@@ -245,6 +245,16 @@
                         <p><strong>Tipo:</strong> {{ atividade.get_tipo_display }}</p>
                         <p><strong>Prazo:</strong> {{ atividade.prazo|date:"d/m/Y H:i" }}</p>
                         <p><strong>Status:</strong> {{ atividade.get_status_display }}</p>
+                        
+{% if atividade.status != "concluida" %}
+    <form method="POST" action="{% url 'marcar_atividade_nao_concluida' atividade.id %}">
+        {% csrf_token %}
+        <button type="submit">
+            Marcar como não concluída
+        </button>
+    </form>
+{% endif %}
+
                     </div>
                 {% endfor %}
             {% else %}
