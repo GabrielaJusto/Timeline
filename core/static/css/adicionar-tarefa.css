@@ -153,6 +153,29 @@ body {
 }
 
 
+.usuario form {
+    margin-top: 10px;
+}
+
+.usuario button {
+    background-color: transparent;
+    border: 1px solid #d8d0ed;
+    border-radius: 8px;
+    color: #69539a;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 12px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background-color 0.2s ease;
+}
+
+.usuario button:hover {
+    background-color: #f1ecfa;
+}
+
+
 /* =========================
    CONTEÚDO PRINCIPAL
    ========================= */

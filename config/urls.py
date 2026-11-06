@@ -5,8 +5,12 @@ from core import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # Autentica??o
+    path("login/", views.pagina_login, name="login"),
+    path("logout/", views.pagina_logout, name="logout"),
+    path("cadastro/", views.pagina_cadastro, name="cadastro"),
 
-    # Página inicial
+    # P?gina inicial
     path("", views.inicio, name="inicio"),
 
     # Hoje

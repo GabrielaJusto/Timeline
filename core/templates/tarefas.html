@@ -166,8 +166,19 @@
         </div>
 
         <div class="usuario">
-            <strong>Seu planejamento</strong>
-            <p>Sem cadastro</p>
+            {% if user.is_authenticated %}
+                <strong>{{ user.username }}</strong>
+                <p>Conta conectada</p>
+
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Sair da conta</button>
+                </form>
+            {% else %}
+                <strong>Visitante</strong>
+                <p>Não conectado</p>
+                <a href="{% url 'login' %}">Entrar</a>
+            {% endif %}
         </div>
 
     </div>
