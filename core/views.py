@@ -219,7 +219,16 @@ def planejamento(request):
 
     # Define a semana atual.
     hoje = timezone.localdate()
-    segunda = hoje - timedelta(days=hoje.weekday())
+    # REFORMULACAO_SPRINT9: semana selecionavel, sempre iniciando segunda.
+    from datetime import date
+    segunda_atual = hoje - timedelta(days=hoje.weekday())
+    try:
+        semana_solicitada = date.fromisoformat(request.GET.get('semana', '') or request.POST.get('semana', ''))
+        segunda = semana_solicitada - timedelta(days=semana_solicitada.weekday())
+        if segunda < segunda_atual:
+            segunda = segunda_atual
+    except (ValueError, TypeError):
+        segunda = segunda_atual
     domingo = segunda + timedelta(days=6)
    # Recebe as horas disponíveis do formulário.
     valores_padrao = [4, 3, 4, 3, 4, 6, 2]
@@ -268,6 +277,18 @@ def planejamento(request):
     # apagar as sessões de um reagendamento previamente confirmado.
     mensagem = None
     if request.method == "POST" and request.POST.get("acao") == "aceitar":
+        # O POST confirma exatamente a proposta visualizada no GET.
+        # A disponibilidade vai em campos ocultos, sem alterar planos existentes.
+        for i, padrao in enumerate(valores_padrao):
+            try:
+                horas_por_dia[i] = max(0, min(24, float(request.POST.get(f'horas_{i}', padrao))))
+            except (ValueError, TypeError):
+                horas_por_dia[i] = padrao
+        disponibilidade = {
+            (segunda + timedelta(days=i)).isoformat(): (horas if segunda + timedelta(days=i) >= hoje else 0)
+            for i, horas in enumerate(horas_por_dia)
+        }
+        sessoes = distribuir_tempo(atividades_ordenadas, disponibilidade)
         with transaction.atomic():
             plano_existente = Planejamento.objects.select_for_update().filter(
                 usuario_id=usuario_id,
@@ -304,7 +325,7 @@ def planejamento(request):
     # Em acessos normais, sempre mostra as sessões realmente persistidas.
     if planejamento_salvo and not any(
         chave.startswith("horas_") for chave in request.GET
-    ):
+    ) and request.method != 'POST':
         sessoes = [
             {
                 "atividade_id": sessao.atividade_id,
@@ -437,6 +458,9 @@ def planejamento(request):
         "dias_semana": dias_semana,
         "semana_inicio": segunda,
         "semana_fim": domingo,
+        "semana_iso": segunda.isoformat(),
+        "proposta_em_visualizacao": any(k.startswith('horas_') for k in request.GET),
+        "planejamento_ja_salvo": bool(planejamento_salvo),
         "total_atividades": total_atividades,
         "total_horas": total_horas,
         "alerta_sobrecarga": alerta_sobrecarga,

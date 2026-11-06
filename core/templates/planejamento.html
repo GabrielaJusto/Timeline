@@ -52,6 +52,11 @@
                 a {{ semana_fim|date:"d/m/Y" }}
             </h3>
 
+            <label for="semana-planejamento"><strong>Escolha a semana:</strong></label>
+            <input type="date" id="semana-planejamento" name="semana"
+                   value="{{ semana_iso }}" min="{{ semana_iso }}" form="form-disponibilidade">
+            <p><small>A data escolhida sera ajustada para a segunda-feira da semana.</small></p>
+
             <form
                 id="form-disponibilidade"
                 method="get"
@@ -307,9 +312,17 @@
                 Ajustar planejamento
             </button>
 
-            <form method="post" action="{{ request.get_full_path }}">
+            {% if proposta_em_visualizacao %}
+            <p><strong>Confira a proposta acima antes de confirmar.</strong></p>
+            {% elif planejamento_ja_salvo %}
+            <p>Planejamento salvo. Para simular outro, ajuste as horas e clique em Gerar novo planejamento.</p>
+            {% endif %}
+            <form method="post" action="{% url 'planejamento' %}">
                 {% csrf_token %}
-
+                <input type="hidden" name="semana" value="{{ semana_iso }}">
+                {% for i in '0123456' %}
+                <input type="hidden" name="horas_{{ i }}" value="{% if i == '0' %}{{ request.GET.horas_0|default:'4' }}{% elif i == '1' %}{{ request.GET.horas_1|default:'3' }}{% elif i == '2' %}{{ request.GET.horas_2|default:'4' }}{% elif i == '3' %}{{ request.GET.horas_3|default:'3' }}{% elif i == '4' %}{{ request.GET.horas_4|default:'4' }}{% elif i == '5' %}{{ request.GET.horas_5|default:'6' }}{% else %}{{ request.GET.horas_6|default:'2' }}{% endif %}">
+                {% endfor %}
                 <input type="hidden" name="acao" value="aceitar">
 
                 <button type="submit">
