@@ -388,7 +388,8 @@ def planejamento(request):
                 "atividade": sessao.atividade.titulo,
                 "dia": sessao.data.isoformat(),
                 "duracao_min": sessao.duracao_min,
-                "prioridade": calcular_prioridade(sessao.atividade),
+                "id": sessao.id,
+                "hora_inicio": sessao.hora_inicio.strftime("%H:%M") if sessao.hora_inicio else"",                "prioridade": calcular_prioridade(sessao.atividade),
             }
             for sessao in planejamento_salvo.sessoes.select_related("atividade")
         ]
@@ -941,3 +942,158 @@ def historico_planejamentos(request):
         ]
         historico.append({"plano": plano, "dias": dias})
     return render(request, "historico-planejamentos.html", {"historico": historico})
+def editar_sessao_planejamento(request, sessao_id):
+    """Edita sessao, detecta conflitos e oferece realocacao confirmada."""
+    from datetime import date, datetime, time, timedelta
+    from django.contrib import messages
+    from django.db import transaction
+    from django.shortcuts import get_object_or_404, redirect, render
+    from django.utils import timezone
+
+    def intervalos(plano):
+        """Horarios virtuais para sessoes legadas, sem alterar dados existentes."""
+        sessoes = list(plano.sessoes.select_related('atividade').order_by('data', 'id'))
+        por_dia = {}
+        for s in sessoes:
+            por_dia.setdefault(s.data, []).append(s)
+        resultado = {}
+        for dia, grupo in por_dia.items():
+            cursor = 9 * 60
+            for s in grupo:
+                if s.hora_inicio is not None:
+                    inicio = s.hora_inicio.hour * 60 + s.hora_inicio.minute
+                else:
+                    inicio = cursor
+                resultado[s.id] = (inicio, inicio + s.duracao_min)
+                cursor = max(cursor, inicio + s.duracao_min)
+        return resultado
+
+    def primeiro_horario_livre(plano, duracao, excluidos, preferencia=None):
+        # Sugere um horario em blocos de 30 min, das 07:00 as 23:00.
+        ocupacao = intervalos(plano)
+        outras = list(plano.sessoes.exclude(id__in=excluidos))
+        dias = [plano.semana_inicio + timedelta(days=i) for i in range(7)]
+        if preferencia in dias:
+            dias = [preferencia] + [d for d in dias if d != preferencia]
+        for dia in dias:
+            if dia < timezone.localdate():
+                continue
+            for inicio in range(7 * 60, 23 * 60 - duracao + 1, 30):
+                fim = inicio + duracao
+                if all(o.data != dia or not (inicio < ocupacao[o.id][1] and ocupacao[o.id][0] < fim) for o in outras):
+                    return dia, inicio
+        return None
+
+    def hhmm(minutos):
+        return f'{minutos // 60:02d}:{minutos % 60:02d}'
+
+    sessao = get_object_or_404(
+        SessaoPlanejada.objects.select_related('planejamento', 'atividade'),
+        id=sessao_id, planejamento__usuario_id=1,
+    )
+    plano = sessao.planejamento
+    intervalo_atual = intervalos(plano)
+    atual_min = intervalo_atual[sessao.id][0]
+    form_data = sessao.data.isoformat()
+    form_hora = hhmm(atual_min) if atual_min < 1440 else '09:00'
+    conflito = None
+    sugestao = None
+    erro = None
+
+    if request.method == 'POST':
+        try:
+            data_nova = date.fromisoformat(request.POST.get('data', ''))
+            hora_nova = datetime.strptime(request.POST.get('hora_inicio', ''), '%H:%M').time()
+            inicio = hora_nova.hour * 60 + hora_nova.minute
+            fim = inicio + sessao.duracao_min
+            if not plano.semana_inicio <= data_nova <= plano.semana_fim:
+                raise ValueError('Escolha uma data dentro da semana deste planejamento.')
+            if data_nova < timezone.localdate():
+                raise ValueError('Nao e permitido mover uma sessao para um dia passado.')
+            if fim > 1440:
+                raise ValueError('A atividade deve terminar no mesmo dia.')
+            form_data = data_nova.isoformat()
+            form_hora = hhmm(inicio)
+        except (ValueError, TypeError) as exc:
+            erro = str(exc) if str(exc) and 'format' not in str(exc).lower() else 'Data ou horario invalido.'
+        else:
+            with transaction.atomic():
+                # Bloqueia as sessoes do planejamento durante a confirmacao.
+                list(SessaoPlanejada.objects.select_for_update().filter(planejamento=plano))
+                ocupacao = intervalos(plano)
+                sobrepostas = [o for o in plano.sessoes.select_related('atividade').exclude(id=sessao.id)
+                               if o.data == data_nova and inicio < ocupacao[o.id][1] and ocupacao[o.id][0] < fim]
+                if not sobrepostas:
+                    sessao.data = data_nova
+                    sessao.hora_inicio = hora_nova
+                    sessao.save(update_fields=['data', 'hora_inicio'])
+                    messages.success(request, 'Horario atualizado com sucesso.')
+                    return redirect(f'/planejamento/?semana={plano.semana_inicio.isoformat()}')
+
+                nomes = ', '.join(o.atividade.titulo for o in sobrepostas)
+                conflito = f'Conflito com: {nomes}. Nenhuma alteracao foi salva.'
+                # Caso haja varios conflitos, exige que o usuario escolha outro horario.
+                if len(sobrepostas) > 1:
+                    erro = 'Ha mais de uma atividade sobreposta. Escolha outro horario para evitar deslocar varias sessoes.'
+                else:
+                    outra = sobrepostas[0]
+                    escolha = request.POST.get('decisao')
+                    # Escolha 1: atividade editada fica no horario escolhido;
+                    # atividade conflitante sera realocada.
+                    if escolha == 'manter_editada':
+                        sugestao_bruta = primeiro_horario_livre(plano, outra.duracao_min, {sessao.id, outra.id}, preferencia=outra.data)
+                        # A sugestao nao pode colidir com o novo intervalo da editada.
+                        if sugestao_bruta:
+                            dia_s, min_s = sugestao_bruta
+                            if dia_s == data_nova and min_s < fim and inicio < min_s + outra.duracao_min:
+                                sugestao_bruta = None
+                        if sugestao_bruta is None:
+                            # Segunda busca considerando a sessao editada em sua nova posicao.
+                            dias = [plano.semana_inicio + timedelta(days=i) for i in range(7)]
+                            outras_sessoes = list(plano.sessoes.exclude(id__in=[sessao.id, outra.id]))
+                            for d in ([outra.data] + [x for x in dias if x != outra.data]):
+                                if d < timezone.localdate():
+                                    continue
+                                for m in range(420, 1380 - outra.duracao_min + 1, 30):
+                                    n = m + outra.duracao_min
+                                    if d == data_nova and m < fim and inicio < n:
+                                        continue
+                                    if all(o.data != d or not (m < ocupacao[o.id][1] and ocupacao[o.id][0] < n) for o in outras_sessoes):
+                                        sugestao_bruta = (d, m)
+                                        break
+                                if sugestao_bruta:
+                                    break
+                        if sugestao_bruta:
+                            d, m = sugestao_bruta
+                            sugestao = {'data': d.isoformat(), 'hora': hhmm(m), 'titulo': outra.atividade.titulo}
+                            if request.POST.get('confirmar') == '1' and request.POST.get('sugestao_data') == sugestao['data'] and request.POST.get('sugestao_hora') == sugestao['hora']:
+                                sessao.data = data_nova
+                                sessao.hora_inicio = hora_nova
+                                outra.data = d
+                                outra.hora_inicio = time(m // 60, m % 60)
+                                sessao.save(update_fields=['data', 'hora_inicio'])
+                                outra.save(update_fields=['data', 'hora_inicio'])
+                                messages.success(request, 'Edicao salva e atividade conflitante realocada.')
+                                return redirect(f'/planejamento/?semana={plano.semana_inicio.isoformat()}')
+                        else:
+                            erro = 'Nao foi encontrado horario livre para realocar a outra atividade nesta semana.'
+                    elif escolha == 'manter_outra':
+                        # Mantem a atividade conflitante e sugere outro horario para a editada.
+                        sugestao_bruta = primeiro_horario_livre(plano, sessao.duracao_min, {sessao.id}, preferencia=data_nova)
+                        if sugestao_bruta:
+                            d, m = sugestao_bruta
+                            sugestao = {'data': d.isoformat(), 'hora': hhmm(m), 'titulo': sessao.atividade.titulo}
+                            if request.POST.get('confirmar') == '1' and request.POST.get('sugestao_data') == sugestao['data'] and request.POST.get('sugestao_hora') == sugestao['hora']:
+                                sessao.data = d
+                                sessao.hora_inicio = time(m // 60, m % 60)
+                                sessao.save(update_fields=['data', 'hora_inicio'])
+                                messages.success(request, 'Atividade realocada para o horario sugerido.')
+                                return redirect(f'/planejamento/?semana={plano.semana_inicio.isoformat()}')
+                        else:
+                            erro = 'Nao foi encontrado horario livre para esta atividade na semana.'
+
+    return render(request, 'editar_sessao.html', {
+        'sessao': sessao, 'hora_inicio': form_hora, 'data_selecionada': form_data,
+        'conflito': conflito, 'sugestao': sugestao, 'erro': erro,
+    })
+

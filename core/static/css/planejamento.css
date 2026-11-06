@@ -462,3 +462,5 @@ section:first-of-type input {
     }
 }
 
+
+.botao-editar-sessao{display:inline-block;margin-top:8px;padding:7px 10px;border-radius:8px;background:#6048d8;color:white;text-decoration:none;font-size:13px}

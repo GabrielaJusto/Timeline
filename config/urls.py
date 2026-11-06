@@ -2,8 +2,12 @@
 from django.contrib import admin
 from django.urls import path
 from core import views
+from core import views_ia
 
 urlpatterns = [
+    path("planejamento/ia/", views_ia.personalizacao_ia, name="personalizacao_ia"),
+    path("planejamento/ia/<int:proposta_id>/aceitar/", views_ia.aceitar_ia, name="aceitar_ia"),
+    path("planejamento/ia/<int:proposta_id>/rejeitar/", views_ia.rejeitar_ia, name="rejeitar_ia"),
     path("admin/", admin.site.urls),
     # Autentica??o
     path("login/", views.pagina_login, name="login"),
@@ -65,6 +69,13 @@ urlpatterns = [
         "planejamento/",
         views.planejamento,
         name="planejamento",
+    ),
+
+        # Edicao manual das sessoes do planejamento
+    path(
+        "planejamento/sessao/<int:sessao_id>/editar/",
+        views.editar_sessao_planejamento,
+        name="editar_sessao_planejamento",
     ),
 
     # Aceitar proposta de reagendamento
