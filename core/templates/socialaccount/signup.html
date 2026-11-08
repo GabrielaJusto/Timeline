@@ -1,0 +1,12 @@
+{% extends 'auth/base.html' %}
+{% block title %}Concluir cadastro{% endblock %}
+{% block content %}
+<h2>Conclua seu cadastro</h2>
+<p class="auth-copy">Se este e-mail já estiver cadastrado, entre com sua senha. Para usar outra conta Google, volte ao login e selecione outra conta.</p>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="botao-entrar" type="submit">Concluir cadastro</button>
+</form>
+<p><a class="auth-link" href="{% url 'login' %}">Voltar para o login</a></p>
+{% endblock %}

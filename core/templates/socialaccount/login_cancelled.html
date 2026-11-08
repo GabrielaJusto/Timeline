@@ -1,0 +1,7 @@
+{% extends 'auth/base.html' %}
+{% block title %}Login cancelado{% endblock %}
+{% block content %}
+<h2>Login cancelado</h2>
+<p class="auth-copy">Você pode tentar novamente ou usar seu usuário e senha.</p>
+<a class="botao-visitante" href="{% url 'login' %}">Voltar para o login</a>
+{% endblock %}

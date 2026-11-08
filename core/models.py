@@ -1,8 +1,25 @@
 import uuid
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+
+
+class PerfilAluno(models.Model):
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="perfil_aluno"
+    )
+    nome_completo = models.CharField("nome completo", max_length=150)
+    faculdade = models.CharField("faculdade", max_length=200)
+    data_nascimento = models.DateField("data de nascimento", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "perfil de aluno"
+        verbose_name_plural = "perfis de alunos"
+
+    def __str__(self):
+        return self.nome_completo
 
 
 # MODELO DE TAREFAS

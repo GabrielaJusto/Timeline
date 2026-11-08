@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
+from .auth_forms import CadastroForm
 
 from .forms import AtividadeForm
 from .models import (
@@ -67,14 +67,14 @@ def pagina_cadastro(request):
         return redirect("hoje")
 
     if request.method == "POST":
-        formulario = UserCreationForm(request.POST)
+        formulario = CadastroForm(request.POST)
 
         if formulario.is_valid():
             usuario = formulario.save()
-            login(request, usuario)
+            login(request, usuario, backend="django.contrib.auth.backends.ModelBackend")
             return redirect("hoje")
     else:
-        formulario = UserCreationForm()
+        formulario = CadastroForm()
 
     return render(
         request,
@@ -149,10 +149,11 @@ def adicionar_tarefa(request):
 
             atividade.save()
 
-            if request.POST.get("origem") == "tarefas":
-                return redirect("tarefas")  
-            
-            return redirect("hoje")
+            if request.headers.get("X-Task-Modal") == "1":
+                from django.http import JsonResponse
+                from django.urls import reverse
+                return JsonResponse({"redirect": reverse("tarefas")})
+            return redirect("tarefas")
         
         # Se houver erros no formulário da página Tarefas
         if request.POST.get("origem") == "tarefas":
@@ -161,39 +162,7 @@ def adicionar_tarefa(request):
     else:
         form = AtividadeForm()
 
-    atividades = Atividade.objects.all().order_by("prazo")
-
-    total_atividades = atividades.count()
-    concluidas = atividades.filter(status="concluida").count()
-    pendentes = atividades.exclude(status="concluida").count()
-
-    progresso = (
-        int(concluidas / total_atividades * 100)
-        if total_atividades > 0
-        else 0
-    )
-
-    data_atual = timezone.localdate()
-    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
-
-    dias_semana = [
-        inicio_semana + timedelta(days=i)
-        for i in range(7)
-    ]
-
-    fim_semana = dias_semana[-1]
-
-    return render(request, "adicionar-tarefa.html", {
-        "form": form,
-        "data_atual": data_atual,
-        "inicio_semana": inicio_semana,
-        "fim_semana": fim_semana,
-        "dias_semana": dias_semana,
-        "atividades": atividades,
-        "total_atividades": total_atividades,
-        "concluidas": concluidas,
-        "pendentes": pendentes,
-    })
+    return render(request, "adicionar-tarefa.html", {"form": form})
 
 
 # ==========================================
@@ -1201,3 +1170,9 @@ def editar_sessao_planejamento(request, sessao_id):
         'conflito': conflito, 'sugestao': sugestao, 'erro': erro,
     })
 
+
+def continuar_visitante(request):
+    from django.contrib.auth import logout
+    from django.shortcuts import redirect
+    logout(request)
+    return redirect("hoje")

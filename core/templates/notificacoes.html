@@ -8,18 +8,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline - Notificações</title>
     <link rel="stylesheet" href="{% static 'css/notificacoes.css' %}">
+<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
 </head>
 
 <body>
 
     <!-- MENU LATERAL -->
     <aside class="sidebar-notificacoes">
-        <h2>Timeline</h2>
+        {% include 'includes/marca.html' %}
 
         <nav class="menu-notificacoes">
             <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
-            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+            <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
             <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
             <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
             <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
@@ -107,5 +107,6 @@
 
     </main>
 
+{% include 'includes/tarefa-modal.html' %}
 </body>
 </html>

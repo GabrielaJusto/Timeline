@@ -1,0 +1,7 @@
+{% extends 'auth/base.html' %}
+{% block title %}Entrar com Google{% endblock %}
+{% block content %}
+<h2>Google em breve</h2>
+<p class="auth-copy">A entrada com Google ainda não foi ativada. Por enquanto, entre com seu usuário e senha ou continue como visitante.</p>
+<a class="botao-visitante" href="{% url 'login' %}">Voltar para o login</a>
+{% endblock %}

@@ -1,51 +1,55 @@
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar conta | Timeline</title>
-</head>
-<body>
-    <main>
-        <h1>Timeline</h1>
+{% extends 'auth/base.html' %}
+{% block title %}Criar conta{% endblock %}
+{% block content %}
         <h2>Criar uma conta</h2>
-        <p>Comece a organizar sua rotina.</p>
+        <p class="auth-copy">Conte um pouco sobre você para começar a organizar sua rotina.</p>
 
         <form method="POST" action="{% url 'cadastro' %}">
             {% csrf_token %}
 
+            {% if formulario.errors %}
+                <div class="form-error-summary" role="alert">
+                    <strong>Não foi possível criar sua conta.</strong>
+                    <p>Confira os campos destacados em vermelho e tente novamente.</p>
+                </div>
+            {% endif %}
+
             {% if formulario.non_field_errors %}
-                <div role="alert">
+                <div class="form-error-summary" role="alert">
                     {{ formulario.non_field_errors }}
                 </div>
             {% endif %}
 
             {% for campo in formulario %}
-                <div>
+                <div class="campo{% if campo.errors %} campo--erro{% endif %}">
                     <label for="{{ campo.id_for_label }}">
                         {{ campo.label }}
                     </label>
 
                     {{ campo }}
 
-                    {% if campo.help_text %}
-                        <small>{{ campo.help_text }}</small>
+                    {% if campo.errors %}
+                        <div class="field-error" id="{{ campo.auto_id }}_error" role="alert">
+                            <ul>
+                                {% for erro in campo.errors %}
+                                    <li>{{ erro }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     {% endif %}
 
-                    {% for erro in campo.errors %}
-                        <p role="alert">{{ erro }}</p>
-                    {% endfor %}
+                    {% if campo.help_text %}
+                        <small class="helptext">{{ campo.help_text }}</small>
+                    {% endif %}
+
                 </div>
             {% endfor %}
 
-            <button type="submit">Criar conta</button>
+            <button class="botao-entrar" type="submit">Criar conta</button>
         </form>
 
         <p>
             Já tem uma conta?
             <a href="{% url 'login' %}">Entrar</a>
         </p>
-    </main>
-</body>
-</html>
+{% endblock %}

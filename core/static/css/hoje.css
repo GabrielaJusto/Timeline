@@ -544,3 +544,43 @@ main {
     color: #5554dd;
     margin-top: 22px;
 }
+
+
+/* BOT?ES DE AUTENTICA??O - TIMELINE */
+.usuario a[href*="login"] {
+    display: block;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #625ee8;
+    color: white;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.usuario a[href*="login"]:hover {
+    background: #4d49cf;
+    transform: translateY(-1px);
+}
+
+.usuario button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #dcd8f5;
+    border-radius: 9px;
+    background: #f5f4ff;
+    color: #5554dd;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.usuario button[type="submit"]:hover {
+    background: #eae8ff;
+}

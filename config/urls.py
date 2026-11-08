@@ -1,10 +1,19 @@
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from core.auth_views import RecuperarSenhaView, google_login
 from core import views
 from core import views_ia
 
 urlpatterns = [
+    path("login/google/", google_login, name="login_google"),
+    path("accounts/", include("allauth.urls")),
+    path("senha/recuperar/", RecuperarSenhaView.as_view(), name="password_reset"),
+    path("senha/enviada/", auth_views.PasswordResetDoneView.as_view(template_name="auth/password_reset_done.html"), name="password_reset_done"),
+    path("senha/redefinir/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(template_name="auth/password_reset_confirm.html"), name="password_reset_confirm"),
+    path("senha/concluida/", auth_views.PasswordResetCompleteView.as_view(template_name="auth/password_reset_complete.html"), name="password_reset_complete"),
+    path("visitante/", views.continuar_visitante, name="continuar_visitante"),
     path("planejamento/ia/", views_ia.personalizacao_ia, name="personalizacao_ia"),
     path("planejamento/ia/<int:proposta_id>/aceitar/", views_ia.aceitar_ia, name="aceitar_ia"),
     path("planejamento/ia/<int:proposta_id>/rejeitar/", views_ia.rejeitar_ia, name="rejeitar_ia"),

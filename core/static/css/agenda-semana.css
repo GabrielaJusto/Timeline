@@ -519,3 +519,44 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Identifica??o do usu?rio no rodap? do menu */
+.sidebar-calendario {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.sidebar-calendario .usuario {
+    margin-top: auto;
+    padding: 14px 15px 0;
+    font-size: 13px;
+    color: #48516d;
+}
+
+.sidebar-calendario .usuario strong {
+    display: block;
+    color: #17213b;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.sidebar-calendario .usuario p {
+    margin: 0 0 4px;
+    color: #74809a;
+}
+
+.sidebar-calendario .usuario a,
+.sidebar-calendario .usuario button {
+    color: #5554dd;
+    font: inherit;
+    text-decoration: underline;
+}
+
+.sidebar-calendario .usuario button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}

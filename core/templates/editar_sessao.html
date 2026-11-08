@@ -10,8 +10,9 @@
 .edicao-card .erro{background:#ffe7e7;border-left:4px solid #d94444;padding:12px;margin:16px 0}
 .edicao-card .escolha{display:block;padding:9px 0;font-weight:400}
 .edicao-card a{color:#49318a}
-</style></head><body>
-<aside><h2>Timeline</h2><nav><a href="{% url 'hoje' %}">Hoje</a><a href="{% url 'agenda' %}">Agenda</a><a href="{% url 'agenda_semana' %}">Calendario</a><a href="{% url 'tarefas' %}">Tarefas</a><a href="{% url 'planejamento' %}" class="ativo">Planejamento Inteligente</a><a href="{% url 'progresso' %}">Progresso</a></nav></aside>
+</style><link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+</head><body>
+<aside>{% include 'includes/marca.html' %}<nav><a href="{% url 'hoje' %}">Hoje</a><a href="{% url 'agenda' %}">Agenda</a><a href="{% url 'agenda_semana' %}">Calendario</a><a href="{% url 'tarefas' %}">Tarefas</a><a href="{% url 'planejamento' %}" class="ativo">Planejamento Inteligente</a><a href="{% url 'progresso' %}">Progresso</a></nav></aside>
 <main><header><p>PLANEJAMENTO INTELIGENTE</p><h1>Editar atividade</h1><p>{{ sessao.atividade.titulo }}</p></header>
 <section class="edicao-card"><h2>Escolha o dia e horario</h2>
 <p>Duracao: {{ sessao.duracao_min }} minutos. Semana: {{ sessao.planejamento.semana_inicio|date:'d/m' }} a {{ sessao.planejamento.semana_fim|date:'d/m/Y' }}.</p>

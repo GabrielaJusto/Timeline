@@ -9,59 +9,30 @@
     <title>Timeline - Progresso</title>
     <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
     <link rel="stylesheet" href="{% static 'css/progresso.css' %}">
+<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
 </head>
 
 <body>
 
-    
+
     <!-- MENU LATERAL -->
     <div class="menu-lateral">
 
-        <div class="logo">
-            <div class="logo-simbolo">
-                <div class="ponteiro"></div>
-            </div>
-
-            <div class="logo-texto">
-                <h2>Timeline</h2>
-                <p>Plan today. Move at your pace.</p>
-            </div>
-        </div>
+        {% include 'includes/marca.html' %}
 
         <h3 class="titulo-menu">SEU ESPAÇO</h3>
 
         <div class="menu">
             <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
-            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
+
+            <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
             <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
             <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
             <a href="{% url 'progresso' %}" class="ativo">▥ &nbsp; Progresso</a>
             <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
         </div>
 
-        <div class="frase-lateral">
-            <h3>☼</h3>
-            <h4>No seu ritmo.</h4>
-            <p>Pequenos passos também fazem o dia avançar.</p>
-        </div>
-
-
-        <div class="usuario">
-            {% if user.is_authenticated %}
-                <strong>{{ user.username }}</strong>
-                <p>Conta conectada</p>
-
-                <form method="POST" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Sair da conta</button>
-                </form>
-            {% else %}
-                <strong>Visitante</strong>
-                <p>Não conectado</p>
-                <a href="{% url 'login' %}">Entrar</a>
-            {% endif %}
-        </div>
+        {% include 'includes/rodape-lateral.html' %}
 
     </div>
 
@@ -69,7 +40,7 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="conteudo-principal">
 
-        
+
         <!-- BARRA SUPERIOR -->
             <div class="barra-superior">
 
@@ -152,5 +123,6 @@
     </main>
 </div>
 
+{% include 'includes/tarefa-modal.html' %}
 </body>
 </html>
