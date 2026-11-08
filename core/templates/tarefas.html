@@ -130,6 +130,142 @@
                 flex-wrap: wrap;
             }
         }
+
+        /* FUNDO ESCURECIDO DO MODAL */
+        .fundo-modal-tarefas {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 20, 45, 0.55);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* MOSTRAR O MODAL AO CLICAR EM + NOVA TAREFA */
+        .fundo-modal-tarefas:target {
+            display: flex;
+        }
+
+        /* CARTÃO DO FORMULÁRIO */
+        .cartao-modal-tarefas {
+            background: white;
+            width: 520px;
+            max-width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 15px;
+            padding: 22px 30px;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        /* CABEÇALHO */
+        .cabecalho-modal-tarefas {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .cabecalho-modal-tarefas p {
+            color: #7069e8;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+        }
+
+        .cabecalho-modal-tarefas h2 {
+            color: #111936;
+            font-size: 26px;
+            margin: 8px 0;
+        }
+
+        .cabecalho-modal-tarefas span {
+            color: #777e96;
+            font-size: 13px;
+        }
+
+        /* BOTÃO DE FECHAR */
+        .fechar-modal-tarefas {
+            color: #777e96;
+            font-size: 28px;
+            text-decoration: none;
+        }
+
+        /* CAMPOS DO FORMULÁRIO */
+        .cartao-modal-tarefas .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-bottom: 18px;
+        }
+
+        .cartao-modal-tarefas .campo label {
+            color: #111936;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .cartao-modal-tarefas input,
+        .cartao-modal-tarefas select,
+        .cartao-modal-tarefas textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #dedeea;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font: inherit;
+        }
+
+        .cartao-modal-tarefas .linha {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* BOTÕES */
+        .cartao-modal-tarefas .botoes {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .cartao-modal-tarefas .cancelar {
+            color: #777e96;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .cartao-modal-tarefas .salvar {
+            background: #7069e8;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .cartao-modal-tarefas .informacao {
+            color: #777e96;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .cartao-modal-tarefas .linha {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fundo-modal-tarefas.modal-com-erros {
+            display: flex;
+        }
     </style>
 </head>
 
@@ -296,7 +432,7 @@
                 </p>
             </div>
 
-            <a href="{% url 'adicionar_tarefa' %}" class="botao-nova-tarefa">
+            <a href="#modal-nova-tarefa" class="botao-nova-tarefa">
                 + Nova tarefa
             </a>
         </div>
@@ -377,6 +513,127 @@
         </section>
 
     </main>
+
+    <!-- MODAL PARA ADICIONAR TAREFA -->
+    <div id="modal-nova-tarefa" class="fundo-modal-tarefas{% if form.errors %} modal-com-erros{% endif %}">
+
+        <div class="cartao-modal-tarefas">
+
+            <div class="cabecalho-modal-tarefas">
+                <div>
+                    <p>ESPAÇO PARA O PRÓXIMO PASSO</p>
+                    <h2>Adicionar tarefa</h2>
+                    <span>
+                     Uma atividade, um prazo. O restante você ajusta no caminho.
+                    </span>
+                </div>
+
+                <a href="#" class="fechar-modal-tarefas">×</a>
+            </div>
+
+            <form method="POST" action="{% url 'adicionar_tarefa' %}">
+                {% csrf_token %}
+                <input type="hidden" name="origem" value="tarefas">
+
+                {{ form.non_field_errors }}
+
+                <div class="campo">
+                    <label>Nome da tarefa *</label>
+                    {{ form.titulo }}
+                    {{ form.titulo.errors }}
+                </div>
+
+                <div class="campo">
+                    <label>Disciplina (opcional)</label>
+                    {{ form.nome_disciplina }}
+                    {{ form.nome_disciplina.errors }}
+                </div>
+
+                <div class="linha">
+                    <div class="campo">
+                        <label>Data de entrega *</label>
+                        {{ form.data_entrega }}
+                        {{ form.data_entrega.errors }}
+                    </div>
+
+                    <div class="campo">
+                        <label>Horário (opcional)</label>
+                        {{ form.horario }}
+                        {{ form.horario.errors }}
+                    </div>
+                </div>
+            
+                <div class="campo">
+                    <label for="prioridade">Prioridade *</label>
+                    <select id="prioridade">
+                        <option>Baixa</option>
+                        <option selected>Média</option>
+                        <option>Alta</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label>Categoria *</label>
+                    {{ form.tipo }}
+                    {{ form.tipo.errors }}
+                </div>
+
+                <!-- LINK -->
+                <div class="campo">
+                    <label for="link">Link <span>opcional</span></label>
+                    <input
+                        id="link"
+                        type="url"
+                        placeholder="https://..."
+    >
+                </div>
+
+                <!-- LOCAL -->
+                <div class="campo">
+                    <label for="local">Local ou endereço <span>opcional</span></label>
+                    <input
+                        id="local"
+                        type="text"
+                        placeholder="Ex.: PUC-Rio, sala 201"
+                    >
+                </div>
+
+                <!-- OBSERVAÇÕES -->
+                <div class="campo">
+                    <label for="observacoes">Observações <span>opcional</span></label>
+                    <textarea
+                        id="observacoes"
+                        placeholder="Adicione informações importantes sobre a tarefa..."
+                    ></textarea>
+                </div>
+
+                <!-- LEMBRETE -->
+                <div class="campo">
+                    <label for="lembrete">Lembrete <span>opcional</span></label>
+                    <select id="lembrete">
+                        <option selected>Sem lembrete</option>
+                        <option>No horário</option>
+                        <option>30 minutos antes</option>
+                        <option>1 hora antes</option>
+                        <option>1 dia antes</option>
+                    </select>
+                </div>
+
+                <p class="informacao">
+                    Sem horário definido, o prazo será até o fim do dia.
+                    Campos com * são obrigatórios.
+                </p>
+
+                <div class="botoes">
+                    <a href="#" class="cancelar">Cancelar</a>
+                    <button type="submit" class="salvar">
+                        ✓ Salvar tarefa
+                    </button>
+                </div>           
+            </form>
+
+        </div>
+    </div>
 
 </body>
 </html>

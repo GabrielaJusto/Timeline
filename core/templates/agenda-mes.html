@@ -63,10 +63,19 @@
                             <div class="celula-dia {% if not dia.mes_atual %}fora-mes{% endif %} {% if dia.hoje %}dia-atual{% endif %}">
                                 <div class="numero-dia">{{ dia.data|date:"d" }}</div>
 
+                                <!--Compromisso-->
                                 {% for compromisso in dia.compromissos %}
                                     <div class="evento-mensal" title="{{ compromisso.titulo }}">
                                         <span class="hora-evento">{{ compromisso.inicio|date:"H:i" }}</span>
                                         <span class="nome-evento">{{ compromisso.titulo }}</span>
+                                    </div>
+                                {% endfor %}
+
+                                <!--Tarefa-->
+                                {% for tarefa in dia.tarefas %}
+                                    <div class="evento-mensal tarefa" title="{{ tarefa.titulo }}">
+                                        <span class="hora-evento">{{ tarefa.prazo|date:"H:i" }}</span>
+                                        <span class="nome-evento">{{ tarefa.titulo }}</span>
                                     </div>
                                 {% endfor %}
                             </div>
