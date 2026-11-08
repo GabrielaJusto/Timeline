@@ -233,13 +233,50 @@ def agenda(request):
     # Buscar as tarefas cadastradas
     atividades = Atividade.objects.all()
 
+    # Buscar tarefas com prazo para hoje
+    tarefas_hoje = atividades.filter(
+        prazo__date=data_atual
+    ).order_by("prazo")
+
+    # Reunir tarefas, aulas e compromissos em uma única lista
+    eventos_do_dia = []
+
+    for compromisso in compromissos_hoje:
+        eventos_do_dia.append({
+            "horario": timezone.localtime(compromisso.inicio).time(),
+            "titulo": compromisso.titulo,
+            "tipo": "Compromisso",
+            "detalhe": compromisso.get_categoria_display()
+                if hasattr(compromisso, "get_categoria_display")
+                else compromisso.categoria,
+        })
+
+    for aula in aulas_hoje:
+        eventos_do_dia.append({
+            "horario": aula.hora_inicio,
+            "titulo": aula.disciplina.nome,
+            "tipo": "Aula",
+            "detalhe": aula.local or "",
+        })
+
+    for tarefa in tarefas_hoje:
+        eventos_do_dia.append({
+            "horario": timezone.localtime(tarefa.prazo).time(),
+            "titulo": tarefa.titulo,
+            "tipo": "Tarefa",
+            "detalhe": tarefa.get_status_display(),
+        })
+
+    # Organizar todos os eventos pelo horário
+    eventos_do_dia.sort(key=lambda evento: evento["horario"])
+
     # Buscar as tarefas que ainda nÃ£o foram concluÃ­das
     tarefas_pendentes = atividades.exclude(status="concluida").order_by("prazo")[:5]
 
     # Calcular o progresso real
     total_tarefas = atividades.count()
     tarefas_concluidas = atividades.filter(status="concluida").count()
- # Calcular a porcentagem
+    # Calcular a porcentagem
     if total_tarefas > 0:
         percentual_tarefas = round(
             (tarefas_concluidas / total_tarefas) * 100
@@ -250,10 +287,12 @@ def agenda(request):
     return render(request, "agenda.html", {
         "aulas": aulas_hoje,
         "compromissos": compromissos_hoje,
+        "tarefas_hoje": tarefas_hoje,
         "total_tarefas": total_tarefas,
         "tarefas_concluidas": tarefas_concluidas,
         "percentual_tarefas": percentual_tarefas,
         "tarefas_pendentes": tarefas_pendentes,
+        "eventos_do_dia": eventos_do_dia,
     })
 
 
@@ -575,10 +614,16 @@ def agenda_semanal(request):
             inicio__date=data
         ).order_by("inicio")
 
+        tarefas_do_dia = Atividade.objects.filter(
+            usuario_id=1,
+            prazo__date=data
+        ).order_by("prazo")
+
         dias.append({
             "data": data,
             "aulas": aulas_do_dia,
             "compromissos": compromissos_do_dia,
+            "tarefas": tarefas_do_dia,
         })
 
 
@@ -592,6 +637,35 @@ def agenda_semanal(request):
         "dia_semana", "hora_inicio"
     )
 
+    # Tarefas com prazo na semana exibida no calendário
+    tarefas_semana = Atividade.objects.filter(
+        usuario_id=1,
+        prazo__date__range=(inicio_semana, fim_semana)
+    )
+
+    tarefas_total = tarefas_semana.count()
+
+    tarefas_concluidas = tarefas_semana.filter(
+        status="concluida"
+    ).count()
+
+    tarefas_percentual = round(
+        (tarefas_concluidas / tarefas_total) * 100
+    ) if tarefas_total > 0 else 0
+
+    # Contar dias organizados com pelo menos uma tarefa cadastrada
+    dias_organizados = 0
+
+    for dia in dias:
+        
+        tem_compromisso = dia["compromissos"].exists()
+        tem_tarefa = dia["tarefas"].exists()
+
+        if tem_tarefa or tem_compromisso:
+            dias_organizados += 1
+
+    dias_percentual = round((dias_organizados / 7) * 100)
+
     return render(request, "agenda-semana.html", {
         "aulas": aulas,
         "data_atual": data_atual,
@@ -602,6 +676,11 @@ def agenda_semanal(request):
         "semana_anterior": semana_anterior,
         "semana_seguinte": semana_seguinte,
         "titulo_semana": titulo_semana,
+        "tarefas_total": tarefas_total,
+        "tarefas_concluidas": tarefas_concluidas,
+        "tarefas_percentual": tarefas_percentual,
+        "dias_organizados": dias_organizados,
+        "dias_percentual": dias_percentual,
     })
 
 def novo_compromisso(request):
@@ -788,6 +867,22 @@ def agenda_mensal(request):
         primeiro_dia.year, primeiro_dia.month
     )
 
+    # Buscar tarefas cadastradas no mês
+    tarefas = Atividade.objects.filter(
+        usuario_id=1,
+        prazo__date__range=(primeiro_dia, ultimo_dia)
+    ).order_by("prazo")
+
+    # Organizar as tarefas por dia
+    tarefas_por_dia = {}
+
+    for tarefa in tarefas:
+        data_tarefa = timezone.localtime(tarefa.prazo).date()
+
+        tarefas_por_dia.setdefault(
+            data_tarefa, []
+        ).append(tarefa)
+
     compromissos = Compromisso.objects.filter(
         inicio__date__range=(primeiro_dia, ultimo_dia)
     )
@@ -811,6 +906,7 @@ def agenda_mensal(request):
                 "mes_atual": dia.month == primeiro_dia.month,
                 "hoje": dia == hoje,
                 "compromissos": compromissos_por_dia.get(dia, []),
+                "tarefas": tarefas_por_dia.get(dia, []),
             })
         semanas_calendario.append(dias)
 

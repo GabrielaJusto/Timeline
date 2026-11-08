@@ -477,58 +477,34 @@ body > .grid > section.box {
 
       
       <div class="box">
-          <h3>Compromissos do dia</h3>
+        <h3>Compromissos do dia</h3>
 
-          
-          {% for compromisso in compromissos_hoje %}
-              <div class="event" style="display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
+        {% for evento in eventos_do_dia %}
+            <div class="event" style="display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
 
-                  <span class="time" style="font-size: 14px; font-weight: 600; color: #6366f1; min-width: 55px;">
-                      {{ compromisso.inicio|date:"H:i" }}
-                  </span>
+                <span class="time" style="font-size: 14px; font-weight: 600; color: #6366f1; min-width: 55px;">
+                    {{ evento.horario|time:"H:i" }}
+                </span>
 
-                  <div>
-                      <h4 style="font-size: 14px; margin-bottom: 5px;">
-                          {{ compromisso.titulo }}
-                      </h4>
+                <div>
+                    <h4 style="font-size: 14px; margin-bottom: 5px;">
+                        {{ evento.titulo }}
+                    </h4>
 
-                      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <span class="pill">{{ compromisso.categoria }}</span>
-                        <span class="pill">
-                            Até {{ compromisso.fim|date:"H:i" }}
-                        </span>
-                      </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <span class="pill">{{ evento.tipo }}</span>
+
+                        {% if evento.detalhe %}
+                            <span class="pill">{{ evento.detalhe }}</span>
+                        {% endif %}
                     </div>
-                  </div>
                 </div>
-              {% endfor %}
 
+            </div>
+        {% endfor %}
+          
 
-          {% for aula in aulas_hoje %}
-              <div class="event" style="display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
-
-                  <span class="time" style="font-size: 14px; font-weight: 600; color: #6366f1; min-width: 55px;">
-                      {{ aula.hora_inicio|time:"H:i" }}
-                  </span>
-
-                  <div>
-                      <h4 style="font-size: 14px; margin-bottom: 5px;">
-                          {{ aula.disciplina.nome }}
-                      </h4>
-
-                      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                          <span class="pill">Aula</span>
-
-                          {% if aula.local %}
-                              <span class="pill">{{ aula.local }}</span>
-                          {% endif %}
-                      </div>
-                  </div>
-
-              </div>
-          {% endfor %}
-
-          {% if not aulas_hoje and not compromissos_hoje %}
+          {% if not eventos_do_dia %}
             <p style="font-size: 12px; color: #64748b; margin-top: 10px;">
                 Nenhum compromisso cadastrado para hoje.
             </p>

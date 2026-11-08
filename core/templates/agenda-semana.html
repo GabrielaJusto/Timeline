@@ -86,7 +86,19 @@
                             </div>
                         {% endfor %}
 
-                        {% if not dia.aulas and not dia.compromissos %}
+                        {% for tarefa in dia.tarefas %}
+                            <div class="evento">
+                                <span class="evento-hora">
+                                    {{ tarefa.prazo|date:"H:i" }}
+                                </span>
+
+                                <span class="evento-nome">
+                                    {{ tarefa.titulo }}
+                                </span>
+                            </div>
+                        {% endfor %}
+
+                        {% if not dia.aulas and not dia.compromissos and not dia.tarefas %}
                             <p class="dia-vazio">Nada marcado</p>
                         {% endif %}
                     </div>
@@ -130,9 +142,21 @@
                     </div>
                     {% else %}
                     <span class="rotulo">Informações completas</span>
-                    <h2>Semana livre</h2>
-                    <p class="descricao">Nenhum evento nesta semana. Cadastre um compromisso para começar.</p>
+
+                    {% if tarefas_total > 0 %}
+                        <h2>Semana com tarefas</h2>
+                        <p class="descricao">
+                            Você tem {{ tarefas_total}} tarefa{{ tarefas_total|pluralize }}
+                            cadastrada{{ tarefas_total|pluralize }} nesta semana.
+                            {{ tarefas_concluidas }} concluída{{ tarefas_concluidas|pluralize }}.
+                        </p>
+                    {% else %}
+                        <h2>Semana livre</h2>
+                        <p class="descricao">
+                            Nenhuma tarefa cadastrada nesta semana.
+                        </p>
                     {% endif %}
+                {% endif %}
                 </section>
 
                 <!-- PROGRESSO -->
@@ -156,7 +180,7 @@
                     <div class="meta">
                         <div class="meta-linha">
                             <span>Dias organizados</span>
-                            <strong>{{ dias_organizados }} de 5</strong>
+                            <strong>{{ dias_organizados }} de 7</strong>
                         </div>
                         <div class="barra"><div class="barra-preenchida" style="width: {{ dias_percentual }}%;"></div></div>
                     </div>
