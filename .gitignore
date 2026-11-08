@@ -1,0 +1,12 @@
+config-autenticacao.local.ps1
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+*.sqlite3.auth-backup-*
+
+# Local data and integration backups
+/db.sqlite3
+*.bak
+*.bak-*
