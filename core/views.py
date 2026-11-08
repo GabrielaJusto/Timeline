@@ -149,8 +149,15 @@ def adicionar_tarefa(request):
 
             atividade.save()
 
+            if request.POST.get("origem") == "tarefas":
+                return redirect("tarefas")  
+            
             return redirect("hoje")
-
+        
+        # Se houver erros no formulário da página Tarefas
+        if request.POST.get("origem") == "tarefas":
+            return tarefas(request, formulario=form)
+        
     else:
         form = AtividadeForm()
 
@@ -647,7 +654,7 @@ def configuracoes(request):
     return render(request, "configuracoes.html")
 
 
-def tarefas(request):
+def tarefas(request, formulario=None):
     from django.db.models import Q
 
     atividades = Atividade.objects.all()
@@ -690,6 +697,7 @@ def tarefas(request):
         "ordem_selecionada": ordem,
         "opcoes_status": Atividade.STATUS,
         "opcoes_tipo": Atividade.TIPOS,
+        "form": formulario if formulario is not None else AtividadeForm(),
     })
 
 @require_POST
