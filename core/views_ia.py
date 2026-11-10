@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from .models import Planejamento, SessaoPlanejada, PropostaPersonalizacaoIA, Compromisso, Aula
 
-USUARIO_ID = 1  # Mesmo usuario de teste utilizado no planejamento existente.
+from django.contrib.auth.decorators import login_required
 
 def _sessoes(plano):
     return [{"atividade_id": s.atividade_id, "dia": s.data.isoformat(), "hora_inicio": s.hora_inicio.strftime('%H:%M') if s.hora_inicio else None, "duracao_min": s.duracao_min} for s in plano.sessoes.order_by('id')]
@@ -21,7 +21,7 @@ def _assinatura(sessoes):
 def _contexto(plano):
     sessoes = list(plano.sessoes.select_related('atividade', 'atividade__disciplina'))
     atividades = {s.atividade_id: s.atividade for s in sessoes}
-    compromissos = list(Compromisso.objects.filter(usuario_id=USUARIO_ID, inicio__date__lte=plano.semana_fim, fim__date__gte=plano.semana_inicio).values('titulo','inicio','fim'))
+    compromissos = list(Compromisso.objects.filter(usuario_id=plano.usuario_id, inicio__date__lte=plano.semana_fim, fim__date__gte=plano.semana_inicio).values('titulo','inicio','fim'))
     aulas = list(Aula.objects.filter(disciplina_id__in=[a.disciplina_id for a in atividades.values() if a.disciplina_id]).values('dia_semana','hora_inicio','hora_fim','disciplina__nome'))
     return {
         'semana_inicio': str(plano.semana_inicio), 'semana_fim': str(plano.semana_fim),
@@ -60,7 +60,7 @@ def _validar(plano, proposta):
     for dia,total in totais.items():
         if total>float(plano.disponibilidade_diaria.get(dia, 0))*60+0.01:
             raise ValueError('A proposta excede as horas disponÃ­veis em '+dia)
-    for c in Compromisso.objects.filter(usuario_id=USUARIO_ID, inicio__date__lte=plano.semana_fim, fim__date__gte=plano.semana_inicio):
+    for c in Compromisso.objects.filter(usuario_id=plano.usuario_id, inicio__date__lte=plano.semana_fim, fim__date__gte=plano.semana_inicio):
         if c.flexivel: continue
         inicio=timezone.localtime(c.inicio).replace(tzinfo=None) if timezone.is_aware(c.inicio) else c.inicio
         fim=timezone.localtime(c.fim).replace(tzinfo=None) if timezone.is_aware(c.fim) else c.fim
@@ -129,12 +129,13 @@ def _gerar_simulacao_local(plano, pedido):
     _validar(plano,proposta)
     return proposta
 
+@login_required
 def personalizacao_ia(request):
     semana=request.GET.get('semana') or request.POST.get('semana')
     try: inicio=date.fromisoformat(semana) if semana else timezone.localdate()
     except ValueError: return HttpResponseBadRequest('Semana invÃ¡lida')
     inicio-=timedelta(days=inicio.weekday())
-    plano=Planejamento.objects.filter(usuario_id=USUARIO_ID,semana_inicio=inicio,status='ativo').order_by('-id').first()
+    plano=Planejamento.objects.filter(usuario_id=request.user.id,semana_inicio=inicio,status='ativo').order_by('-id').first()
     if not plano:
         messages.error(request,'Salve primeiro um planejamento para esta semana.')
         return redirect('/planejamento/?semana='+inicio.isoformat())
@@ -187,9 +188,10 @@ def personalizacao_ia(request):
     return render(request,'personalizacao_ia.html',{'plano':plano,'semana':inicio.isoformat(),'proposta':proposta,'sugestoes':sugestoes,'atuais':[dict(s,nome=nomes.get(s['atividade_id'],'Atividade')) for s in _sessoes(plano)],'chave_ativa':bool(os.environ.get('OPENAI_API_KEY'))})
 
 @require_POST
+@login_required
 def aceitar_ia(request,proposta_id):
     with transaction.atomic():
-        proposta=get_object_or_404(PropostaPersonalizacaoIA.objects.select_for_update().select_related('planejamento'),pk=proposta_id,planejamento__usuario_id=USUARIO_ID,status='pendente')
+        proposta=get_object_or_404(PropostaPersonalizacaoIA.objects.select_for_update().select_related('planejamento'),pk=proposta_id,planejamento__usuario_id=request.user.id,status='pendente')
         plano=Planejamento.objects.select_for_update().get(pk=proposta.planejamento_id)
         if _assinatura(_sessoes(plano))!=proposta.assinatura_original:
             messages.error(request,'O planejamento mudou desde a proposta. Gere outra proposta.')
@@ -210,8 +212,9 @@ def aceitar_ia(request,proposta_id):
     return redirect('/planejamento/ia/?semana='+proposta.planejamento.semana_inicio.isoformat())
 
 @require_POST
+@login_required
 def rejeitar_ia(request,proposta_id):
-    proposta=get_object_or_404(PropostaPersonalizacaoIA,pk=proposta_id,planejamento__usuario_id=USUARIO_ID,status='pendente')
+    proposta=get_object_or_404(PropostaPersonalizacaoIA,pk=proposta_id,planejamento__usuario_id=request.user.id,status='pendente')
     proposta.status='rejeitada';proposta.save(update_fields=['status'])
     messages.info(request,'Proposta rejeitada. Planejamento original preservado.')
     return redirect('/planejamento/ia/?semana='+proposta.planejamento.semana_inicio.isoformat())

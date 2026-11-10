@@ -1,0 +1,25 @@
+{% load static %}<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Timeline — {% block title %}Organização{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
+</head>
+<body class="org-app">
+<aside class="org-sidebar">
+<a class="org-logo" href="{% url 'hoje' %}">◷ Timeline</a>
+<p>No seu ritmo.</p>
+<nav aria-label="Menu principal">
+<a href="{% url 'hoje' %}">Hoje</a>
+<a href="{% url 'agenda_semana' %}">Calendário</a>
+<a href="{% url 'tarefas' %}">Tarefas</a>
+<a href="{% url 'planejamento' %}">Planejamento inteligente</a>
+<a href="{% url 'progresso' %}">Progresso</a>
+<a href="{% url 'lixeira' %}">Lixeira</a>
+</nav>
+<p>{{ user.username }}</p>
+</aside>
+<main class="org-main">{% include 'organizacao/mensagens.html' %}{% block content %}{% endblock %}</main>
+</body>
+</html>
