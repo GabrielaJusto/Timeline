@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/agenda-semana.css' %}">
     <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
 </head>
 
 <body>
@@ -56,7 +57,7 @@
             </nav>
         </header>
 
-        <div class="layout">
+        {% include "organizacao/barra_agenda.html" %}<div class="layout">
 
             <!-- VISAO SEMANAL -->
             <section class="visao-semanal">
@@ -107,7 +108,7 @@
                             </div>
                         {% endfor %}
 
-                        {% if not dia.aulas and not dia.compromissos and not dia.tarefas %}
+                        {% for sessao in dia.sessoes %}<div class="org-session">{{ sessao.horario_exibicao }} · Estudo: {{ sessao.atividade.titulo }} · {{ sessao.duracao_min }} min</div>{% endfor %}{% include "organizacao/livres.html" %}{% if not dia.aulas and not dia.compromissos and not dia.tarefas %}
                             <p class="dia-vazio">Nada marcado</p>
                         {% endif %}
                     </div>

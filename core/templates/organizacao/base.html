@@ -1,0 +1,26 @@
+{% load static %}<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Timeline — {% block title %}Organização{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
+<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+</head>
+<body class="org-app">
+<aside class="org-sidebar menu-lateral">
+{% include "includes/marca.html" %}
+<p>No seu ritmo.</p>
+<nav aria-label="Menu principal">
+<a href="{% url 'hoje' %}">Hoje</a>
+<a href="{% url 'agenda_semana' %}">Calendário</a>
+<a href="{% url 'tarefas' %}">Tarefas</a>
+<a href="{% url 'planejamento' %}">Planejamento inteligente</a>
+<a href="{% url 'progresso' %}">Progresso</a>
+<a href="{% url 'lixeira' %}">Lixeira</a>
+</nav>
+{% include "includes/rodape-lateral.html" %}
+</aside>
+<main class="org-main">{% include 'organizacao/mensagens.html' %}{% block content %}{% endblock %}</main>
+{% include "includes/tarefa-modal.html" %}</body>
+</html>

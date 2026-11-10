@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static 'css/agenda-mes.css' %}">
     <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
 </head>
 <body>
     <div class="menu-lateral">
@@ -52,7 +53,7 @@
             </nav>
         </header>
 
-        <div class="layout">
+        {% include "organizacao/barra_agenda.html" %}<div class="layout">
             <section class="visao-semanal calendario-mensal">
                 <div class="visao-topo">
                     <h2>Visão mensal</h2>
@@ -81,7 +82,7 @@
                                     </div>
                                 {% endfor %}
 
-                                <!--Tarefa-->
+                                {% for sessao in dia.sessoes %}<div class="org-session">{{ sessao.horario_exibicao }} · {{ sessao.atividade.titulo }}</div>{% endfor %}<!--Tarefa-->
                                 {% for tarefa in dia.tarefas %}
                                     <div class="evento-mensal tarefa" title="{{ tarefa.titulo }}">
                                         <span class="hora-evento">{{ tarefa.prazo|date:"H:i" }}</span>

@@ -403,6 +403,7 @@ body > .grid > section.box {
 }
 </style>
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
 </head>
 <body>
 
@@ -449,7 +450,7 @@ body > .grid > section.box {
 
       
       <div class="box">
-        <h3>Compromissos do dia</h3>
+        <h3>Compromissos do dia</h3>{% include "organizacao/barra_agenda.html" %}{% include "organizacao/livres.html" with dia=dia_livre %}
 
         {% for evento in eventos_do_dia %}
             <div class="event" style="display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
