@@ -1,0 +1,16 @@
+{% extends 'organizacao/base.html' %}{% block title %}Lixeira{% endblock %}{% block content %}<h1>Lixeira</h1>
+<p>Restaure registros excluídos e seus dados vinculados. Ocorrências recorrentes são restauradas individualmente.</p>
+<section class="org-card">
+<h2>Tarefas</h2>{% for item in tarefas %}<div class="org-row">
+<span>{{ item.titulo }} · {{ item.prazo|date:'d/m/Y H:i' }}</span>
+<form method="post" action="{% url 'restaurar' 'tarefa' item.id %}">{% csrf_token %}<button>Restaurar tarefa</button>
+</form>
+</div>{% empty %}<p>Nenhuma tarefa na lixeira.</p>{% endfor %}<nav aria-label="Páginas de tarefas excluídas">{% if tarefas.has_previous %}<a href="?tarefas_page={{ tarefas.previous_page_number }}&amp;compromissos_page={{ compromissos.number }}">Anterior</a>{% endif %} {{ tarefas.number }} / {{ tarefas.paginator.num_pages }} {% if tarefas.has_next %}<a href="?tarefas_page={{ tarefas.next_page_number }}&amp;compromissos_page={{ compromissos.number }}">Próxima</a>{% endif %}</nav>
+</section>
+<section class="org-card">
+<h2>Compromissos</h2>{% for item in compromissos %}<div class="org-row">
+<span>{{ item.titulo }} · {{ item.inicio|date:'d/m/Y H:i' }}</span>
+<form method="post" action="{% url 'restaurar' 'compromisso' item.id %}">{% csrf_token %}<button>Restaurar compromisso</button>
+</form>
+</div>{% empty %}<p>Nenhum compromisso na lixeira.</p>{% endfor %}<nav aria-label="Páginas de compromissos excluídos">{% if compromissos.has_previous %}<a href="?compromissos_page={{ compromissos.previous_page_number }}&amp;tarefas_page={{ tarefas.number }}">Anterior</a>{% endif %} {{ compromissos.number }} / {{ compromissos.paginator.num_pages }} {% if compromissos.has_next %}<a href="?compromissos_page={{ compromissos.next_page_number }}&amp;tarefas_page={{ tarefas.number }}">Próxima</a>{% endif %}</nav>
+</section>{% endblock %}

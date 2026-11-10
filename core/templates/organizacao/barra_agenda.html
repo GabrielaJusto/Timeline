@@ -1,0 +1,12 @@
+<div class="org-agenda-tools">
+<a href="{% url 'novo_compromisso' %}">+ Compromisso recorrente</a> · <a href="{% url 'lixeira' %}">Lixeira</a>
+<form method="get" action="{% url 'exportar_agenda' %}">
+<strong>Exportar agenda (.ics)</strong>
+<label>De <input type="date" name="inicio" value="{% now 'Y-m-d' %}" required>
+</label>
+<label>Até <input type="date" name="fim" required>
+</label>
+<button type="submit">Baixar</button>
+<small>Até 366 dias · tarefas, aulas, compromissos e sessões.</small>
+</form>
+</div>{% include 'organizacao/mensagens.html' %}

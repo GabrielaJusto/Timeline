@@ -3,8 +3,17 @@ from django.contrib import admin
 from django.urls import path
 from core import views
 from core import views_ia
+from core import views_organizacao as organizacao
 
 urlpatterns = [
+    path("tarefas/<int:atividade_id>/editar/", organizacao.editar_tarefa, name="editar_tarefa"),
+    path("tarefas/<int:atividade_id>/excluir/", organizacao.excluir_tarefa, name="excluir_tarefa"),
+    path("tarefas/<int:atividade_id>/subtarefas/", organizacao.subtarefa, name="subtarefa"),
+    path("tarefas/lote/", organizacao.acoes_lote, name="acoes_lote"),
+    path("lixeira/", organizacao.lixeira, name="lixeira"),
+    path("lixeira/<str:tipo>/<int:registro_id>/restaurar/", organizacao.restaurar, name="restaurar"),
+    path("agenda/sessao/nova/", organizacao.criar_sessao, name="criar_sessao"),
+    path("agenda/exportar/", organizacao.exportar_agenda, name="exportar_agenda"),
     path("planejamento/ia/", views_ia.personalizacao_ia, name="personalizacao_ia"),
     path("planejamento/ia/<int:proposta_id>/aceitar/", views_ia.aceitar_ia, name="aceitar_ia"),
     path("planejamento/ia/<int:proposta_id>/rejeitar/", views_ia.rejeitar_ia, name="rejeitar_ia"),
@@ -21,7 +30,7 @@ urlpatterns = [
     path("hoje/", views.hoje, name="hoje"),
 
     # Tarefas
-    path("tarefas/", views.tarefas, name="tarefas"),
+    path("tarefas/", organizacao.tarefas, name="tarefas"),
 
     path(
         "tarefas/<int:atividade_id>/alternar-status/",
@@ -37,32 +46,32 @@ urlpatterns = [
 
     path(
         "adicionar-tarefa/",
-        views.adicionar_tarefa,
+        organizacao.adicionar_tarefa,
         name="adicionar_tarefa",
     ),
 
     # Agenda
-    path("agenda/", views.agenda, name="agenda"),
+    path("agenda/", organizacao.agenda, name="agenda"),
 
     path(
         "agenda/semana/",
-        views.agenda_semanal,
+        organizacao.agenda_semanal,
         name="agenda_semana",
     ),
 
     path(
         "novo-compromisso/",
-        views.novo_compromisso,
+        organizacao.novo_compromisso,
         name="novo_compromisso",
     ),
 
     path(
         "excluir-compromisso/<int:compromisso_id>/",
-        views.excluir_compromisso,
+        organizacao.excluir_compromisso,
         name="excluir_compromisso",
     ),
 
-    path("agenda/mes/", views.agenda_mensal, name="agenda_mes"),
+    path("agenda/mes/", organizacao.agenda_mensal, name="agenda_mes"),
 
     # Planejamento inteligente
     path(

@@ -1,0 +1,8 @@
+{% extends 'organizacao/base.html' %}{% block title %}{{ titulo }}{% endblock %}{% block content %}<a href="{% url 'tarefas' %}">← Tarefas</a> · <a href="{% url 'agenda_semana' %}">Calendário</a>
+<h1>{{ titulo }}</h1>
+<form method="post" class="org-card org-form">{% csrf_token %}{{ form.as_p }}<p>Repetições são criadas até a data final, por no máximo 366 dias. Alterações e exclusões afetam somente a ocorrência selecionada.</p>
+<div class="org-actions">
+<button type="submit">Salvar</button>
+<a href="{% url 'tarefas' %}">Cancelar</a>
+</div>
+</form>{% endblock %}

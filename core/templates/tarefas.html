@@ -1,639 +1,78 @@
-
-{% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline - Minhas Tarefas</title>
-    <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
-
-    <style>
-        .pagina-tarefas {
-            margin-left: 266px;
-            padding: 45px 40px;
-            min-height: 100vh;
-            background: #f8f8fd;
-            box-sizing: border-box;
-        }
-
-        .cabecalho-tarefas {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .cabecalho-tarefas h1 {
-            margin: 8px 0;
-            color: #111936;
-            font-size: 28px;
-        }
-
-        .subtitulo-tarefas {
-            color: #777e96;
-            font-size: 14px;
-        }
-
-        .etiqueta-tarefas {
-            color: #625ce3;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-
-        .botao-nova-tarefa {
-            display: inline-block;
-            padding: 13px 20px;
-            background: #7069e8;
-            color: white;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .indicadores-tarefas {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-            margin-bottom: 25px;
-        }
-
-        .indicador-tarefa,
-        .painel-tarefas {
-            background: white;
-            border: 1px solid #e0e0ed;
-            border-radius: 14px;
-            padding: 24px;
-        }
-
-        .indicador-tarefa span {
-            color: #777e96;
-            font-size: 13px;
-        }
-
-        .indicador-tarefa h2 {
-            color: #625ce3;
-            font-size: 30px;
-            margin: 12px 0 0;
-        }
-
-        .painel-tarefas h2 {
-            font-size: 18px;
-            color: #111936;
-            margin: 0 0 22px;
-        }
-
-        .item-tarefa {
-            border: 1px solid #e7e7f1;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 12px;
-        }
-
-        .item-tarefa h3 {
-            margin: 0 0 10px;
-            font-size: 16px;
-            color: #111936;
-        }
-
-        .item-tarefa p {
-            margin: 6px 0;
-            font-size: 13px;
-            color: #606981;
-        }
-
-        .estado-vazio {
-            text-align: center;
-            padding: 55px 15px;
-            color: #777e96;
-        }
-
-        .estado-vazio h3 {
-            color: #111936;
-            margin-bottom: 8px;
-        }
-
-        @media (max-width: 850px) {
-            .pagina-tarefas {
-                margin-left: 0;
-                padding: 25px 15px;
-            }
-
-            .indicadores-tarefas {
-                grid-template-columns: 1fr;
-            }
-
-            .cabecalho-tarefas {
-                flex-wrap: wrap;
-            }
-        }
-
-        /* FUNDO ESCURECIDO DO MODAL */
-        .fundo-modal-tarefas {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 20, 45, 0.55);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* MOSTRAR O MODAL AO CLICAR EM + NOVA TAREFA */
-        .fundo-modal-tarefas:target {
-            display: flex;
-        }
-
-        /* CARTÃO DO FORMULÁRIO */
-        .cartao-modal-tarefas {
-            background: white;
-            width: 520px;
-            max-width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            border-radius: 15px;
-            padding: 22px 30px;
-            box-sizing: border-box;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-        }
-
-        /* CABEÇALHO */
-        .cabecalho-modal-tarefas {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .cabecalho-modal-tarefas p {
-            color: #7069e8;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-        }
-
-        .cabecalho-modal-tarefas h2 {
-            color: #111936;
-            font-size: 26px;
-            margin: 8px 0;
-        }
-
-        .cabecalho-modal-tarefas span {
-            color: #777e96;
-            font-size: 13px;
-        }
-
-        /* BOTÃO DE FECHAR */
-        .fechar-modal-tarefas {
-            color: #777e96;
-            font-size: 28px;
-            text-decoration: none;
-        }
-
-        /* CAMPOS DO FORMULÁRIO */
-        .cartao-modal-tarefas .campo {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-            margin-bottom: 18px;
-        }
-
-        .cartao-modal-tarefas .campo label {
-            color: #111936;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .cartao-modal-tarefas input,
-        .cartao-modal-tarefas select,
-        .cartao-modal-tarefas textarea {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid #dedeea;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font: inherit;
-        }
-
-        .cartao-modal-tarefas .linha {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        /* BOTÕES */
-        .cartao-modal-tarefas .botoes {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .cartao-modal-tarefas .cancelar {
-            color: #777e96;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        .cartao-modal-tarefas .salvar {
-            background: #7069e8;
-            color: white;
-            border: none;
-            border-radius: 9px;
-            padding: 12px 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .cartao-modal-tarefas .informacao {
-            color: #777e96;
-            font-size: 12px;
-        }
-
-        @media (max-width: 600px) {
-            .cartao-modal-tarefas .linha {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .fundo-modal-tarefas.modal-com-erros {
-            display: flex;
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- MENU LATERAL -->
-    <div class="menu-lateral">
-
-        <div class="logo">
-            <div class="logo-simbolo">
-                <div class="ponteiro"></div>
-            </div>
-            <div class="logo-texto">
-                <h2>Timeline</h2>
-                <p>Plan today. Move at your pace.</p>
-            </div>
-        </div>
-
-        <h3 class="titulo-menu">SEU ESPAÇO</h3>
-
-        <div class="menu">
-            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-<a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
-            <a href="{% url 'tarefas' %}" class="ativo">☷ &nbsp; Tarefas</a>
-            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
-            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-        </div>
-
-        <div class="frase-lateral">
-            <h3>☼</h3>
-            <h4>No seu ritmo.</h4>
-            <p>Pequenos passos também fazem o dia avançar.</p>
-        </div>
-
-        <div class="usuario">
-            {% if user.is_authenticated %}
-                <strong>{{ user.username }}</strong>
-                <p>Conta conectada</p>
-
-                <form method="POST" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Sair da conta</button>
-                </form>
-            {% else %}
-                <strong>Visitante</strong>
-                <p>Não conectado</p>
-                <a href="{% url 'login' %}">Entrar</a>
-            {% endif %}
-        </div>
-
-    </div>
-
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="pagina-tarefas">
-
-        <div class="cabecalho-tarefas">
-            <div>
-                <span class="etiqueta-tarefas">SEU ESPAÇO</span>
-                <h1>Minhas Tarefas</h1>
-
-<!-- FILTROS FUNCIONAIS DE TAREFAS -->
-<style>
-.filtros-tarefas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: end;
-    margin: 20px 0;
-    padding: 20px;
-    background: #fff;
-    border: 1px solid #e8e8ef;
-    border-radius: 14px;
-}
-.filtros-tarefas label {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #444;
-}
-.filtros-tarefas input,
-.filtros-tarefas select {
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font: inherit;
-    min-width: 140px;
-}
-.filtros-tarefas button {
-    background: #7477e8;
-    color: white;
-    border: 0;
-    border-radius: 8px;
-    padding: 11px 18px;
-    cursor: pointer;
-}
-.filtros-tarefas .limpar {
-    padding: 10px;
-    color: #7477e8;
-    text-decoration: none;
-}
-</style>
-
-<form method="get" action="{% url 'tarefas' %}" class="filtros-tarefas">
-    <label>
-        Buscar
-        <input type="search" name="busca"
-               value="{{ busca }}"
-               placeholder="Título ou disciplina">
-    </label>
-
-    <label>
-        Status
-        <select name="status">
-            <option value="">Todos</option>
-            {% for valor, nome in opcoes_status %}
-                <option value="{{ valor }}"
-                    {% if status_selecionado == valor %}selected{% endif %}>
-                    {{ nome }}
-                </option>
-            {% endfor %}
-        </select>
-    </label>
-
-    <label>
-        Tipo
-        <select name="tipo">
-            <option value="">Todos</option>
-            {% for valor, nome in opcoes_tipo %}
-                <option value="{{ valor }}"
-                    {% if tipo_selecionado == valor %}selected{% endif %}>
-                    {{ nome }}
-                </option>
-            {% endfor %}
-        </select>
-    </label>
-
-    <label>
-        Ordenar
-        <select name="ordem">
-            <option value="prazo"
-                {% if ordem_selecionada == "prazo" %}selected{% endif %}>
-                Prazo mais próximo
-            </option>
-            <option value="prazo_desc"
-                {% if ordem_selecionada == "prazo_desc" %}selected{% endif %}>
-                Prazo mais distante
-            </option>
-            <option value="titulo"
-                {% if ordem_selecionada == "titulo" %}selected{% endif %}>
-                Título A-Z
-            </option>
-        </select>
-    </label>
-
-    <button type="submit">Filtrar</button>
-    <a class="limpar" href="{% url 'tarefas' %}">Limpar</a>
+{% extends 'organizacao/base.html' %}{% block title %}Minhas tarefas{% endblock %}{% block content %}
+<header class="org-row">
+<div>
+<h1>Minhas tarefas</h1>
+<p>Organize atividades e avance uma etapa de cada vez.</p>
+</div>
+<a class="org-button" href="{% url 'adicionar_tarefa' %}">+ Nova tarefa</a>
+</header>
+<div class="org-stats">
+<div class="org-card">Total <strong>{{ total }}</strong>
+</div>
+<div class="org-card">Pendentes <strong>{{ pendentes }}</strong>
+</div>
+<div class="org-card">Concluídas <strong>{{ concluidas }}</strong>
+</div>
+</div>
+<form method="get" class="org-card org-actions">
+<label>Buscar<input type="search" name="busca" value="{{ busca }}" placeholder="Título ou disciplina">
+</label>
+<label>Status<select name="status">
+<option value="">Todos</option>{% for valor,nome in opcoes_status %}<option value="{{ valor }}" {% if status_selecionado == valor %}selected{% endif %}>{{ nome }}</option>{% endfor %}</select>
+</label>
+<label>Tipo<select name="tipo">
+<option value="">Todos</option>{% for valor,nome in opcoes_tipo %}<option value="{{ valor }}" {% if tipo_selecionado == valor %}selected{% endif %}>{{ nome }}</option>{% endfor %}</select>
+</label>
+<label>Ordenar<select name="ordem">
+<option value="prazo">Prazo mais próximo</option>
+<option value="prazo_desc" {% if ordem_selecionada == 'prazo_desc' %}selected{% endif %}>Prazo mais distante</option>
+<option value="titulo" {% if ordem_selecionada == 'titulo' %}selected{% endif %}>Título A–Z</option>
+</select>
+</label>
+<button>Filtrar</button>
+<a href="{% url 'tarefas' %}">Limpar</a>
 </form>
-
-                <p class="subtitulo-tarefas">
-                    Organize e acompanhe todas as suas atividades.
-                </p>
-            </div>
-
-            <a href="#modal-nova-tarefa" class="botao-nova-tarefa">
-                + Nova tarefa
-            </a>
-        </div>
-
-        <!-- INDICADORES -->
-        <div class="indicadores-tarefas">
-
-            <div class="indicador-tarefa">
-                <span>Total de tarefas</span>
-                <h2>{{ atividades|length }}</h2>
-            </div>
-
-            <div class="indicador-tarefa">
-                <span>Pendentes</span>
-                <h2>{{ pendentes }}</h2>
-            </div>
-
-            <div class="indicador-tarefa">
-                <span>Concluídas</span>
-                <h2>{{ concluidas }}</h2>
-            </div>
-
-        </div>
-
-        <!-- LISTA DE TAREFAS -->
-        <section class="painel-tarefas">
-            <h2>Todas as tarefas</h2>
-
-        {% if atividades %}
-            {% for atividade in atividades %}
-                <div class="item-tarefa">
-
-                    <form method="POST" action="{% url 'alternar_status_tarefa' atividade.id %}">
-                        {% csrf_token %}
-
-                    <label>
-                        <input
-                            type="checkbox"
-                            {% if atividade.status == "concluida" %}checked{% endif %}
-                            onchange="this.form.submit()"
-                        >
-                        <strong>{{ atividade.titulo }}</strong>
-                    </label>
-                </form>
-
-                        <p>
-                            <strong>Disciplina:</strong>
-                            {% if atividade.nome_disciplina %}
-                                {{ atividade.nome_disciplina }}
-                            {% elif atividade.disciplina %}
-                                {{ atividade.disciplina.nome }}
-                            {% else %}
-                                Sem disciplina
-                            {% endif %}
-                        </p>
-
-                        <p><strong>Tipo:</strong> {{ atividade.get_tipo_display }}</p>
-                        <p><strong>Prazo:</strong> {{ atividade.prazo|date:"d/m/Y H:i" }}</p>
-                        <p><strong>Status:</strong> {{ atividade.get_status_display }}</p>
-
-{% if atividade.status != "concluida" %}
-    <form method="POST" action="{% url 'marcar_atividade_nao_concluida' atividade.id %}">
-        {% csrf_token %}
-        <button type="submit">
-            Marcar como não concluída
-        </button>
-    </form>
-{% endif %}
-
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="estado-vazio">
-                    <h3>Nenhuma tarefa cadastrada ainda</h3>
-                    <p>Adicione sua primeira tarefa para começar a se organizar.</p>
-                </div>
-            {% endif %}
-        </section>
-
-    </main>
-
-    <!-- MODAL PARA ADICIONAR TAREFA -->
-    <div id="modal-nova-tarefa" class="fundo-modal-tarefas{% if form.errors %} modal-com-erros{% endif %}">
-
-        <div class="cartao-modal-tarefas">
-
-            <div class="cabecalho-modal-tarefas">
-                <div>
-                    <p>ESPAÇO PARA O PRÓXIMO PASSO</p>
-                    <h2>Adicionar tarefa</h2>
-                    <span>
-                     Uma atividade, um prazo. O restante você ajusta no caminho.
-                    </span>
-                </div>
-
-                <a href="#" class="fechar-modal-tarefas">×</a>
-            </div>
-
-            <form method="POST" action="{% url 'adicionar_tarefa' %}">
-                {% csrf_token %}
-                <input type="hidden" name="origem" value="tarefas">
-
-                {{ form.non_field_errors }}
-
-                <div class="campo">
-                    <label>Nome da tarefa *</label>
-                    {{ form.titulo }}
-                    {{ form.titulo.errors }}
-                </div>
-
-                <div class="campo">
-                    <label>Disciplina (opcional)</label>
-                    {{ form.nome_disciplina }}
-                    {{ form.nome_disciplina.errors }}
-                </div>
-
-                <div class="linha">
-                    <div class="campo">
-                        <label>Data de entrega *</label>
-                        {{ form.data_entrega }}
-                        {{ form.data_entrega.errors }}
-                    </div>
-
-                    <div class="campo">
-                        <label>Horário (opcional)</label>
-                        {{ form.horario }}
-                        {{ form.horario.errors }}
-                    </div>
-                </div>
-            
-                <div class="campo">
-                    <label for="prioridade">Prioridade *</label>
-                    <select id="prioridade">
-                        <option>Baixa</option>
-                        <option selected>Média</option>
-                        <option>Alta</option>
-                    </select>
-                </div>
-
-                <div class="campo">
-                    <label>Categoria *</label>
-                    {{ form.tipo }}
-                    {{ form.tipo.errors }}
-                </div>
-
-                <!-- LINK -->
-                <div class="campo">
-                    <label for="link">Link <span>opcional</span></label>
-                    <input
-                        id="link"
-                        type="url"
-                        placeholder="https://..."
-    >
-                </div>
-
-                <!-- LOCAL -->
-                <div class="campo">
-                    <label for="local">Local ou endereço <span>opcional</span></label>
-                    <input
-                        id="local"
-                        type="text"
-                        placeholder="Ex.: PUC-Rio, sala 201"
-                    >
-                </div>
-
-                <!-- OBSERVAÇÕES -->
-                <div class="campo">
-                    <label for="observacoes">Observações <span>opcional</span></label>
-                    <textarea
-                        id="observacoes"
-                        placeholder="Adicione informações importantes sobre a tarefa..."
-                    ></textarea>
-                </div>
-
-                <!-- LEMBRETE -->
-                <div class="campo">
-                    <label for="lembrete">Lembrete <span>opcional</span></label>
-                    <select id="lembrete">
-                        <option selected>Sem lembrete</option>
-                        <option>No horário</option>
-                        <option>30 minutos antes</option>
-                        <option>1 hora antes</option>
-                        <option>1 dia antes</option>
-                    </select>
-                </div>
-
-                <p class="informacao">
-                    Sem horário definido, o prazo será até o fim do dia.
-                    Campos com * são obrigatórios.
-                </p>
-
-                <div class="botoes">
-                    <a href="#" class="cancelar">Cancelar</a>
-                    <button type="submit" class="salvar">
-                        ✓ Salvar tarefa
-                    </button>
-                </div>           
-            </form>
-
-        </div>
-    </div>
-
-</body>
-</html>
+<form id="lote" method="post" action="{% url 'acoes_lote' %}" class="org-card org-actions" onsubmit="return this.acao.value !== 'excluir' || confirm('Mover as tarefas selecionadas para a lixeira?')">{% csrf_token %}<label>
+<input type="checkbox" id="selecionar-todas"> Selecionar esta página</label>
+<label>Ação<select name="acao" required>
+<option value="concluir">Concluir</option>
+<option value="adiar">Alterar data</option>
+<option value="excluir">Mover para a lixeira</option>
+</select>
+</label>
+<label>Nova data<input type="date" name="nova_data">
+</label>
+<button>Aplicar às selecionadas</button>
+</form>
+{% for atividade in atividades %}<article class="org-card">
+<div class="org-row">
+<label>
+<input type="checkbox" form="lote" name="atividades" value="{{ atividade.id }}" aria-label="Selecionar {{ atividade.titulo }}"> <strong>{{ atividade.titulo }}</strong>
+</label>
+<div class="org-actions">
+<a href="{% url 'editar_tarefa' atividade.id %}">Editar</a>
+<form method="post" action="{% url 'excluir_tarefa' atividade.id %}" onsubmit="return confirm('Mover esta tarefa para a lixeira?')">{% csrf_token %}<button class="org-danger">Excluir</button>
+</form>
+</div>
+</div>
+<p>{% if atividade.nome_disciplina %}{{ atividade.nome_disciplina }}{% elif atividade.disciplina %}{{ atividade.disciplina.nome }}{% else %}Sem disciplina{% endif %} · {{ atividade.get_tipo_display }} · {{ atividade.prazo|date:'d/m/Y H:i' }}</p>
+<p>{{ atividade.get_status_display }}{% if atividade.serie_id %} · Ocorrência de uma série{% endif %}</p>
+<div class="org-actions">
+<form method="post" action="{% url 'alternar_status_tarefa' atividade.id %}">{% csrf_token %}<button>{% if atividade.status == 'concluida' %}Reabrir tarefa{% else %}Concluir tarefa{% endif %}</button>
+</form>{% if atividade.status != 'concluida' %}<form method="post" action="{% url 'marcar_atividade_nao_concluida' atividade.id %}">{% csrf_token %}<button>Não concluída · Replanejar</button>
+</form>{% endif %}</div>
+<details>
+<summary>Etapas da tarefa ({{ atividade.subtarefas.all|length }})</summary>{% for etapa in atividade.subtarefas.all %}<form method="post" action="{% url 'subtarefa' atividade.id %}" class="org-step">{% csrf_token %}<input type="hidden" name="subtarefa_id" value="{{ etapa.id }}">
+<button aria-label="Alternar conclusão de {{ etapa.titulo }}">{% if etapa.concluida %}✓{% else %}○{% endif %}</button>
+<span {% if etapa.concluida %}class="org-done"{% endif %}>{{ etapa.titulo }}</span>
+</form>{% empty %}<p>Divida a atividade em passos menores.</p>{% endfor %}<form method="post" action="{% url 'subtarefa' atividade.id %}" class="org-actions">{% csrf_token %}<label>Nova etapa<input name="titulo" maxlength="120" required placeholder="Ex.: Revisar a introdução">
+</label>
+<button>Adicionar etapa</button>
+</form>
+</details>
+</article>{% empty %}<section class="org-card">
+<h2>Nenhuma tarefa encontrada</h2>
+<p>Altere os filtros ou adicione uma tarefa.</p>
+</section>{% endfor %}
+<nav class="org-actions" aria-label="Paginação">{% if pagina.has_previous %}<a href="?{{ parametros }}&amp;page={{ pagina.previous_page_number }}">← Anterior</a>{% endif %}<span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }} · {{ total }} tarefas</span>{% if pagina.has_next %}<a href="?{{ parametros }}&amp;page={{ pagina.next_page_number }}">Próxima →</a>{% endif %}</nav>
+<script>document.getElementById('selecionar-todas').addEventListener('change',function(){document.querySelectorAll('input[name="atividades"]').forEach(item=>item.checked=this.checked)});const acao=document.querySelector('#lote select[name="acao"]');acao.addEventListener('change',()=>{document.querySelector('#lote input[name="nova_data"]').required=acao.value==='adiar'});</script>{% endblock %}

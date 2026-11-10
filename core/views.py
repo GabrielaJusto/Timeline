@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 
 from .forms import AtividadeForm
@@ -92,8 +93,9 @@ def pagina_logout(request):
 # PÃGINA HOJE
 # ==========================================
 
+@login_required
 def hoje(request):
-    atividades = Atividade.objects.exclude(status="concluida").order_by("prazo")
+    atividades = Atividade.objects.filter(usuario_id=request.user.id).exclude(status="concluida").order_by("prazo")
 
     data_atual = timezone.localdate()
     inicio_semana = data_atual - timedelta(days=data_atual.weekday())
@@ -105,9 +107,9 @@ def hoje(request):
 
     fim_semana = dias_semana[-1]
 
-    total_atividades = Atividade.objects.count()
-    concluidas = Atividade.objects.filter(status="concluida").count()
-    pendentes = Atividade.objects.exclude(status="concluida").count()
+    total_atividades = Atividade.objects.filter(usuario_id=request.user.id).count()
+    concluidas = Atividade.objects.filter(usuario_id=request.user.id, status="concluida").count()
+    pendentes = Atividade.objects.filter(usuario_id=request.user.id).exclude(status="concluida").count()
 
     return render(request, "hoje.html", {
         "atividades": atividades,
@@ -125,75 +127,6 @@ def hoje(request):
 # ADICIONAR TAREFA
 # ==========================================
 
-def adicionar_tarefa(request):
-    if request.method == "POST":
-        form = AtividadeForm(request.POST)
-
-        if form.is_valid():
-            atividade = form.save(commit=False)
-
-            data = form.cleaned_data["data_entrega"]
-            horario = form.cleaned_data["horario"]
-
-            if horario is None:
-                horario = time(23, 59)
-
-            prazo = datetime.combine(data, horario)
-            atividade.prazo = timezone.make_aware(prazo)
-
-            atividade.usuario_id = 1  # ProvisÃ³rio para testes
-
-            nome_disciplina = form.cleaned_data["nome_disciplina"].strip()
-
-            atividade.nome_disciplina = nome_disciplina
-
-            atividade.save()
-
-            if request.POST.get("origem") == "tarefas":
-                return redirect("tarefas")  
-            
-            return redirect("hoje")
-        
-        # Se houver erros no formulário da página Tarefas
-        if request.POST.get("origem") == "tarefas":
-            return tarefas(request, formulario=form)
-        
-    else:
-        form = AtividadeForm()
-
-    atividades = Atividade.objects.all().order_by("prazo")
-
-    total_atividades = atividades.count()
-    concluidas = atividades.filter(status="concluida").count()
-    pendentes = atividades.exclude(status="concluida").count()
-
-    progresso = (
-        int(concluidas / total_atividades * 100)
-        if total_atividades > 0
-        else 0
-    )
-
-    data_atual = timezone.localdate()
-    inicio_semana = data_atual - timedelta(days=data_atual.weekday())
-
-    dias_semana = [
-        inicio_semana + timedelta(days=i)
-        for i in range(7)
-    ]
-
-    fim_semana = dias_semana[-1]
-
-    return render(request, "adicionar-tarefa.html", {
-        "form": form,
-        "data_atual": data_atual,
-        "inicio_semana": inicio_semana,
-        "fim_semana": fim_semana,
-        "dias_semana": dias_semana,
-        "atividades": atividades,
-        "total_atividades": total_atividades,
-        "concluidas": concluidas,
-        "pendentes": pendentes,
-    })
 
 
 # ==========================================
@@ -208,100 +141,15 @@ def inicio(request):
 # AGENDA
 # ==========================================
 
-def agenda(request):
-    aulas = (
-        Aula.objects
-        .select_related("disciplina")
-        .all()
-        .order_by("dia_semana", "hora_inicio")
-    )
-
-    # Identificar o dia da semana atual
-    data_atual = timezone.localdate()
-    dia_atual = data_atual.isoweekday()
-
-    # Buscar somente as aulas de hoje
-    aulas_hoje = aulas.filter(dia_semana=dia_atual)
-
-    # Buscar os compromissos cadastrados para hoje
-    compromissos_hoje = (
-        Compromisso.objects
-        .filter(inicio__date=data_atual)
-        .order_by("inicio")
-)
-
-    # Buscar as tarefas cadastradas
-    atividades = Atividade.objects.all()
-
-    # Buscar tarefas com prazo para hoje
-    tarefas_hoje = atividades.filter(
-        prazo__date=data_atual
-    ).order_by("prazo")
-
-    # Reunir tarefas, aulas e compromissos em uma única lista
-    eventos_do_dia = []
-
-    for compromisso in compromissos_hoje:
-        eventos_do_dia.append({
-            "horario": timezone.localtime(compromisso.inicio).time(),
-            "titulo": compromisso.titulo,
-            "tipo": "Compromisso",
-            "detalhe": compromisso.get_categoria_display()
-                if hasattr(compromisso, "get_categoria_display")
-                else compromisso.categoria,
-        })
-
-    for aula in aulas_hoje:
-        eventos_do_dia.append({
-            "horario": aula.hora_inicio,
-            "titulo": aula.disciplina.nome,
-            "tipo": "Aula",
-            "detalhe": aula.local or "",
-        })
-
-    for tarefa in tarefas_hoje:
-        eventos_do_dia.append({
-            "horario": timezone.localtime(tarefa.prazo).time(),
-            "titulo": tarefa.titulo,
-            "tipo": "Tarefa",
-            "detalhe": tarefa.get_status_display(),
-        })
-
-    # Organizar todos os eventos pelo horário
-    eventos_do_dia.sort(key=lambda evento: evento["horario"])
-
-    # Buscar as tarefas que ainda nÃ£o foram concluÃ­das
-    tarefas_pendentes = atividades.exclude(status="concluida").order_by("prazo")[:5]
-
-    # Calcular o progresso real
-    total_tarefas = atividades.count()
-    tarefas_concluidas = atividades.filter(status="concluida").count()
-    # Calcular a porcentagem
-    if total_tarefas > 0:
-        percentual_tarefas = round(
-            (tarefas_concluidas / total_tarefas) * 100
-        )
-    else:
-        percentual_tarefas = 0
-
-    return render(request, "agenda.html", {
-        "aulas": aulas_hoje,
-        "compromissos": compromissos_hoje,
-        "tarefas_hoje": tarefas_hoje,
-        "total_tarefas": total_tarefas,
-        "tarefas_concluidas": tarefas_concluidas,
-        "percentual_tarefas": percentual_tarefas,
-        "tarefas_pendentes": tarefas_pendentes,
-        "eventos_do_dia": eventos_do_dia,
-    })
 
 
 # ==========================================
 # PLANEJAMENTO INTELIGENTE
 # ==========================================
 
+@login_required
 def planejamento(request):
-    usuario_id = 1  # ProvisÃ³rio para testes
+    usuario_id = request.user.id  # ProvisÃ³rio para testes
 
     # Busca as atividades do usuÃ¡rio.
     atividades = Atividade.objects.filter(
@@ -582,135 +430,12 @@ def planejamento(request):
         contexto
     )
 
-def agenda_semanal(request):
-    from .models import Aula, Compromisso
 
 
-    data_atual = timezone.localdate()
 
-    semana_parametro = request.GET.get("semana")
-
-    if semana_parametro:
-        try:
-            data_referencia = date.fromisoformat(semana_parametro)
-        except ValueError:
-            data_referencia = data_atual
-    else:
-        data_referencia = data_atual
-
-    inicio_semana = data_referencia - timedelta(days=data_referencia.weekday())
-    semana_anterior = inicio_semana - timedelta(days=7)
-    semana_seguinte = inicio_semana + timedelta(days=7)
-    dias_semana = [inicio_semana + timedelta(days=i) for i in range(7)]
-
-    dias = []
-
-    for i, data in enumerate(dias_semana, start=1):
-        aulas_do_dia = Aula.objects.filter(
-            dia_semana=i
-        ).select_related("disciplina").order_by("hora_inicio")
-
-        compromissos_do_dia = Compromisso.objects.filter(
-            inicio__date=data
-        ).order_by("inicio")
-
-        tarefas_do_dia = Atividade.objects.filter(
-            usuario_id=1,
-            prazo__date=data
-        ).order_by("prazo")
-
-        dias.append({
-            "data": data,
-            "aulas": aulas_do_dia,
-            "compromissos": compromissos_do_dia,
-            "tarefas": tarefas_do_dia,
-        })
-
-
-    fim_semana = dias_semana[-1]
-    titulo_semana = (
-    f"{inicio_semana.strftime('%d/%m')} a "
-    f"{fim_semana.strftime('%d/%m/%Y')}"
-)
-
-    aulas = Aula.objects.select_related("disciplina").all().order_by(
-        "dia_semana", "hora_inicio"
-    )
-
-    # Tarefas com prazo na semana exibida no calendário
-    tarefas_semana = Atividade.objects.filter(
-        usuario_id=1,
-        prazo__date__range=(inicio_semana, fim_semana)
-    )
-
-    tarefas_total = tarefas_semana.count()
-
-    tarefas_concluidas = tarefas_semana.filter(
-        status="concluida"
-    ).count()
-
-    tarefas_percentual = round(
-        (tarefas_concluidas / tarefas_total) * 100
-    ) if tarefas_total > 0 else 0
-
-    # Contar dias organizados com pelo menos uma tarefa cadastrada
-    dias_organizados = 0
-
-    for dia in dias:
-        
-        tem_compromisso = dia["compromissos"].exists()
-        tem_tarefa = dia["tarefas"].exists()
-
-        if tem_tarefa or tem_compromisso:
-            dias_organizados += 1
-
-    dias_percentual = round((dias_organizados / 7) * 100)
-
-    return render(request, "agenda-semana.html", {
-        "aulas": aulas,
-        "data_atual": data_atual,
-        "inicio_semana": inicio_semana,
-        "fim_semana": fim_semana,
-        "dias_semana": dias_semana,
-        "dias": dias,
-        "semana_anterior": semana_anterior,
-        "semana_seguinte": semana_seguinte,
-        "titulo_semana": titulo_semana,
-        "tarefas_total": tarefas_total,
-        "tarefas_concluidas": tarefas_concluidas,
-        "tarefas_percentual": tarefas_percentual,
-        "dias_organizados": dias_organizados,
-        "dias_percentual": dias_percentual,
-    })
-
-def novo_compromisso(request):
-    if request.method == "POST":
-        form = CompromissoForm(request.POST)
-        if form.is_valid():
-            compromisso = form.save(commit=False)
-            compromisso.usuario_id = 1  # ProvisÃ³rio para testes
-            compromisso.save()
-            return redirect("agenda_semana")
-    else:
-        form = CompromissoForm()
-
-    return render(request, "novo-compromisso.html", {"form": form})
-
-def excluir_compromisso(request, compromisso_id):
-    compromisso = get_object_or_404(
-        Compromisso,
-        id=compromisso_id,
-        usuario_id=1
-    )
-
-    if request.method == "POST":
-        compromisso.delete()
-        return redirect("agenda_semana")
-
-    return redirect("agenda_semana")
-
+@login_required
 def progresso(request):
-    atividades = Atividade.objects.filter(usuario_id=1)
+    atividades = Atividade.objects.filter(usuario_id=request.user.id)
 
     total = atividades.count()
 
@@ -729,60 +454,17 @@ def progresso(request):
         "por_disciplina": [],
     })
 
+@login_required
 def configuracoes(request):
     return render(request, "configuracoes.html")
 
 
-def tarefas(request, formulario=None):
-    from django.db.models import Q
-
-    atividades = Atividade.objects.all()
-
-    busca = request.GET.get("busca", "").strip()
-    status = request.GET.get("status", "").strip()
-    tipo = request.GET.get("tipo", "").strip()
-    ordem = request.GET.get("ordem", "prazo")
-
-    if busca:
-        atividades = atividades.filter(
-            Q(titulo__icontains=busca) |
-            Q(nome_disciplina__icontains=busca) |
-            Q(disciplina__nome__icontains=busca)
-        ).distinct()
-
-    status_validos = {item[0] for item in Atividade.STATUS}
-    tipos_validos = {item[0] for item in Atividade.TIPOS}
-
-    if status in status_validos:
-        atividades = atividades.filter(status=status)
-
-    if tipo in tipos_validos:
-        atividades = atividades.filter(tipo=tipo)
-
-    if ordem == "prazo_desc":
-        atividades = atividades.order_by("-prazo", "id")
-    elif ordem == "titulo":
-        atividades = atividades.order_by("titulo", "id")
-    else:
-        atividades = atividades.order_by("prazo", "id")
-
-    return render(request, "tarefas.html", {
-        "atividades": atividades,
-        "pendentes": atividades.exclude(status="concluida").count(),
-        "concluidas": atividades.filter(status="concluida").count(),
-        "busca": busca,
-        "status_selecionado": status,
-        "tipo_selecionado": tipo,
-        "ordem_selecionada": ordem,
-        "opcoes_status": Atividade.STATUS,
-        "opcoes_tipo": Atividade.TIPOS,
-        "form": formulario if formulario is not None else AtividadeForm(),
-    })
 
 @require_POST
 
+@login_required
 def alternar_status_tarefa(request, atividade_id):
-    atividade = get_object_or_404(Atividade, id=atividade_id)
+    atividade = get_object_or_404(Atividade, id=atividade_id, usuario_id=request.user.id)
 
     if atividade.status == "concluida":
         atividade.status = "planejada"
@@ -795,10 +477,11 @@ def alternar_status_tarefa(request, atividade_id):
 
 
 @require_POST
+@login_required
 def marcar_atividade_nao_concluida(request, atividade_id):
     from django.contrib import messages
 
-    atividade = get_object_or_404(Atividade, id=atividade_id, usuario_id=1)
+    atividade = get_object_or_404(Atividade, id=atividade_id, usuario_id=request.user.id)
     atividade.status = "nao_concluida"
     atividade.save(update_fields=["status"])
 
@@ -829,104 +512,15 @@ def marcar_atividade_nao_concluida(request, atividade_id):
     return redirect("planejamento")
 
 
+@login_required
 def notificacoes(request):
     return render(request, "notificacoes.html")
 
 import calendar
 
-def agenda_mensal(request):
-    hoje = timezone.localdate()
-
-    mes_parametro = request.GET.get("mes")
-
-    try:
-        data_referencia = (
-            date.fromisoformat(mes_parametro)
-            if mes_parametro else hoje
-        )
-    except ValueError:
-        data_referencia = hoje
-
-    primeiro_dia = data_referencia.replace(day=1)
-
-    if primeiro_dia.month == 12:
-        proximo_mes = primeiro_dia.replace(
-            year=primeiro_dia.year + 1, month=1
-        )
-    else:
-        proximo_mes = primeiro_dia.replace(
-            month=primeiro_dia.month + 1
-        )
-
-    mes_anterior = primeiro_dia - timedelta(days=1)
-    ultimo_dia = proximo_mes - timedelta(days=1)
-
-
-    calendario = calendar.Calendar(firstweekday=0)
-    semanas = calendario.monthdatescalendar(
-        primeiro_dia.year, primeiro_dia.month
-    )
-
-    # Buscar tarefas cadastradas no mês
-    tarefas = Atividade.objects.filter(
-        usuario_id=1,
-        prazo__date__range=(primeiro_dia, ultimo_dia)
-    ).order_by("prazo")
-
-    # Organizar as tarefas por dia
-    tarefas_por_dia = {}
-
-    for tarefa in tarefas:
-        data_tarefa = timezone.localtime(tarefa.prazo).date()
-
-        tarefas_por_dia.setdefault(
-            data_tarefa, []
-        ).append(tarefa)
-
-    compromissos = Compromisso.objects.filter(
-        inicio__date__range=(primeiro_dia, ultimo_dia)
-    )
-
-    compromissos_por_dia = {}
-
-    for compromisso in compromissos:
-        data_compromisso = timezone.localtime(compromisso.inicio).date()
-
-        compromissos_por_dia.setdefault(
-            data_compromisso, []
-        ).append(compromisso)
-
-    semanas_calendario = []
-
-    for semana in semanas:
-        dias = []
-        for dia in semana:
-            dias.append({
-                "data": dia,
-                "mes_atual": dia.month == primeiro_dia.month,
-                "hoje": dia == hoje,
-                "compromissos": compromissos_por_dia.get(dia, []),
-                "tarefas": tarefas_por_dia.get(dia, []),
-            })
-        semanas_calendario.append(dias)
-
-    meses = [
-        "janeiro", "fevereiro", "marÃ§o", "abril",
-        "maio", "junho", "julho", "agosto",
-        "setembro", "outubro", "novembro", "dezembro"
-    ]
-
-    return render(request, "agenda-mes.html", {
-        "semanas": semanas_calendario,
-        "titulo_mes": (
-            f"{meses[primeiro_dia.month - 1].capitalize()} "
-            f"{primeiro_dia.year}"
-        ),
-        "mes_anterior": mes_anterior,
-        "proximo_mes": proximo_mes,
-    })
 
 @require_POST
+@login_required
 def rejeitar_proposta_reagendamento(request, proposta_id):
     """
     Rejeita uma proposta sem alterar
@@ -936,7 +530,7 @@ def rejeitar_proposta_reagendamento(request, proposta_id):
     proposta = get_object_or_404(
         PropostaReagendamento,
         id=proposta_id,
-        planejamento__usuario_id=1,
+        planejamento__usuario_id=request.user.id,
         status="pendente"
     )
 
@@ -946,6 +540,7 @@ def rejeitar_proposta_reagendamento(request, proposta_id):
     return redirect("planejamento")
 
 @require_POST
+@login_required
 def aceitar_proposta_reagendamento(request, proposta_id):
     """
     Aceita uma proposta e atualiza o planejamento
@@ -956,7 +551,7 @@ def aceitar_proposta_reagendamento(request, proposta_id):
         proposta = get_object_or_404(
             PropostaReagendamento.objects.select_for_update(),
             id=proposta_id,
-            planejamento__usuario_id=1,
+            planejamento__usuario_id=request.user.id,
             status="pendente"
         )
 
@@ -1023,8 +618,9 @@ def aceitar_proposta_reagendamento(request, proposta_id):
 
 
 # Historico de planejamentos aceitos
+@login_required
 def historico_planejamentos(request):
-    usuario_id = 1  # Mesmo usuario provisorio da tela de planejamento
+    usuario_id = request.user.id
     planos = (
         Planejamento.objects.filter(usuario_id=usuario_id)
         .prefetch_related("sessoes__atividade")
@@ -1046,6 +642,7 @@ def historico_planejamentos(request):
         ]
         historico.append({"plano": plano, "dias": dias})
     return render(request, "historico-planejamentos.html", {"historico": historico})
+@login_required
 def editar_sessao_planejamento(request, sessao_id):
     """Edita sessao, detecta conflitos e oferece realocacao confirmada."""
     from datetime import date, datetime, time, timedelta
@@ -1093,7 +690,7 @@ def editar_sessao_planejamento(request, sessao_id):
 
     sessao = get_object_or_404(
         SessaoPlanejada.objects.select_related('planejamento', 'atividade'),
-        id=sessao_id, planejamento__usuario_id=1,
+        id=sessao_id, planejamento__usuario_id=request.user.id,
     )
     plano = sessao.planejamento
     intervalo_atual = intervalos(plano)
@@ -1201,3 +798,6 @@ def editar_sessao_planejamento(request, sessao_id):
         'conflito': conflito, 'sugestao': sugestao, 'erro': erro,
     })
 
+
+# Compatibilidade para chamadas internas e testes das rotas anteriores.
+from .views_organizacao import adicionar_tarefa, tarefas, agenda, agenda_semanal, agenda_mensal, novo_compromisso, excluir_compromisso

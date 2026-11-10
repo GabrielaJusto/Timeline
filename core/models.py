@@ -106,7 +106,22 @@ class Disciplina(models.Model):
         return self.nome
 
 
-class Atividade(models.Model):
+class RegistrosAtivos(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(excluido_em__isnull=True)
+
+
+class RegistroRecuperavel(models.Model):
+    excluido_em = models.DateTimeField(null=True, blank=True)
+    serie_id = models.UUIDField(null=True, blank=True, db_index=True)
+    objects = RegistrosAtivos()
+    todos = models.Manager()
+
+    class Meta:
+        abstract = True
+
+
+class Atividade(RegistroRecuperavel):
     TIPOS = [
         ("prova", "Prova"),
         ("trabalho", "Trabalho"),
@@ -150,11 +165,14 @@ class Atividade(models.Model):
         max_digits=8, decimal_places=2, default=0
     )
 
+    class Meta:
+        indexes = [models.Index(fields=["usuario_id", "excluido_em", "prazo"], name="idx_atividade_agenda")]
+
     def __str__(self):
         return self.titulo
 
 
-class Compromisso(models.Model):
+class Compromisso(RegistroRecuperavel):
     usuario_id = models.IntegerField()
     titulo = models.CharField(max_length=120)
     categoria = models.CharField(max_length=50)
@@ -162,6 +180,9 @@ class Compromisso(models.Model):
     fim = models.DateTimeField()
     regra_recorrencia = models.TextField(blank=True)
     flexivel = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [models.Index(fields=["usuario_id", "excluido_em", "inicio"], name="idx_compromisso_agenda")]
 
     def __str__(self):
         return self.titulo
@@ -221,7 +242,15 @@ class AlertaCarga(models.Model):
 
 
 
+class SessoesAtivas(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(atividade__excluido_em__isnull=True)
+
+
 class SessaoPlanejada(models.Model):
+    objects = SessoesAtivas()
+    todas = models.Manager()
+
     planejamento = models.ForeignKey(
         Planejamento,
         on_delete=models.CASCADE,
@@ -270,3 +299,15 @@ class PropostaPersonalizacaoIA(models.Model):
     assinatura_original = models.CharField(max_length=64)
     status = models.CharField(max_length=20, default="pendente", choices=[("pendente", "Pendente"), ("aceita", "Aceita"), ("rejeitada", "Rejeitada")])
     criada_em = models.DateTimeField(auto_now_add=True)
+
+
+class Subtarefa(models.Model):
+    atividade = models.ForeignKey(Atividade, on_delete=models.CASCADE, related_name="subtarefas")
+    titulo = models.CharField(max_length=120)
+    concluida = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.titulo

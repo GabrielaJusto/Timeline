@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/agenda-semana.css' %}">
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
 </head>
 
 <body>
@@ -47,7 +48,7 @@
             </nav>
         </header>
 
-        <div class="layout">
+        {% include "organizacao/barra_agenda.html" %}<div class="layout">
 
             <!-- VISAO SEMANAL -->
             <section class="visao-semanal">
@@ -98,7 +99,7 @@
                             </div>
                         {% endfor %}
 
-                        {% if not dia.aulas and not dia.compromissos and not dia.tarefas %}
+                        {% for sessao in dia.sessoes %}<div class="org-session">{{ sessao.horario_exibicao }} · Estudo: {{ sessao.atividade.titulo }} · {{ sessao.duracao_min }} min</div>{% endfor %}{% include "organizacao/livres.html" %}{% if not dia.aulas and not dia.compromissos and not dia.tarefas %}
                             <p class="dia-vazio">Nada marcado</p>
                         {% endif %}
                     </div>

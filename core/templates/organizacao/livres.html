@@ -1,0 +1,4 @@
+<details class="org-free">
+<summary>Horários livres · 07h–23h</summary>{% for livre in dia.livres %}<p>
+<a href="{% url 'criar_sessao' %}?data={{ dia.data|date:'Y-m-d' }}&amp;hora={{ livre.hora }}&amp;duracao={{ livre.duracao }}">{{ livre.hora }}–{{ livre.termino }} · Reservar estudo</a>
+</p>{% empty %}<p>Nenhum intervalo disponível de pelo menos 15 minutos.</p>{% endfor %}</details>
