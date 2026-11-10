@@ -9,24 +9,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/agenda-semana.css' %}">
+    <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
+<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
 <link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
 </head>
 
 <body>
 
     <!-- MENU LATERAL -->
-    <aside class="sidebar-calendario">
-        <h2>Timeline</h2>
+    <div class="menu-lateral">
 
-        <nav class="menu-calendario">
-            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-            <a href="{% url 'agenda' %}" class="ativo">▦ &nbsp; Calendário</a>
-            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
-            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
-            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-        </nav>
-    </aside>
+      {% include 'includes/marca.html' %}
+
+      <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+      <div class="menu">
+          <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+          <a href="{% url 'agenda' %}" class="ativo">▦ &nbsp; Calendário</a>
+          <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+          <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+          <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+          <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+      </div>
+
+      {% include 'includes/rodape-lateral.html' %}
+
+
+  </div>
 
     <div class="tela">
 

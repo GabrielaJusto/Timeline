@@ -1,6 +1,7 @@
 {% load static %}
-<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Personalização IA | Timeline</title><link rel="stylesheet" href="{% static 'css/planejamento.css' %}"><style>.ia-box{background:white;border-radius:12px;padding:24px;margin:20px 0}.ia-box textarea{width:100%;min-height:110px;padding:12px;box-sizing:border-box;border:1px solid #bbb;border-radius:8px}.ia-actions{display:flex;gap:12px;flex-wrap:wrap}.ia-actions button{padding:12px 20px}.ia-table{width:100%;border-collapse:collapse}.ia-table td,.ia-table th{padding:9px;border-bottom:1px solid #ddd;text-align:left}</style></head><body>
-<aside><h2>Timeline</h2><nav>
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Personalização IA | Timeline</title><link rel="stylesheet" href="{% static 'css/planejamento.css' %}"><style>.ia-box{background:white;border-radius:12px;padding:24px;margin:20px 0}.ia-box textarea{width:100%;min-height:110px;padding:12px;box-sizing:border-box;border:1px solid #bbb;border-radius:8px}.ia-actions{display:flex;gap:12px;flex-wrap:wrap}.ia-actions button{padding:12px 20px}.ia-table{width:100%;border-collapse:collapse}.ia-table td,.ia-table th{padding:9px;border-bottom:1px solid #ddd;text-align:left}</style><link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+</head><body>
+<aside>{% include 'includes/marca.html' %}<nav>
 <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
 <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
 <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>

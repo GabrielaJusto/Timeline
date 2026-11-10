@@ -12,22 +12,44 @@
 .botao-historico { display: inline-block; background: #49318a; color: white; text-decoration: none; padding: 12px 18px; border-radius: 10px; font-weight: 600; }
 .botao-historico:hover { background: #35216e; color: white; }
 </style>
+<link rel="stylesheet" href="{% static 'css/hoje.css' %}">
+
+<style>
+/* Alinhamento do planejamento - menu padronizado */
+body {
+    padding-left: 0 !important;
+}
+body > main {
+    margin-left: 230px !important;
+    width: calc(100% - 230px) !important;
+    box-sizing: border-box;
+}
+</style>
+
+<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
 </head>
 <body>
 
     <!-- MENU LATERAL -->
-    <aside>
-        <h2>Timeline</h2>
-        <nav>
-            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-            <a href="{% url 'agenda' %}">◷ &nbsp; Agenda</a>
-            <a href="{% url 'agenda_semana' %}">▦ &nbsp; Calendário</a>
-            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
-            <a href="{% url 'planejamento' %}" class="ativo">✧ &nbsp; Planejamento Inteligente</a>
-            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-        </nav>
-    </aside>
+    <div class="menu-lateral">
+
+      {% include 'includes/marca.html' %}
+
+      <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+      <div class="menu">
+          <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+          <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
+          <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+          <a href="{% url 'planejamento' %}" class="ativo">✧ &nbsp; Planejamento Inteligente</a>
+          <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+          <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+      </div>
+
+      {% include 'includes/rodape-lateral.html' %}
+
+
+  </div>
 
     <main>
 

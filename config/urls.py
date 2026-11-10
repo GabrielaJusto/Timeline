@@ -1,11 +1,20 @@
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from core.auth_views import RecuperarSenhaView, google_login
 from core import views
 from core import views_ia
 from core import views_organizacao as organizacao
 
 urlpatterns = [
+    path("login/google/", google_login, name="login_google"),
+    path("accounts/", include("allauth.urls")),
+    path("senha/recuperar/", RecuperarSenhaView.as_view(), name="password_reset"),
+    path("senha/enviada/", auth_views.PasswordResetDoneView.as_view(template_name="auth/password_reset_done.html"), name="password_reset_done"),
+    path("senha/redefinir/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(template_name="auth/password_reset_confirm.html"), name="password_reset_confirm"),
+    path("senha/concluida/", auth_views.PasswordResetCompleteView.as_view(template_name="auth/password_reset_complete.html"), name="password_reset_complete"),
+    path("visitante/", views.continuar_visitante, name="continuar_visitante"),
     path("tarefas/<int:atividade_id>/editar/", organizacao.editar_tarefa, name="editar_tarefa"),
     path("tarefas/<int:atividade_id>/excluir/", organizacao.excluir_tarefa, name="excluir_tarefa"),
     path("tarefas/<int:atividade_id>/subtarefas/", organizacao.subtarefa, name="subtarefa"),

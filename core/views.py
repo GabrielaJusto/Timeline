@@ -9,8 +9,8 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate, login, logout
+from .auth_forms import CadastroForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 
 from .forms import AtividadeForm
 from .models import (
@@ -68,14 +68,14 @@ def pagina_cadastro(request):
         return redirect("hoje")
 
     if request.method == "POST":
-        formulario = UserCreationForm(request.POST)
+        formulario = CadastroForm(request.POST)
 
         if formulario.is_valid():
             usuario = formulario.save()
-            login(request, usuario)
+            login(request, usuario, backend="django.contrib.auth.backends.ModelBackend")
             return redirect("hoje")
     else:
-        formulario = UserCreationForm()
+        formulario = CadastroForm()
 
     return render(
         request,
@@ -798,6 +798,17 @@ def editar_sessao_planejamento(request, sessao_id):
         'conflito': conflito, 'sugestao': sugestao, 'erro': erro,
     })
 
+
+def continuar_visitante(request):
+    logout(request)
+    data_atual = timezone.localdate()
+    inicio = data_atual - timedelta(days=data_atual.weekday())
+    return render(request, "hoje.html", {
+        "atividades": [], "total_atividades": 0, "concluidas": 0, "pendentes": 0,
+        "data_atual": data_atual, "inicio_semana": inicio,
+        "fim_semana": inicio + timedelta(days=6),
+        "dias_semana": [inicio + timedelta(days=i) for i in range(7)],
+    })
 
 # Compatibilidade para chamadas internas e testes das rotas anteriores.
 from .views_organizacao import adicionar_tarefa, tarefas, agenda, agenda_semanal, agenda_mensal, novo_compromisso, excluir_compromisso

@@ -1,0 +1,169 @@
+/* Shared brand: independent of the typography of each page. */
+.timeline-brand {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    flex: 0 0 auto;
+    width: max-content;
+    max-width: 100%;
+    min-height: 36px;
+    margin: 0;
+    padding: 0;
+    color: #111936;
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: normal;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: normal;
+}
+.timeline-brand > svg {
+    display: block;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    flex: 0 0 36px;
+    margin: 0;
+    padding: 0;
+}
+.timeline-brand .timeline-brand__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+}
+.timeline-brand .timeline-brand__name {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font: 700 21px/24px Arial, Helvetica, sans-serif;
+    color: #111936;
+    letter-spacing: normal;
+    white-space: nowrap;
+}
+.timeline-brand .timeline-brand__tagline {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font: 400 8px/10px Arial, Helvetica, sans-serif;
+    color: #8a8da0;
+    letter-spacing: normal;
+    white-space: nowrap;
+}
+.menu-lateral > .timeline-brand,
+aside > .timeline-brand {
+    margin: 0 0 45px;
+    padding: 0 0 0 10px;
+}
+.sidebar-notificacoes { padding-top: 28px; }
+aside:not([class]) > .timeline-brand { padding-left: 13px; }
+.login-card > .timeline-brand { margin: 0 auto 24px; }
+
+/* Sidebar footer: fixed typography, spacing and vector icon on every page. */
+.menu-lateral .frase-lateral {
+    flex-shrink: 0;
+    margin: auto 0 0;
+    padding: 16px 18px;
+    border: 1px solid #e2e0ff;
+    border-radius: 12px;
+    background: #f5f4ff;
+    text-align: left;
+}
+.menu-lateral .frase-lateral h3 {
+    margin: 0 0 10px;
+    padding: 0;
+    color: #5c5ce6;
+    font: 400 20px/20px Arial, Helvetica, sans-serif;
+}
+.menu-lateral .frase-lateral .timeline-sun {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+}
+.menu-lateral .frase-lateral h4 {
+    margin: 0 0 10px;
+    padding: 0;
+    color: #111936;
+    font: 700 14px/18px Arial, Helvetica, sans-serif;
+}
+.menu-lateral .frase-lateral p {
+    margin: 0;
+    padding: 0;
+    color: #515a78;
+    font: 400 12px/20px Arial, Helvetica, sans-serif;
+}
+.menu-lateral .usuario {
+    flex-shrink: 0;
+    margin: 20px 0 0;
+    padding: 5px 15px;
+    text-align: left;
+}
+.menu-lateral .usuario strong {
+    display: block;
+    margin: 0;
+    padding: 0;
+    color: #111936;
+    font: 700 13px/16px Arial, Helvetica, sans-serif;
+}
+.menu-lateral .usuario p {
+    margin: 4px 0 0;
+    padding: 0;
+    color: #6c7289;
+    font: 400 11px/14px Arial, Helvetica, sans-serif;
+}
+.menu-lateral .usuario form { margin: 10px 0 0; padding: 0; }
+.menu-lateral .usuario a[href*="login"],
+.menu-lateral .usuario button[type="submit"] {
+    display: block;
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 9px;
+    background: #625ee8;
+    color: #fff;
+    font: 600 12px/16px Arial, Helvetica, sans-serif;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+.menu-lateral .usuario button[type="submit"] { margin-top: 0; }
+.menu-lateral .usuario a[href*="login"]:hover,
+.menu-lateral .usuario button[type="submit"]:hover { background: #4d49cf; }
+
+/* Navigation uses the same metrics regardless of page typography. */
+.menu-lateral .titulo-menu {
+    margin: 0 0 18px 15px;
+    padding: 0;
+    color: #3f4968;
+    font: 700 10px/12px Arial, Helvetica, sans-serif;
+    letter-spacing: 2px;
+}
+.menu-lateral .menu {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+.menu-lateral .menu > a,
+.menu-lateral .menu > span {
+    display: block;
+    margin: 3px 0;
+    padding: 14px 15px;
+    border: 0;
+    border-radius: 10px;
+    color: #48516d;
+    font: 400 14px/18px Arial, Helvetica, sans-serif;
+    letter-spacing: normal;
+    text-align: left;
+    text-decoration: none;
+    white-space: normal;
+}
+.menu-lateral .menu > .ativo {
+    background: #eeeeff;
+    color: #5554dd;
+    font-weight: 700;
+}

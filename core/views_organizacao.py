@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count, Q, Sum
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -55,10 +56,14 @@ def adicionar_tarefa(request):
         atividade.prazo = timezone.make_aware(datetime.combine(form.cleaned_data["data_entrega"], form.cleaned_data["horario"] or time(23, 59)))
         salvar_recorrencias(atividade, form.cleaned_data["frequencia"], form.cleaned_data["repetir_ate"])
         messages.success(request, "Tarefa salva. As repetições, quando solicitadas, já aparecem na agenda.")
+        if request.headers.get("X-Task-Modal") == "1":
+            return JsonResponse({"redirect": reverse("tarefas")})
         return redirect("tarefas")
+    if request.headers.get("X-Task-Modal") == "1":
+        return render(request, "adicionar-tarefa.html", {"form": form})
     if request.method == "POST" and request.POST.get("origem") == "tarefas":
         return tarefas(request, formulario=form)
-    return render(request, "organizacao/formulario.html", {"form": form, "titulo": "Adicionar tarefa"})
+    return render(request, "adicionar-tarefa.html", {"form": form})
 
 
 @login_required
