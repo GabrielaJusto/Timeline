@@ -4,22 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Timeline — {% block title %}Organização{% endblock %}</title>
-<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
-<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=4">
 </head>
 <body class="org-app">
 <aside class="org-sidebar menu-lateral">
 {% include "includes/marca.html" %}
-<p>No seu ritmo.</p>
-<nav aria-label="Menu principal">
-<a href="{% url 'hoje' %}">Hoje</a>
-<a href="{% url 'agenda_semana' %}">Calendário</a>
-<a href="{% url 'tarefas' %}">Tarefas</a>
-<a href="{% url 'planejamento' %}">Planejamento inteligente</a>
-<a href="{% url 'progresso' %}">Progresso</a>
-<a href="{% url 'lixeira' %}">Lixeira</a>
-</nav>
-{% include "includes/rodape-lateral.html" %}
+<h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+        <nav class="menu" aria-label="Menu principal">
+            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+
+            <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
+            <a href="{% url 'tarefas' %}" class="ativo" aria-current="page">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+
+        </nav>
+
+        {% include "includes/rodape-lateral.html" %}
 </aside>
 <main class="org-main">{% include 'organizacao/mensagens.html' %}{% block content %}{% endblock %}</main>
 {% include "includes/tarefa-modal.html" %}</body>

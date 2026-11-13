@@ -1,2 +1,17 @@
 *{box-sizing:border-box}body.org-app{margin:0;background:#f7f8fc;color:#29334b;font:15px/1.6 "Segoe UI",sans-serif}.org-app a{color:#5656bd;text-underline-offset:3px}.org-app button,.org-button{background:#6666cf;color:#fff;border:0;border-radius:9px;padding:10px 16px;font:inherit;cursor:pointer;text-decoration:none}button:hover,.org-button:hover{background:#5050ac}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #e4a62e;outline-offset:3px}.org-sidebar{width:240px;position:fixed;inset:0 auto 0 0;background:white;padding:32px 24px;border-right:1px solid #e7e9f3}.org-logo{font-size:25px;font-weight:750;text-decoration:none}.org-sidebar nav{display:grid;gap:12px;margin:40px 0}.org-sidebar nav a{padding:8px;text-decoration:none}.org-main{margin-left:240px;padding:40px;max-width:1500px}.org-card{background:white;border:1px solid #e6e9f1;border-radius:16px;padding:24px;margin:18px 0}.org-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.org-actions{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.org-actions form{margin:0}.org-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.org-stats strong{display:block;font-size:28px}.org-app label{font-weight:600}.org-app input:not([type=checkbox]),.org-app select,.org-app textarea{display:block;border:1px solid #ccd2e1;border-radius:8px;padding:10px;font:inherit;max-width:100%;background:white}input[type=checkbox]{width:18px;height:18px;accent-color:#6666cf}.org-form{max-width:680px}.org-form input,.org-form select{width:100%}.errorlist{color:#b22e43}.org-danger{background:#aa3e56}.org-message{background:#eef0ff;border-left:4px solid #6666cf;padding:14px;border-radius:8px}.org-step{display:flex;align-items:center;gap:12px;margin:12px 0}.org-step button{padding:5px 12px}.org-done{text-decoration:line-through;color:#6d7685}details{margin-top:18px}summary{cursor:pointer;font-weight:600}.org-free{background:#f0f8f5;border-radius:8px;padding:8px;font-size:12px}.org-agenda-tools{padding:16px;border:1px solid #e1e5ee;border-radius:12px;background:#fff;margin:16px 0}.org-agenda-tools form{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.org-agenda-tools input{font:inherit;padding:8px}.org-agenda-tools small{color:#64748b}.org-session{border-left:3px solid #6b68ca;background:#f2f1ff;padding:8px;margin:6px 0}.org-form p{margin:18px 0}@media(max-width:850px){.org-sidebar{position:static;width:auto;padding:18px}.org-sidebar nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.org-sidebar>p{display:none}.org-main{margin-left:0;padding:20px}.org-stats{gap:8px}.org-card{padding:16px}.org-actions{align-items:stretch}.org-actions label{flex:1;min-width:130px}.org-actions input,.org-actions select{width:100%}}
 .org-sidebar{overflow-y:auto;display:flex;flex-direction:column}.org-sidebar .timeline-brand{max-width:100%}.org-sidebar .timeline-brand__tagline{white-space:normal}.org-sidebar .frase-lateral{margin-top:auto}.org-sidebar .usuario{margin-top:16px}
+
+/* Keep task navigation aligned with the main application sidebar. */
+.org-sidebar.menu-lateral {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 230px;
+    height: 100vh;
+    padding: 28px 18px 20px;
+    border-right: 1px solid #dddde8;
+    background: #fff;
+    color: #111936;
+    font: normal 14px Arial, sans-serif;
+}
+.org-sidebar nav.menu { display: block; margin: 0; padding: 0; }
+.org-main { margin-left: 230px; }
