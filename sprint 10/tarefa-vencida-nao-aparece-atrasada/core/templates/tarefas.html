@@ -1,0 +1,78 @@
+{% extends 'organizacao/base.html' %}{% block title %}Minhas tarefas{% endblock %}{% block content %}
+<header class="org-row">
+<div>
+<h1>Minhas tarefas</h1>
+<p>Organize atividades e avance uma etapa de cada vez.</p>
+</div>
+<a class="org-button" href="{% url 'adicionar_tarefa' %}">+ Nova tarefa</a>
+</header>
+<div class="org-stats">
+<div class="org-card">Total <strong>{{ total }}</strong>
+</div>
+<div class="org-card">Pendentes <strong>{{ pendentes }}</strong>
+</div>
+<div class="org-card">Concluídas <strong>{{ concluidas }}</strong>
+</div>
+</div>
+<form method="get" class="org-card org-actions">
+<label>Buscar<input type="search" name="busca" value="{{ busca }}" placeholder="Título ou disciplina">
+</label>
+<label>Status<select name="status">
+<option value="">Todos</option>{% for valor,nome in opcoes_status %}<option value="{{ valor }}" {% if status_selecionado == valor %}selected{% endif %}>{{ nome }}</option>{% endfor %}</select>
+</label>
+<label>Tipo<select name="tipo">
+<option value="">Todos</option>{% for valor,nome in opcoes_tipo %}<option value="{{ valor }}" {% if tipo_selecionado == valor %}selected{% endif %}>{{ nome }}</option>{% endfor %}</select>
+</label>
+<label>Ordenar<select name="ordem">
+<option value="prazo">Prazo mais próximo</option>
+<option value="prazo_desc" {% if ordem_selecionada == 'prazo_desc' %}selected{% endif %}>Prazo mais distante</option>
+<option value="titulo" {% if ordem_selecionada == 'titulo' %}selected{% endif %}>Título A–Z</option>
+</select>
+</label>
+<button>Filtrar</button>
+<a href="{% url 'tarefas' %}">Limpar</a>
+</form>
+<form id="lote" method="post" action="{% url 'acoes_lote' %}" class="org-card org-actions" onsubmit="return this.acao.value !== 'excluir' || confirm('Mover as tarefas selecionadas para a lixeira?')">{% csrf_token %}<label>
+<input type="checkbox" id="selecionar-todas"> Selecionar esta página</label>
+<label>Ação<select name="acao" required>
+<option value="concluir">Concluir</option>
+<option value="adiar">Alterar data</option>
+<option value="excluir">Mover para a lixeira</option>
+</select>
+</label>
+<label>Nova data<input type="date" name="nova_data">
+</label>
+<button>Aplicar às selecionadas</button>
+</form>
+{% for atividade in atividades %}<article class="org-card">
+<div class="org-row">
+<label>
+<input type="checkbox" form="lote" name="atividades" value="{{ atividade.id }}" aria-label="Selecionar {{ atividade.titulo }}"> <strong>{{ atividade.titulo }}</strong>
+</label>
+<div class="org-actions">
+<a href="{% url 'editar_tarefa' atividade.id %}">Editar</a>
+<form method="post" action="{% url 'excluir_tarefa' atividade.id %}" onsubmit="return confirm('Mover esta tarefa para a lixeira?')">{% csrf_token %}<button class="org-danger">Excluir</button>
+</form>
+</div>
+</div>
+<p>{% if atividade.nome_disciplina %}{{ atividade.nome_disciplina }}{% elif atividade.disciplina %}{{ atividade.disciplina.nome }}{% else %}Sem disciplina{% endif %} · {{ atividade.get_tipo_display }} · {{ atividade.prazo|date:'d/m/Y H:i' }}</p>
+<p>{{ atividade.get_status_display }}{% if atividade.esta_atrasada %} · <span class="org-atrasada">Atrasada</span>{% endif %}{% if atividade.serie_id %} · Ocorrência de uma série{% endif %}</p>
+<div class="org-actions">
+<form method="post" action="{% url 'alternar_status_tarefa' atividade.id %}">{% csrf_token %}<button>{% if atividade.status == 'concluida' %}Reabrir tarefa{% else %}Concluir tarefa{% endif %}</button>
+</form>{% if atividade.status != 'concluida' %}<form method="post" action="{% url 'marcar_atividade_nao_concluida' atividade.id %}">{% csrf_token %}<button>Não concluída · Replanejar</button>
+</form>{% endif %}</div>
+<details>
+<summary>Etapas da tarefa ({{ atividade.subtarefas.all|length }})</summary>{% for etapa in atividade.subtarefas.all %}<form method="post" action="{% url 'subtarefa' atividade.id %}" class="org-step">{% csrf_token %}<input type="hidden" name="subtarefa_id" value="{{ etapa.id }}">
+<button aria-label="Alternar conclusão de {{ etapa.titulo }}">{% if etapa.concluida %}✓{% else %}○{% endif %}</button>
+<span {% if etapa.concluida %}class="org-done"{% endif %}>{{ etapa.titulo }}</span>
+</form>{% empty %}<p>Divida a atividade em passos menores.</p>{% endfor %}<form method="post" action="{% url 'subtarefa' atividade.id %}" class="org-actions">{% csrf_token %}<label>Nova etapa<input name="titulo" maxlength="120" required placeholder="Ex.: Revisar a introdução">
+</label>
+<button>Adicionar etapa</button>
+</form>
+</details>
+</article>{% empty %}<section class="org-card">
+<h2>Nenhuma tarefa encontrada</h2>
+<p>Altere os filtros ou adicione uma tarefa.</p>
+</section>{% endfor %}
+<nav class="org-actions" aria-label="Paginação">{% if pagina.has_previous %}<a href="?{{ parametros }}&amp;page={{ pagina.previous_page_number }}">← Anterior</a>{% endif %}<span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }} · {{ total }} tarefas</span>{% if pagina.has_next %}<a href="?{{ parametros }}&amp;page={{ pagina.next_page_number }}">Próxima →</a>{% endif %}</nav>
+<script>document.getElementById('selecionar-todas').addEventListener('change',function(){document.querySelectorAll('input[name="atividades"]').forEach(item=>item.checked=this.checked)});const acao=document.querySelector('#lote select[name="acao"]');acao.addEventListener('change',()=>{document.querySelector('#lote input[name="nova_data"]').required=acao.value==='adiar'});</script>{% endblock %}
