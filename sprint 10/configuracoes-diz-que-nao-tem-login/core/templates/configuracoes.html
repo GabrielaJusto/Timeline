@@ -1,0 +1,198 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Configurações</title>
+    <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
+
+<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+</head>
+
+<body>
+
+    <!-- MENU LATERAL -->
+    <div class="menu-lateral">
+
+        {% include 'includes/marca.html' %}
+
+        <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
+        <!-- Ajuste os links se os arquivos do projeto tiverem outros nomes. -->
+        <nav class="menu" aria-label="Menu principal">
+            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+            <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
+            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
+            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
+            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
+            <a href="{% url 'configuracoes' %}" class="ativo" aria-current="page">
+                ☷ &nbsp; Configurações
+            </a>
+        </nav>
+
+
+        {% include 'includes/rodape-lateral.html' %}
+
+
+    </div>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="conteudo-principal">
+
+        <div class="barra-superior">
+
+            <div class="pagina-atual">
+                <strong>Configurações</strong>
+                <span>Seu planejamento, no seu ritmo.</span>
+            </div>
+
+            <div class="acoes-superiores">
+                <!-- Campo visual: a busca depende da programação do projeto. -->
+                <input
+                    type="search"
+                    placeholder="Buscar tarefas"
+                    aria-label="Buscar tarefas"
+                >
+                <a href="#" aria-label="Notificações">🔔</a>
+                <a href="{% url 'configuracoes' %}" aria-label="Configurações">☷</a>
+            </div>
+
+        </div>
+
+
+        <main>
+
+            <!-- INÍCIO -->
+            <div class="inicio">
+
+                <div class="titulo-inicio">
+                    <p>SEU PLANEJAMENTO</p>
+                    <h1>Configurações</h1>
+                    <span>Como funciona o salvamento nesta versão.</span>
+                </div>
+
+                <a href="{% url 'adicionar_tarefa' %}" class="botao-adicionar">
+                    + Adicionar tarefa
+                </a>
+
+            </div>
+
+
+            <!-- CONTA CONECTADA -->
+            <div class="aviso-planejamento">
+                <strong>Você está em {{ nome }}</strong>
+
+                <p>
+                    Suas tarefas estão salvas na sua conta e seguem com você
+                    em qualquer navegador ou aparelho. Limpar os cookies
+                    desconecta a sessão, mas não apaga nada.
+                </p>
+            </div>
+
+
+            <!-- CONFIGURAÇÕES -->
+            <div class="card-configuracoes">
+
+                <div class="icone-configuracoes" aria-hidden="true">☷</div>
+
+                <h2>Sua conta</h2>
+
+                <p class="descricao-configuracoes">
+                    As tarefas são salvas na sua conta do Timeline e só você
+                    as enxerga. Entrar em outro navegador ou aparelho mostra
+                    os mesmos dados. Sair da conta encerra apenas a sessão
+                    deste navegador.
+                </p>
+
+
+                <!-- INFORMAÇÕES DA VERSÃO -->
+                <div class="lista-configuracoes">
+
+                    <div class="linha-configuracao">
+                        <strong>Usuário</strong>
+                        <span>{{ usuario }}</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>E-mail</strong>
+                        <span>{{ email|default:"Não informado" }}</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Faculdade</strong>
+                        <span>{{ faculdade|default:"Não informada" }}</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Data de nascimento</strong>
+                        <span>
+                            {{ data_nascimento|date:"d/m/Y"|default:"Não informada" }}
+                        </span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Acesso às tarefas</strong>
+                        <span>Vinculado à sua conta</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Tarefas cadastradas</strong>
+                        <span>{{ total_tarefas }}</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Idioma</strong>
+                        <span>Português (Brasil)</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Horários</strong>
+                        <span>{{ fuso }}</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Semana</strong>
+                        <span>Segunda a domingo</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Lembretes automáticos</strong>
+                        <span>Ainda não disponíveis</span>
+                    </div>
+
+                </div>
+
+
+                <!-- BOTÕES -->
+                <div class="botoes-configuracoes">
+
+                    <a href="{% url 'tarefas' %}" class="botao-configuracoes">
+                        Minhas tarefas
+                    </a>
+
+                    <a href="{% url 'progresso' %}" class="botao-configuracoes">
+                        Meu progresso
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- RODAPÉ -->
+            <footer class="rodape">
+                <p>Timeline · Protótipo acadêmico — PUC-Rio</p>
+                <p>Plan today. Move at your pace.</p>
+            </footer>
+
+        </main>
+
+    </div>
+
+{% include 'includes/tarefa-modal.html' %}
+</body>
+
+</html>
