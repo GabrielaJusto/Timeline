@@ -83,31 +83,28 @@
 
             <!-- AVISO -->
             <div class="aviso-planejamento">
-                <strong>Seu planejamento, sem login</strong>
+                <strong>Seu planejamento, conectado à sua conta</strong>
 
                 <p>
-                    Crie suas tarefas e comece a organizar a semana.
-                    O acesso fica vinculado a este navegador; apagar os cookies
-                    faz você perder esse acesso.
+                    Você está conectado como {{ user.get_full_name|default:user.username }}.
+                    Suas tarefas são salvas na sua conta. Para acessá-las em outro navegador,
+                    entre com a mesma conta.
                 </p>
             </div>
 
 
             <!-- CONFIGURAÇÕES -->
-            <!-- Os textos abaixo seguem o protótipo.
-                 Este HTML e o CSS não implementam servidor ou cookies. -->
             <div class="card-configuracoes">
 
                 <div class="icone-configuracoes" aria-hidden="true">☷</div>
 
-                <h2>Seu planejamento, sem cadastro</h2>
+                <h2>Seu planejamento, na sua conta</h2>
 
                 <p class="descricao-configuracoes">
-                    As tarefas são salvas no servidor e ficam acessíveis por
-                    este navegador, usando um cookie. Não há sincronização
-                    entre dispositivos. Ao apagar os cookies ou encerrar uma
-                    janela anônima, você pode perder o acesso a essas tarefas.
-                    Quem usar este mesmo navegador poderá vê-las.
+                    As tarefas são salvas no servidor e vinculadas à sua conta.
+                    Apagar os cookies ou sair da conta encerra o acesso neste navegador,
+                    mas não apaga suas tarefas. Entre novamente com a mesma conta para vê-las.
+                    Em um dispositivo compartilhado, saia da conta ao terminar.
                 </p>
 
 
@@ -116,12 +113,17 @@
 
                     <div class="linha-configuracao">
                         <strong>Versão</strong>
-                        <span>Protótipo sem login</span>
+                        <span>Com autenticação de conta</span>
                     </div>
 
                     <div class="linha-configuracao">
                         <strong>Acesso às tarefas</strong>
-                        <span>Vinculado a este navegador</span>
+                        <span>Vinculado à sua conta</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Conta conectada</strong>
+                        <span>{{ user.get_full_name|default:user.username }}{% if user.email %} · {{ user.email }}{% endif %}</span>
                     </div>
 
                     <div class="linha-configuracao">
@@ -131,7 +133,7 @@
 
                     <div class="linha-configuracao">
                         <strong>Horários</strong>
-                        <span>Fuso local do dispositivo</span>
+                        <span>America/Sao_Paulo (horário de Brasília)</span>
                     </div>
 
                     <div class="linha-configuracao">

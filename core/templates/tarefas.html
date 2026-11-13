@@ -4,7 +4,10 @@
 <h1>Minhas tarefas</h1>
 <p>Organize atividades e avance uma etapa de cada vez.</p>
 </div>
+<div class="org-actions">
+<a href="{% url 'lixeira' %}">Lixeira</a>
 <a class="org-button" href="{% url 'adicionar_tarefa' %}">+ Nova tarefa</a>
+</div>
 </header>
 <div class="org-stats">
 <div class="org-card">Total <strong>{{ total }}</strong>
