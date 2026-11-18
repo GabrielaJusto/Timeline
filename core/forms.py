@@ -20,13 +20,25 @@ class AtividadeForm(forms.ModelForm):
     )
 
     horario = forms.TimeField(
-        label="Horário",
+        label="Horário de início",
         required=False,
         widget=forms.TimeInput(
             attrs={"type": "time"},
             format="%H:%M"
         )
     )
+
+    horario_fim = forms.TimeField(label="Horário de término", required=False,
+        widget=forms.TimeInput(attrs={"type": "time"}, format="%H:%M"))
+
+    def clean(self):
+        dados = super().clean()
+        inicio, fim = dados.get("horario"), dados.get("horario_fim")
+        if fim and not inicio:
+            self.add_error("horario", "Informe o início da tarefa.")
+        elif inicio and fim and fim <= inicio:
+            self.add_error("horario_fim", "O término deve ser depois do início, no mesmo dia.")
+        return dados
 
     class Meta:
         model = Atividade
@@ -61,6 +73,10 @@ class RecorrenciaFormMixin:
         from datetime import timedelta
         from django.utils import timezone
         dados = super().clean()
+        if getattr(self.instance, "pk", None) and "aplicar_a" in self.fields and dados.get("aplicar_a") != "proximas":
+            if (dados.get("frequencia") or "") != self.instance.frequencia or dados.get("repetir_ate") != self.instance.repetir_ate:
+                self.add_error("aplicar_a", "Para alterar a repetição, escolha esta e as próximas ocorrências.")
+            return dados
         inicio = dados.get("data_entrega")
         if inicio is None and dados.get("inicio"):
             inicio = timezone.localtime(dados["inicio"]).date()
@@ -70,11 +86,19 @@ class RecorrenciaFormMixin:
                 self.add_error("repetir_ate", "Informe a data de término da repetição.")
             elif inicio and (fim < inicio or fim > inicio + timedelta(days=366)):
                 self.add_error("repetir_ate", "Escolha uma data entre o primeiro evento e os próximos 366 dias.")
+        elif fim:
+            self.add_error("frequencia", "Escolha como repetir ou limpe a data de término da repetição.")
         return dados
 
 
 class AtividadeRecorrenteForm(RecorrenciaFormMixin, AtividadeForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["frequencia"].initial = self.instance.frequencia
+        self.fields["repetir_ate"].initial = self.instance.repetir_ate
+        if self.instance.pk:
+            self.fields["aplicar_a"] = forms.ChoiceField(label="Aplicar alteração", required=False, initial="esta",
+                choices=[("esta", "Somente esta ocorrência"), ("proximas", "Esta e as próximas ocorrências")])
 
 
 class CompromissoRecorrenteForm(RecorrenciaFormMixin, CompromissoForm):

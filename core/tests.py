@@ -110,13 +110,13 @@ class OrganizacaoTests(TestCase):
         dados["fim"]=dados["inicio"]
         self.assertFalse(CompromissoRecorrenteForm(dados).is_valid())
 
-    def test_subtarefas_independentes(self):
+    def test_subtarefas_concluem_a_tarefa(self):
         self.client.post(reverse("subtarefa",args=[self.tarefa.id]),{"titulo":"Pesquisar"})
         sub=self.tarefa.subtarefas.get()
         self.client.post(reverse("subtarefa",args=[self.tarefa.id]),{"subtarefa_id":sub.id})
         sub.refresh_from_db();self.tarefa.refresh_from_db()
         self.assertTrue(sub.concluida)
-        self.assertEqual(self.tarefa.status,"planejada")
+        self.assertEqual(self.tarefa.status,"concluida")
 
     def test_acoes_em_lote(self):
         outra=self.atividade(titulo="Segunda")
@@ -208,7 +208,7 @@ class OrganizacaoTests(TestCase):
         self.assertNotIn("SUMMARY:Trabalho",r.content.decode())
 
     def test_intervalo_livre_nunca_tem_menos_de_15_minutos(self):
-        Compromisso.objects.create(usuario_id=self.user.id,titulo="Ocupado",categoria="Outro",inicio=self.instante(hora=7),fim=self.instante(hora=22)+timedelta(minutes=50))
+        Compromisso.objects.create(usuario_id=self.user.id,titulo="Ocupado",categoria="Outro",inicio=self.instante(hora=6),fim=self.instante(hora=22)+timedelta(minutes=50))
         Compromisso.objects.create(usuario_id=self.user.id,titulo="Madrugada",categoria="Outro",inicio=self.instante(hora=23)+timedelta(minutes=30),fim=self.instante(self.dia+timedelta(days=1),1))
         self.assertEqual(horarios_livres(dados_periodo(self.user.id,self.dia,self.dia)[0]),[])
 
@@ -229,3 +229,44 @@ class OrganizacaoTests(TestCase):
         resposta=self.client.post(reverse("criar_sessao"),dict(atividade=outra.id,data=self.dia.isoformat(),hora_inicio="10:00",duracao_min=60))
         self.assertEqual(resposta.status_code,200)
         self.assertEqual(SessaoPlanejada.objects.count(),0)
+
+    def test_horarios_livres_visiveis_e_link_com_data(self):
+        resposta = self.client.get(reverse("agenda_semana"), {"semana": self.dia.isoformat()})
+        self.assertContains(resposta, 'aria-label="Horários livres"')
+        self.assertContains(resposta, "06:00–23:00")
+        self.assertContains(resposta, "data=" + self.dia.isoformat())
+        self.assertContains(self.client.get(reverse("agenda")), 'aria-label="Horários livres"')
+
+    def test_horarios_passados_mostram_disponibilidade_do_dia(self):
+        passado = timezone.localdate() - timedelta(days=14)
+        resposta = self.client.get(reverse("agenda_semana"), {"semana": passado.isoformat()})
+        self.assertContains(resposta, 'aria-label="Horários livres"')
+
+    def test_dia_totalmente_ocupado_nao_mostra_horarios_livres(self):
+        from django.template.loader import render_to_string
+        Compromisso.objects.create(usuario_id=self.user.id, titulo="Dia ocupado", categoria="Outro", inicio=self.instante(hora=6), fim=self.instante(hora=23))
+        dia = dados_periodo(self.user.id, self.dia, self.dia)[0]
+        dia["livres"] = horarios_livres(dia)
+        self.assertEqual(dia["livres"], [])
+        self.assertEqual(render_to_string("organizacao/livres.html", {"dia": dia}).strip(), "")
+
+    def test_horario_da_tarefa_bloqueia_intervalo_livre(self):
+        self.tarefa.prazo = self.instante(hora=10)
+        self.tarefa.save()
+        dia = dados_periodo(self.user.id, self.dia, self.dia)[0]
+        self.assertEqual([(x["inicio"], x["fim"]) for x in horarios_livres(dia)], [(360, 600), (660, 1380)])
+        dados = dict(atividade=self.tarefa.id, data=self.dia.isoformat(), hora_inicio="10:00", duracao_min=30)
+        resposta = self.client.post(reverse("criar_sessao"), dados)
+        self.assertContains(resposta, "ocupado")
+        self.assertEqual(SessaoPlanejada.objects.count(), 0)
+
+    def test_tarefa_usa_duracao_estimada_e_concluida_libera_horario(self):
+        self.tarefa.prazo = self.instante(hora=10)
+        self.tarefa.duracao_estimada_min = 90
+        self.tarefa.save()
+        dia = dados_periodo(self.user.id, self.dia, self.dia)[0]
+        self.assertEqual([(x["inicio"], x["fim"]) for x in horarios_livres(dia)], [(360, 600), (690, 1380)])
+        self.tarefa.status = "concluida"
+        self.tarefa.save()
+        dia = dados_periodo(self.user.id, self.dia, self.dia)[0]
+        self.assertEqual([(x["inicio"], x["fim"]) for x in horarios_livres(dia)], [(360, 1380)])

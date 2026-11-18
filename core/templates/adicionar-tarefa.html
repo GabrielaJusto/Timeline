@@ -34,7 +34,7 @@
 {% include "organizacao/recorrencia.html" %}
 
             <div class="campo">
-                <label for="nome">
+                <label for="{{ form.titulo.id_for_label }}">
                     Nome da tarefa <strong>*</strong>
                 </label>
 
@@ -44,7 +44,7 @@
 
 
             <div class="campo">
-                <label for="{{ form.disciplina.id_for_label }}">
+                <label for="{{ form.nome_disciplina.id_for_label }}">
                     Disciplina <span>opcional</span>
                 </label>
 
@@ -77,6 +77,11 @@
 
 
             <div class="campo">
+                <label for="{{ form.horario_fim.id_for_label }}">Horário de término <span>opcional</span></label>
+                {{ form.horario_fim }}{{ form.horario_fim.errors }}
+                <small>Sem término, a tarefa ocupa uma hora no calendário.</small>
+            </div>
+            <div class="campo">
                 <label for="prioridade">
                     Prioridade <strong>*</strong>
                 </label>
@@ -90,7 +95,7 @@
 
 
             <div class="campo categoria">
-                <label for="categoria">
+                <label for="{{ form.tipo.id_for_label }}">
                     Categoria <strong>*</strong>
                 </label>
 
