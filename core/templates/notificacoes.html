@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline - Notificações</title>
-    <link rel="stylesheet" href="{% static 'css/notificacoes.css' %}">
-<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/notificacoes.css' %}?v=2">
+
 {% endblock %}
 
-{% block sidebar_class %}sidebar-notificacoes{% endblock %}
+{% block sidebar_class %}menu-lateral sidebar-notificacoes{% endblock %}
 {% block navigation_class %}menu-notificacoes{% endblock %}
 {% block page_body %}
 
@@ -26,7 +26,6 @@
                 </p>
             </div>
 
-            <span class="user-btn">Dados do banco</span>
         </header>
 
         <!-- ALERTAS DO PLANEJAMENTO -->
@@ -85,15 +84,6 @@
             {% endif %}
         {% endfor %}
 
-        <!-- CADASTRAR ATIVIDADE -->
-        <div class="aviso verde">
-            <h4>+ Nova atividade</h4>
-            <a href="{% url 'adicionar_tarefa' %}">
-                Cadastrar atividade
-            </a>
-        </div>
-
     </main>
 
-{% include 'includes/tarefa-modal.html' %}
 {% endblock %}

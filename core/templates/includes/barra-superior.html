@@ -1,0 +1,18 @@
+<div class="timeline-topbar" role="banner" aria-label="Barra superior">
+    <div class="timeline-topbar__page">
+        <strong>{% with pagina=request.resolver_match.url_name %}{% if pagina == 'hoje' %}Hoje{% elif pagina == 'agenda' or pagina == 'agenda_semana' or pagina == 'agenda_mes' %}Calendário{% elif pagina == 'tarefas' %}Tarefas{% elif pagina == 'lixeira' %}Lixeira{% elif pagina == 'planejamento' %}Planejamento{% elif pagina == 'historico_planejamentos' %}Histórico de planejamentos{% elif pagina == 'personalizacao_ia' %}Personalização com IA{% elif pagina == 'progresso' %}Progresso{% elif pagina == 'configuracoes' %}Configurações{% elif pagina == 'notificacoes' %}Notificações{% else %}Seu planejamento{% endif %}{% endwith %}</strong>
+        <span>{% now "l, j \d\e F" %}</span>
+    </div>
+    <div class="timeline-topbar__actions">
+        <form class="timeline-topbar__search" method="get" action="{% url 'tarefas' %}" role="search" aria-label="Buscar tarefas">
+            <input type="search" name="busca" value="{{ request.GET.busca|default:'' }}" placeholder="Buscar tarefas" aria-label="Buscar tarefas por título ou disciplina">
+            <button type="submit" aria-label="Buscar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+            </button>
+        </form>
+        <a class="timeline-topbar__icon" href="{% url 'notificacoes' %}" aria-label="Abrir notificações" aria-haspopup="dialog" title="Notificações">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+        </a>
+        <a class="timeline-topbar__icon" href="{% url 'configuracoes' %}" aria-label="Abrir configurações" title="Configurações">{% include 'includes/icone-configuracoes.html' %}</a>
+    </div>
+</div>

@@ -6,7 +6,7 @@
     <title>Timeline - Configurações</title>
     <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
 
-<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+
 {% endblock %}
 {% block page_body %}
 
@@ -17,25 +17,7 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="conteudo-principal">
 
-        <div class="barra-superior">
 
-            <div class="pagina-atual">
-                <strong>Configurações</strong>
-                <span>Seu planejamento, no seu ritmo.</span>
-            </div>
-
-            <div class="acoes-superiores">
-                <!-- Campo visual: a busca depende da programação do projeto. -->
-                <input
-                    type="search"
-                    placeholder="Buscar tarefas"
-                    aria-label="Buscar tarefas"
-                >
-                <a href="{% url 'notificacoes' %}" aria-label="Notificações">🔔</a>
-                <a href="{% url 'configuracoes' %}" aria-label="Configurações">{% include 'includes/icone-configuracoes.html' %}</a>
-            </div>
-
-        </div>
 
 
         <main>

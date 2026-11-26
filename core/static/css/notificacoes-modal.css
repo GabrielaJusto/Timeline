@@ -1,0 +1,17 @@
+.notificacoes-modal {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #dedee8;
+    border-radius: 16px;
+    width: min(680px, calc(100vw - 32px));
+    max-width: none;
+    max-height: 85vh;
+    overflow: auto;
+    background: #f8f8fc;
+    box-shadow: 0 24px 80px #11193633;
+}
+.notificacoes-modal::backdrop {
+    background: #11193666;
+}

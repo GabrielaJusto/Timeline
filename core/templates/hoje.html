@@ -3,8 +3,8 @@
 {% block page_head %}
     <meta charset="UTF-8">
     <title>Timeline - Hoje</title>
-    <link rel="stylesheet" href="{% static 'css/hoje.css' %}?v=2">
-<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/hoje.css' %}?v=3">
+
 {% endblock %}
 {% block page_body %}
 
@@ -16,22 +16,7 @@
     <div class="conteudo-principal">
 
         <!-- BARRA SUPERIOR -->
-        <div class="barra-superior">
 
-            <div class="pagina-atual">
-                <strong>Hoje</strong>
-                <span>{% now "l, j \d\e F" %}</span>
-            </div>
-
-            <div class="acoes-superiores">
-                <form method="get" action="{% url 'tarefas' %}" role="search">
-                    <input type="search" name="busca" placeholder="Buscar tarefas" aria-label="Buscar tarefas por título ou disciplina">
-                </form>
-                <a href="{% url 'notificacoes' %}" style="text-decoration: none; color: inherit;">🔔</a>
-                <span>☷</span>
-            </div>
-
-        </div>
 
 
         <!-- ÁREA DA PÁGINA -->
@@ -223,7 +208,7 @@
                             <strong>0%</strong>
                         </div>
 
-                        <a href="{% url 'agenda_semana' %}" class="link-semana">
+                        <a href="{% url 'agenda_semana' %}" class="botao-adicionar link-semana">
                             Ver programação da semana &nbsp; →
                         </a>
 

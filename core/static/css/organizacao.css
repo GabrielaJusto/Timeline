@@ -16,6 +16,10 @@
 .org-sidebar nav.menu { display: block; margin: 0; padding: 0; }
 .org-main { margin-left: 230px; }
 
+.org-app a.org-button {
+    color: #fff;
+}
+
 .org-agenda-actions {
     display: flex;
     flex-wrap: wrap;

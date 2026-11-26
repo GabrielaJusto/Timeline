@@ -1,11 +1,10 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"><title>Timeline - Nova atividade</title>
-<link rel="stylesheet" href="{% static 'css/notificacoes.css' %}"><link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-</head>
-<body>
-<header><a href="{% url 'inicio' %}">{% include 'includes/marca.html' %}</a></header>
+{% block page_head %}<meta charset="UTF-8"><title>Timeline - Nova atividade</title>
+<link rel="stylesheet" href="{% static 'css/notificacoes.css' %}">
+{% endblock %}
+{% block page_body %}
+
 <div class="tela">
 <h1>Cadastrar atividade</h1>
 <div class="aviso">
@@ -16,4 +15,4 @@
 </form>
 </div>
 <a href="{% url 'notificacoes' %}">Voltar às notificações</a>
-</div></body></html>
+</div>{% endblock %}

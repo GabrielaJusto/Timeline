@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import AtividadeForm
 from .models import (
+    AlertaCarga,
     Atividade,
     Aula,
     Planejamento,
@@ -512,9 +513,113 @@ def marcar_atividade_nao_concluida(request, atividade_id):
     return redirect("planejamento")
 
 
+NIVEIS_DE_CARGA = [
+    (1.0, "Carga crítica", (
+        "O planejamento da semana pede mais tempo do que você tem. "
+        "Reduza o escopo ou adie alguma atividade."
+    )),
+    (0.8, "Carga alta", (
+        "Sua semana está quase cheia. "
+        "Evite assumir novos compromissos."
+    )),
+]
+
+def atividades_em_aviso(usuario_id):
+    """
+    Separa as atividades atrasadas das que vencem em sete dias.
+
+    Usa Atividade.objects, que já ignora o que está na lixeira.
+    """
+
+    agora = timezone.now()
+
+    pendentes = Atividade.objects.filter(
+        usuario_id=usuario_id,
+    ).exclude(
+        status__in=["concluida", "nao_concluida"],
+    )
+
+    atrasadas = pendentes.filter(
+        prazo__lt=agora,
+    ).select_related("disciplina").order_by("prazo")
+
+    proximas = pendentes.filter(
+        prazo__gte=agora,
+        prazo__lte=agora + timedelta(days=7),
+    ).select_related("disciplina").order_by("prazo")
+
+    return atrasadas, proximas
+
+def alerta_de_carga(usuario_id):
+    """
+    Devolve o alerta de carga do planejamento ativo da semana.
+
+    Retorna uma lista, vazia quando não há planejamento
+    ou quando a carga está tranquila.
+    """
+
+    hoje_local = timezone.localdate()
+    segunda = hoje_local - timedelta(days=hoje_local.weekday())
+
+    planejamento = (
+        Planejamento.objects
+        .filter(
+            usuario_id=usuario_id,
+            semana_inicio=segunda,
+            status="ativo",
+        )
+        .order_by("-versao")
+        .first()
+    )
+
+    if planejamento is None:
+        return []
+
+    disponiveis = float(planejamento.horas_disponiveis or 0)
+
+    if disponiveis <= 0:
+        return []
+
+    indice = float(planejamento.horas_alocadas or 0) / disponiveis
+
+    for limite, nivel, recomendacao in NIVEIS_DE_CARGA:
+        if indice >= limite:
+            alerta, _ = AlertaCarga.objects.update_or_create(
+                planejamento=planejamento,
+                defaults={
+                    "indice_carga": round(indice, 2),
+                    "nivel": nivel,
+                    "recomendacao": recomendacao,
+                },
+            )
+            return [alerta]
+
+    # A carga voltou ao normal: remove o alerta antigo.
+    AlertaCarga.objects.filter(planejamento=planejamento).delete()
+
+    return []
+
 @login_required
 def notificacoes(request):
-    return render(request, "notificacoes.html")
+    usuario_id = request.user.id
+
+    atrasadas, proximas = atividades_em_aviso(usuario_id)
+
+    alertas = alerta_de_carga(usuario_id)
+
+    total_semana = proximas.count()
+
+    return render(request, "notificacoes.html", {
+        "alertas": alertas,
+        "atrasadas": atrasadas,
+        "atividades": proximas,
+        "total_semana": total_semana,
+        "total_avisos": (
+            len(alertas)
+            + atrasadas.count()
+            + total_semana
+        ),
+    })
 
 import calendar
 

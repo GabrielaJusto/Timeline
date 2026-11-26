@@ -6,7 +6,7 @@
     <title>Timeline - Progresso</title>
     <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
     <link rel="stylesheet" href="{% static 'css/progresso.css' %}">
-<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
+
 {% endblock %}
 {% block page_body %}
 
@@ -20,25 +20,7 @@
 
 
         <!-- BARRA SUPERIOR -->
-            <div class="barra-superior">
 
-                <div class="pagina-atual">
-                    <strong>Progresso</strong>
-                    <span>Acompanhe sua evolução</span>
-                </div>
-
-                <div class="acoes-superiores">
-                    <input type="text" placeholder="Buscar tarefas">
-
-                    <a href="{% url 'notificacoes' %}"
-                    style="text-decoration: none; color: inherit;">
-                        🔔
-                    </a>
-
-                    <span>☷</span>
-                </div>
-
-            </div>
 
         <!-- ÁREA DA PÁGINA -->
             <main class="conteudo-progresso">

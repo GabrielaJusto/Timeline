@@ -1,6 +1,6 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+{% block page_head %}<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Editar sessao | Timeline</title><link rel="stylesheet" href="{% static 'css/planejamento.css' %}">
 <style>
 .edicao-card{background:#fff;padding:28px;border-radius:14px;max-width:760px;margin:24px 0;box-shadow:0 3px 18px #20123d12}
@@ -10,9 +10,10 @@
 .edicao-card .erro{background:#ffe7e7;border-left:4px solid #d94444;padding:12px;margin:16px 0}
 .edicao-card .escolha{display:block;padding:9px 0;font-weight:400}
 .edicao-card a{color:#49318a}
-</style><link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-</head><body>
-<aside>{% include 'includes/marca.html' %}<nav><a href="{% url 'hoje' %}">Hoje</a><a href="{% url 'agenda' %}">Agenda</a><a href="{% url 'agenda_semana' %}">Calendario</a><a href="{% url 'tarefas' %}">Tarefas</a><a href="{% url 'planejamento' %}" class="ativo">Planejamento Inteligente</a><a href="{% url 'progresso' %}">Progresso</a></nav></aside>
+</style>
+{% endblock %}
+{% block page_body %}
+
 <main><header><p>PLANEJAMENTO INTELIGENTE</p><h1>Editar atividade</h1><p>{{ sessao.atividade.titulo }}</p></header>
 <section class="edicao-card"><h2>Escolha o dia e horario</h2>
 <p>Duracao: {{ sessao.duracao_min }} minutos. Semana: {{ sessao.planejamento.semana_inicio|date:'d/m' }} a {{ sessao.planejamento.semana_fim|date:'d/m/Y' }}.</p>
@@ -29,4 +30,4 @@
 {% else %}<button type="submit">Buscar sugestao</button>{% endif %}
 </div>{% else %}<button type="submit">Salvar horario</button>{% endif %}
 </form><p><a href="{% url 'planejamento' %}?semana={{ sessao.planejamento.semana_inicio|date:'Y-m-d' }}">Voltar ao planejamento</a></p>
-</section></main></body></html>
+</section></main>{% endblock %}

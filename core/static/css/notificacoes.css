@@ -14,14 +14,16 @@ body {
 
 /* MENU LATERAL */
 .sidebar-notificacoes {
+    display: flex;
+    flex-direction: column;
     position: fixed;
     top: 0;
     left: 0;
-    width: 250px;
+    width: 230px;
     height: 100vh;
     background: #ffffff;
     border-right: 1px solid #e6e8f0;
-    padding: 30px 18px;
+    padding: 28px 18px 20px;
     overflow-y: auto;
     z-index: 100;
 }
@@ -54,8 +56,8 @@ body {
 
 /* CONTEÚDO PRINCIPAL */
 .conteudo-notificacoes {
-    margin-left: 250px;
-    padding: 40px;
+    margin-left: 230px;
+    padding: 38px 32px;
     max-width: 1450px;
 }
 
@@ -64,11 +66,13 @@ header {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 35px;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 header h1 {
-    font-size: 30px;
-    color: #202642;
+    font-size: 32px;
+    color: #111936;
     margin-bottom: 8px;
 }
 
@@ -77,13 +81,25 @@ header h1 {
     color: #7c8299;
 }
 
-.user-btn {
-    background: #ffffff;
-    border: 1px solid #e6e8f0;
-    padding: 10px 16px;
-    border-radius: 20px;
-    font-size: 12px;
-    color: #64708b;
+.botao-adicionar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #5a59dd;
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font: 700 15px/20px Arial, sans-serif;
+    text-decoration: none;
+}
+
+.botao-adicionar:hover {
+    background: #4d49cf;
+}
+
+.botao-adicionar:focus-visible {
+    outline: 3px solid #5a59dd;
+    outline-offset: 3px;
 }
 
 /* CARTÕES DE NOTIFICAÇÕES */

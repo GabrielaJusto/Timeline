@@ -558,7 +558,9 @@ main {
 }
 
 .visao-semana .link-semana {
-    color: #5554dd;
+    width: 100%;
+    white-space: normal;
+    text-align: center;
     margin-top: 22px;
 }
 
