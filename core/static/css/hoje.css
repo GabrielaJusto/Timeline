@@ -243,6 +243,8 @@ main {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 26px;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .titulo-inicio p {
@@ -264,7 +266,13 @@ main {
 }
 
 .inicio button,
-.timeline-vazia button {
+.timeline-vazia button,
+.botao-adicionar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    white-space: nowrap;
     background-color: #5a59dd;
     color: white;
     border: none;
@@ -273,6 +281,15 @@ main {
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
+}
+
+.botao-adicionar:hover {
+    background-color: #4d49cf;
+}
+
+.botao-adicionar:focus-visible {
+    outline: 3px solid #5a59dd;
+    outline-offset: 3px;
 }
 
 

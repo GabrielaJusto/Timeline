@@ -1,31 +1,19 @@
-
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
+{% block page_head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline - Notificações</title>
     <link rel="stylesheet" href="{% static 'css/notificacoes.css' %}">
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-</head>
+{% endblock %}
 
-<body>
+{% block sidebar_class %}sidebar-notificacoes{% endblock %}
+{% block navigation_class %}menu-notificacoes{% endblock %}
+{% block page_body %}
 
     <!-- MENU LATERAL -->
-    <aside class="sidebar-notificacoes">
-        {% include 'includes/marca.html' %}
 
-        <nav class="menu-notificacoes">
-            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-            <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
-            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
-            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
-            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-        </nav>
-    </aside>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="conteudo-notificacoes">
@@ -108,5 +96,4 @@
     </main>
 
 {% include 'includes/tarefa-modal.html' %}
-</body>
-</html>
+{% endblock %}

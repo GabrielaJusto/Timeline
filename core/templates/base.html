@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+{% block page_head %}{% endblock %}
+</head>
+<body{% block body_attributes %}{% endblock %}>
+<aside class="{% block sidebar_class %}menu-lateral{% endblock %}">
+    {% include 'includes/marca.html' %}
+    <h3 class="titulo-menu">SEU ESPAÇO</h3>
+    <nav class="menu {% block navigation_class %}{% endblock %}" aria-label="Menu principal">
+        {% with pagina=request.resolver_match.url_name %}
+        <a href="{% url 'hoje' %}"{% if pagina == 'hoje' %} class="ativo" aria-current="page"{% endif %}>☼ &nbsp; Hoje</a>
+        <a href="{% url 'agenda' %}"{% if pagina == 'agenda' or pagina == 'agenda_semana' or pagina == 'agenda_mes' %} class="ativo" aria-current="page"{% endif %}>▦ &nbsp; Calendário</a>
+        <a href="{% url 'tarefas' %}"{% if pagina == 'tarefas' %} class="ativo" aria-current="page"{% endif %}>☷ &nbsp; Tarefas</a>
+        <a href="{% url 'planejamento' %}"{% if pagina == 'planejamento' or pagina == 'historico_planejamentos' %} class="ativo" aria-current="page"{% endif %}>✧ &nbsp; Planejamento Inteligente</a>
+        {% if pagina == 'personalizacao_ia' %}<a href="{% url 'personalizacao_ia' %}?semana={{ semana }}" class="ativo" aria-current="page">✦ &nbsp; Personalização com IA</a>{% endif %}
+        <a href="{% url 'progresso' %}"{% if pagina == 'progresso' %} class="ativo" aria-current="page"{% endif %}>▥ &nbsp; Progresso</a>
+        <a href="{% url 'configuracoes' %}"{% if pagina == 'configuracoes' %} class="ativo" aria-current="page"{% endif %}>{% include 'includes/icone-configuracoes.html' %} &nbsp; Configurações</a>
+        {% endwith %}
+    </nav>
+    {% include 'includes/rodape-lateral.html' %}
+</aside>
+{% block page_body %}{% endblock %}
+</body>
+</html>

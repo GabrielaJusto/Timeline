@@ -1,8 +1,6 @@
-
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
+{% block page_head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planejamento Inteligente | Timeline</title>
@@ -27,29 +25,11 @@ body > main {
 </style>
 
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-</head>
-<body>
+{% endblock %}
+{% block page_body %}
 
     <!-- MENU LATERAL -->
-    <div class="menu-lateral">
 
-      {% include 'includes/marca.html' %}
-
-      <h3 class="titulo-menu">SEU ESPAÇO</h3>
-
-      <div class="menu">
-          <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-          <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
-          <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
-          <a href="{% url 'planejamento' %}" class="ativo">✧ &nbsp; Planejamento Inteligente</a>
-          <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-          <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-      </div>
-
-      {% include 'includes/rodape-lateral.html' %}
-
-
-  </div>
 
     <main>
 
@@ -433,5 +413,4 @@ body > main {
         {% endif %}
 
     </main>
-</body>
-</html>
+{% endblock %}

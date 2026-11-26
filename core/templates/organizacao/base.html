@@ -1,30 +1,17 @@
-{% load static %}<!doctype html>
-<html lang="pt-br">
-<head>
+{% extends 'base.html' %}
+{% load static %}
+{% block page_head %}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Timeline — {% block title %}Organização{% endblock %}</title>
 <link rel="stylesheet" href="{% static 'css/organizacao.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=4">
-</head>
-<body class="org-app">
-<aside class="org-sidebar menu-lateral">
-{% include "includes/marca.html" %}
-<h3 class="titulo-menu">SEU ESPAÇO</h3>
+{% endblock %}
 
-        <nav class="menu" aria-label="Menu principal">
-            <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
+{% block body_attributes %} class="org-app"{% endblock %}
 
-            <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
-            <a href="{% url 'tarefas' %}" class="ativo" aria-current="page">☷ &nbsp; Tarefas</a>
-            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
-            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
+{% block sidebar_class %}org-sidebar menu-lateral{% endblock %}
+{% block page_body %}
 
-        </nav>
-
-        {% include "includes/rodape-lateral.html" %}
-</aside>
 <main class="org-main">{% include 'organizacao/mensagens.html' %}{% block content %}{% endblock %}</main>
-{% include "includes/tarefa-modal.html" %}</body>
-</html>
+{% include "includes/tarefa-modal.html" %}{% endblock %}

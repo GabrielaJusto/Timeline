@@ -1,7 +1,6 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
+{% block page_head %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Histórico de Planejamentos | Timeline</title>
@@ -91,19 +90,9 @@ main section h2, main section h3, main section p { overflow-wrap: normal; }
 </style>
 
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-</head>
-<body>
-  <aside>
-    {% include 'includes/marca.html' %}
-    <nav>
-      <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-      <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
-      <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
-      <a href="{% url 'planejamento' %}" class="ativo">✧ &nbsp; Planejamento Inteligente</a>
-      <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-      <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-    </nav>
-  </aside>
+{% endblock %}
+{% block page_body %}
+
   <main>
     <header>
       <p>ORGANIZAÇÃO SEMANAL</p>
@@ -150,5 +139,4 @@ main section h2, main section h3, main section p { overflow-wrap: normal; }
       <section><p>Nenhum planejamento salvo ainda. Aceite um planejamento para vê-lo aqui.</p></section>
     {% endfor %}
   </main>
-</body>
-</html>
+{% endblock %}

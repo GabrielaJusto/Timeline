@@ -1,38 +1,15 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
+{% block page_head %}
     <meta charset="UTF-8">
     <title>Timeline - Hoje</title>
-    <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
+    <link rel="stylesheet" href="{% static 'css/hoje.css' %}?v=2">
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-</head>
-
-<body>
+{% endblock %}
+{% block page_body %}
 
     <!-- MENU LATERAL -->
-    <div class="menu-lateral">
 
-        {% include 'includes/marca.html' %}
-
-        <h3 class="titulo-menu">SEU ESPAÇO</h3>
-
-        <div class="menu">
-            <a href="{% url 'hoje' %}" class="ativo">☼ &nbsp; Hoje</a>
-
-            <a href="{% url 'agenda' %}">▦ &nbsp; Calendário</a>
-            <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
-            <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
-            <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-            <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-
-        </div>
-
-        {% include 'includes/rodape-lateral.html' %}
-
-
-    </div>
 
 
     <!-- CONTEÚDO PRINCIPAL -->
@@ -47,7 +24,9 @@
             </div>
 
             <div class="acoes-superiores">
-                <input type="text" placeholder="Buscar tarefas">
+                <form method="get" action="{% url 'tarefas' %}" role="search">
+                    <input type="search" name="busca" placeholder="Buscar tarefas" aria-label="Buscar tarefas por título ou disciplina">
+                </form>
                 <a href="{% url 'notificacoes' %}" style="text-decoration: none; color: inherit;">🔔</a>
                 <span>☷</span>
             </div>
@@ -67,17 +46,18 @@
                     <span>Abra espaço para o que importa. Comece pelo próximo passo.</span>
                 </div>
 
-                <a href="{% url 'adicionar_tarefa' %}">+ Adicionar uma tarefa</a>
+                <a href="{% url 'adicionar_tarefa' %}" class="botao-adicionar">+ Adicionar tarefa</a>
 
             </div>
 
 
             <!-- AVISO -->
             <div class="aviso-planejamento">
-                <strong>Seu planejamento, sem login</strong>
+                <strong>Seu planejamento, conectado à sua conta</strong>
                 <p>
-                    Crie suas tarefas e comece a organizar a semana.
-                    O acesso fica vinculado a este navegador.
+                    Você está conectado como {{ user.get_full_name|default:user.username }}.
+                    Suas tarefas ficam salvas na sua conta. Entre com a mesma conta
+                    em outro navegador para continuar seu planejamento.
                 </p>
             </div>
 
@@ -181,9 +161,7 @@
                                 seu próximo passo.
                             </p>
 
-                            <a href="{% url 'adicionar_tarefa' %}">+ Adicionar uma tarefa</a>
-                                + Adicionar uma tarefa
-                            </a>
+                            <a href="{% url 'adicionar_tarefa' %}" class="botao-adicionar">+ Adicionar tarefa</a>
                         </div>
 
                     {% endif %}
@@ -260,6 +238,4 @@
     </div>
 
 {% include 'includes/tarefa-modal.html' %}
-</body>
-
-</html>
+{% endblock %}

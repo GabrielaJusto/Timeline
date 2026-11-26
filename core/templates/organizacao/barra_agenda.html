@@ -1,5 +1,8 @@
 <div class="org-agenda-tools">
-<a href="{% url 'novo_compromisso' %}">+ Compromisso recorrente</a> · <a href="{% url 'lixeira' %}">Lixeira</a>
+<div class="org-agenda-actions">
+<a class="org-agenda-button" href="{% url 'novo_compromisso' %}">+ Compromisso recorrente</a>
+<a class="org-agenda-button" href="{% url 'lixeira' %}">Lixeira</a>
+</div>
 <form method="get" action="{% url 'exportar_agenda' %}">
 <strong>Exportar agenda (.ics)</strong>
 <label>De <input type="date" name="inicio" value="{% now 'Y-m-d' %}" required>

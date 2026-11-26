@@ -15,3 +15,28 @@
 }
 .org-sidebar nav.menu { display: block; margin: 0; padding: 0; }
 .org-main { margin-left: 230px; }
+
+.org-agenda-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.org-agenda-tools .org-agenda-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 20px;
+    border: 0;
+    border-radius: 8px;
+    background: #5a59dd;
+    color: #fff;
+    font: 700 15px/20px Arial, sans-serif;
+    text-decoration: none;
+}
+.org-agenda-tools .org-agenda-button:hover {
+    background: #4d49cf;
+}
+.org-agenda-tools .org-agenda-button:focus-visible {
+    outline: 3px solid #5a59dd;
+    outline-offset: 3px;
+}

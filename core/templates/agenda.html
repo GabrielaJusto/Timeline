@@ -1,7 +1,6 @@
-﻿{% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+{% extends 'base.html' %}
+{% load static %}
+{% block page_head %}
   <meta charset="UTF-8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -30,7 +29,7 @@
     .box { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
     .event { border: 1px solid #f1f5f9; padding: 10px; border-radius: 6px; margin-top: 10px; display: flex; gap: 15px; }
     .time { font-weight: bold; color: #6366f1; font-size: 14px; }
-    
+
     .pill { font-size: 10px; padding: 2px 6px; background: #f1f5f9; border-radius: 4px; margin-right: 4px; }
     .pill-yellow { background: #fef3c7; color: #d97706; }
 
@@ -111,7 +110,7 @@
   .grid .box {
       padding: 24px;
       border-radius: 14px;
-  } 
+  }
 
   /* BARRA SUPERIOR DA AGENDA */
   body > .barra-superior {
@@ -128,7 +127,7 @@
       width: calc(100% - 226px);
   }
 
-  
+
 /* PADRONIZAÇÃO DO CALENDÁRIO */
 body {
     background: #f8f8fc;
@@ -403,30 +402,12 @@ body > .grid > section.box {
 }
 </style>
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
-</head>
-<body>
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}?v=5">
+{% endblock %}
+{% block page_body %}
 
   <!-- MENU LATERAL -->
-  <div class="menu-lateral">
 
-      {% include 'includes/marca.html' %}
-
-      <h3 class="titulo-menu">SEU ESPAÇO</h3>
-
-      <div class="menu">
-          <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-          <a href="{% url 'agenda' %}" class="ativo">▦ &nbsp; Calendário</a>
-          <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
-          <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
-          <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-          <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-      </div>
-
-      {% include 'includes/rodape-lateral.html' %}
-
-
-  </div>
 
 
   <div class="grid">
@@ -446,9 +427,9 @@ body > .grid > section.box {
     </nav>
 </div>
 
-      
 
-      
+
+
       <div class="box">
         <h3>Compromissos do dia</h3>{% include "organizacao/barra_agenda.html" %}{% include "organizacao/livres.html" with dia=dia_livre %}
 
@@ -475,7 +456,7 @@ body > .grid > section.box {
 
             </div>
         {% endfor %}
-          
+
 
           {% if not eventos_do_dia %}
             <p style="font-size: 12px; color: #64748b; margin-top: 10px;">
@@ -486,7 +467,7 @@ body > .grid > section.box {
 
 
     <div class="col-side">
-      
+
     <div class="box">
         <h3>Tarefas pendentes</h3>
 
@@ -508,7 +489,7 @@ body > .grid > section.box {
     </div>
 
 
-      
+
       <div class="box">
         <h3>Progresso das tarefas</h3>
 
@@ -552,13 +533,4 @@ body > .grid > section.box {
     <p>Nenhuma aula cadastrada.</p>
   {% endfor %}
 </section>
-</body>
-</html>
-
-
-
-
-
-
-
-
+{% endblock %}

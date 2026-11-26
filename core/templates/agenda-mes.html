@@ -1,8 +1,6 @@
-﻿
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
+{% block page_head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline - Calendário mensal</title>
@@ -12,28 +10,10 @@
     <link rel="stylesheet" href="{% static 'css/agenda-mes.css' %}">
     <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-<link rel="stylesheet" href="{% static 'css/organizacao.css' %}">
-</head>
-<body>
-    <div class="menu-lateral">
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}?v=5">
+{% endblock %}
+{% block page_body %}
 
-      {% include 'includes/marca.html' %}
-
-      <h3 class="titulo-menu">SEU ESPAÇO</h3>
-
-      <div class="menu">
-          <a href="{% url 'hoje' %}">☼ &nbsp; Hoje</a>
-          <a href="{% url 'agenda' %}" class="ativo">▦ &nbsp; Calendário</a>
-          <a href="{% url 'tarefas' %}">☷ &nbsp; Tarefas</a>
-          <a href="{% url 'planejamento' %}">✧ &nbsp; Planejamento Inteligente</a>
-          <a href="{% url 'progresso' %}">▥ &nbsp; Progresso</a>
-          <a href="{% url 'configuracoes' %}">☷ &nbsp; Configurações</a>
-      </div>
-
-      {% include 'includes/rodape-lateral.html' %}
-
-
-  </div>
 
     <div class="tela">
         <header class="topo">
@@ -96,6 +76,4 @@
             </section>
         </div>
     </div>
-</body>
-</html>
-
+{% endblock %}
