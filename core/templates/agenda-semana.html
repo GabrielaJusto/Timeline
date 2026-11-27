@@ -65,6 +65,9 @@
                                 <span class="evento-nome">
                                     {{ compromisso.titulo }}
                                 </span>
+                                <a href="{% url 'editar_compromisso' compromisso.id %}" class="botao-editar" aria-label="Editar {{ compromisso.titulo }}">
+                                    Editar
+                                </a>
                                 <form method="POST" action="{% url 'excluir_compromisso' compromisso.id %}" onsubmit="return confirm('Deseja realmente excluir este compromisso?')">
                                     {% csrf_token %}
 

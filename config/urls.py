@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from core import views_compromisso
 from core.auth_views import RecuperarSenhaView, google_login
 from core import views
 from core import views_ia
@@ -75,6 +76,12 @@ urlpatterns = [
         "novo-compromisso/",
         organizacao.novo_compromisso,
         name="novo_compromisso",
+    ),
+
+    path(
+        "compromissos/<int:compromisso_id>/editar/",
+        views_compromisso.editar_compromisso,
+        name="editar_compromisso",
     ),
 
     path(

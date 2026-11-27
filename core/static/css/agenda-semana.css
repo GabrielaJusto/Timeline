@@ -560,3 +560,19 @@ body {
     padding: 0;
     cursor: pointer;
 }
+
+
+/* EDITAR COMPROMISSO */
+
+.evento .botao-editar {
+    margin-left: auto;
+    color: #5558c9;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.evento .botao-editar:hover,
+.evento .botao-editar:focus-visible {
+    text-decoration: underline;
+}

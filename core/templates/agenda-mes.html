@@ -56,10 +56,10 @@
 
                                 <!--Compromisso-->
                                 {% for compromisso in dia.compromissos %}
-                                    <div class="evento-mensal" title="{{ compromisso.titulo }}">
+                                    <a class="evento-mensal" href="{% url 'editar_compromisso' compromisso.id %}" title="Editar {{ compromisso.titulo }}">
                                         <span class="hora-evento">{{ compromisso.inicio|date:"H:i" }}</span>
                                         <span class="nome-evento">{{ compromisso.titulo }}</span>
-                                    </div>
+                                    </a>
                                 {% endfor %}
 
                                 {% for sessao in dia.sessoes %}<div class="org-session">{{ sessao.horario_exibicao }} · {{ sessao.atividade.titulo }}</div>{% endfor %}<!--Tarefa-->
