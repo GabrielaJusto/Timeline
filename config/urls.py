@@ -127,6 +127,18 @@ urlpatterns = [
         name="configuracoes",
     ),
 
+    path(
+        "configuracoes/perfil/",
+        views.editar_perfil,
+        name="editar_perfil",
+    ),
+
+    path(
+        "configuracoes/senha/",
+        views.alterar_senha,
+        name="alterar_senha",
+    ),
+
     # Notificações
     path(
         "notificacoes/",

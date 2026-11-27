@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_head %}
+    <meta charset="UTF-8">
+    <title>Timeline - {% if tem_senha %}Alterar senha{% else %}Criar senha{% endif %}</title>
+    <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
+{% endblock %}
+{% block page_body %}
+    <div class="conteudo-principal">
+        <main>
+
+            <div class="inicio">
+                <div class="titulo-inicio">
+                    <p>CONFIGURAÇÕES</p>
+                    <h1>{% if tem_senha %}Alterar senha{% else %}Criar senha{% endif %}</h1>
+                    <span>
+                        {% if tem_senha %}
+                            Confirme a senha atual e escolha a nova.
+                        {% else %}
+                            Sua conta foi criada pelo Google. Crie uma senha para também entrar com usuário e senha.
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-configuracoes">
+                <form method="post" class="form-configuracoes" novalidate>
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    {% for campo in form %}
+                        <div class="campo-configuracoes">
+                            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                            {{ campo }}
+                            {% if campo.help_text %}<small>{{ campo.help_text|safe }}</small>{% endif %}
+                            {{ campo.errors }}
+                        </div>
+                    {% endfor %}
+
+                    <div class="botoes-configuracoes">
+                        <button type="submit" class="botao-configuracoes botao-salvar">Salvar senha</button>
+                        <a href="{% url 'configuracoes' %}" class="botao-configuracoes">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+
+        </main>
+    </div>
+{% endblock %}

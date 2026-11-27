@@ -38,6 +38,13 @@
             </div>
 
 
+            {% if messages %}
+                <div class="mensagens-configuracoes" role="status">
+                    {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+                </div>
+            {% endif %}
+
+
             <!-- AVISO -->
             <div class="aviso-planejamento">
                 <strong>Seu planejamento, conectado à sua conta</strong>
@@ -108,6 +115,14 @@
 
                 <!-- BOTÕES -->
                 <div class="botoes-configuracoes">
+
+                    <a href="{% url 'editar_perfil' %}" class="botao-configuracoes">
+                        Editar perfil
+                    </a>
+
+                    <a href="{% url 'alterar_senha' %}" class="botao-configuracoes">
+                        Alterar senha
+                    </a>
 
                     <a href="{% url 'tarefas' %}" class="botao-configuracoes">
                         Minhas tarefas

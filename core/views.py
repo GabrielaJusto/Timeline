@@ -460,6 +460,43 @@ def configuracoes(request):
     return render(request, "configuracoes.html")
 
 
+@login_required
+def editar_perfil(request):
+    from django.contrib import messages
+    from .auth_forms import PerfilForm
+
+    form = PerfilForm(request.POST or None, usuario=request.user)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Perfil atualizado.")
+        return redirect("configuracoes")
+
+    return render(request, "perfil.html", {"form": form})
+
+
+@login_required
+def alterar_senha(request):
+    from django.contrib import messages
+    from django.contrib.auth import update_session_auth_hash
+    from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
+
+    # Quem entrou pelo Google pode não ter senha local:
+    # nesse caso a tela cria uma senha, sem pedir a atual.
+    tem_senha = request.user.has_usable_password()
+    Formulario = PasswordChangeForm if tem_senha else SetPasswordForm
+    form = Formulario(request.user, request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        # Mantém a pessoa conectada depois da troca.
+        update_session_auth_hash(request, form.user)
+        messages.success(request, "Senha alterada." if tem_senha else "Senha criada.")
+        return redirect("configuracoes")
+
+    return render(request, "alterar-senha.html", {"form": form, "tem_senha": tem_senha})
+
+
 
 @require_POST
 

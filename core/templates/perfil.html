@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_head %}
+    <meta charset="UTF-8">
+    <title>Timeline - Editar perfil</title>
+    <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
+{% endblock %}
+{% block page_body %}
+    <div class="conteudo-principal">
+        <main>
+
+            <div class="inicio">
+                <div class="titulo-inicio">
+                    <p>CONFIGURAÇÕES</p>
+                    <h1>Editar perfil</h1>
+                    <span>Os dados que você informou no cadastro.</span>
+                </div>
+            </div>
+
+            <div class="card-configuracoes">
+                <form method="post" class="form-configuracoes" novalidate>
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    {% for campo in form %}
+                        <div class="campo-configuracoes">
+                            <label for="{{ campo.id_for_label }}">
+                                {{ campo.label }}{% if not campo.field.required %} <span>opcional</span>{% endif %}
+                            </label>
+                            {{ campo }}
+                            {% if campo.help_text %}<small>{{ campo.help_text }}</small>{% endif %}
+                            {{ campo.errors }}
+                        </div>
+                    {% endfor %}
+
+                    <div class="botoes-configuracoes">
+                        <button type="submit" class="botao-configuracoes botao-salvar">Salvar alterações</button>
+                        <a href="{% url 'configuracoes' %}" class="botao-configuracoes">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+
+        </main>
+    </div>
+{% endblock %}
