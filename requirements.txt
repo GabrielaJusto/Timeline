@@ -1,2 +1,4 @@
 Django==5.2.18
 django-allauth[socialaccount]==65.21.1
+
+pywebpush==2.5.0

@@ -86,6 +86,16 @@ def pagina_cadastro(request):
 
 @require_POST
 def pagina_logout(request):
+    from .models import InscricaoPush
+
+    endpoint = request.session.get("push_endpoint")
+
+    if request.user.is_authenticated and endpoint:
+        InscricaoPush.objects.filter(
+            usuario=request.user,
+            endpoint=endpoint
+        ).delete()
+
     logout(request)
     return redirect("login")
 

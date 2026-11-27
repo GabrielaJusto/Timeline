@@ -98,7 +98,21 @@
 
                     <div class="linha-configuracao">
                         <strong>Lembretes automáticos</strong>
-                        <span>Ainda não disponíveis</span>
+
+                        <div class="controle-push">
+                            {% csrf_token %}
+
+                            <span id="status-push" role="status">
+                                Verificando notificações...
+                            </span>
+
+                            <button type="button"
+                                    id="botao-push"
+                                    class="botao-configuracoes"
+                                    disabled>
+                                Ativar notificações
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -131,4 +145,5 @@
     </div>
 
 {% include 'includes/tarefa-modal.html' %}
+<script src="{% static 'js/push-notificacoes.js' %}?v=1" defer></script>
 {% endblock %}

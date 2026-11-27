@@ -52,4 +52,13 @@
 
 {% block global_scripts %}
 <script src="{% static 'js/notificacoes-modal.js' %}?v=2" data-endpoint="{% url 'notificacoes' %}" defer></script>
+
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js")
+            .catch(function (erro) {
+                console.error("Erro ao registrar Service Worker:", erro);
+            });
+    }
+</script>
 {% endblock %}

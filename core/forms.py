@@ -30,7 +30,11 @@ class AtividadeForm(forms.ModelForm):
 
     class Meta:
         model = Atividade
-        fields = ["titulo", "tipo"]
+        fields = ["titulo", "tipo", "lembrete_minutos"]
+
+        labels = {
+            "lembrete_minutos": "Lembrete"
+        }
 
         widgets = {
             "titulo": forms.TextInput(attrs={

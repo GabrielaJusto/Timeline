@@ -166,6 +166,19 @@ class Atividade(RegistroRecuperavel):
     nome_disciplina = models.CharField(max_length=120, blank=True, default="")
     tipo = models.CharField(max_length=20, choices=TIPOS)
     prazo = models.DateTimeField()
+    LEMBRETES = [
+        (0, "No horário"),
+        (30, "30 minutos antes"),
+        (60, "1 hora antes"),
+        (1440, "1 dia antes"),
+    ]
+
+    lembrete_minutos = models.PositiveIntegerField(
+        choices=LEMBRETES,
+        null=True,
+        blank=True,
+        default=None,
+    )
     dificuldade = models.IntegerField(null=True, blank=True)
     peso_nota = models.DecimalField(
         max_digits=5, decimal_places=2,
@@ -328,3 +341,49 @@ class Subtarefa(models.Model):
 
     def __str__(self):
         return self.titulo
+
+class InscricaoPush(models.Model):
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="inscricoes_push"
+    )
+
+    endpoint = models.URLField(
+        max_length=2048,
+        unique=True
+    )
+
+    p256dh = models.CharField(max_length=255)
+    auth = models.CharField(max_length=255)
+
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Inscricao Push - {self.usuario_id}"
+
+class LembreteEnviado(models.Model):
+    atividade = models.ForeignKey(
+        Atividade,
+        on_delete=models.CASCADE
+    )
+
+    inscricao = models.ForeignKey(
+        InscricaoPush,
+        on_delete=models.CASCADE
+    )
+
+    horario_lembrete = models.DateTimeField()
+    enviado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "atividade",
+                    "inscricao",
+                    "horario_lembrete"
+                ],
+                name="lembrete_push_unico"
+            )
+        ]
