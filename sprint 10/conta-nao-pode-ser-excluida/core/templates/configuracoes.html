@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Configurações</title>
+    <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
+    <link rel="stylesheet" href="{% static 'css/conta.css' %}">
+
+
+{% endblock %}
+{% block page_body %}
+
+    <!-- MENU LATERAL -->
+
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="conteudo-principal">
+
+
+
+
+        <main>
+
+            <!-- INÍCIO -->
+            <div class="inicio">
+
+                <div class="titulo-inicio">
+                    <p>SEU PLANEJAMENTO</p>
+                    <h1>Configurações</h1>
+                    <span>Como funciona o salvamento nesta versão.</span>
+                </div>
+
+                <a href="{% url 'adicionar_tarefa' %}" class="botao-adicionar">
+                    + Adicionar tarefa
+                </a>
+
+            </div>
+
+
+            <!-- AVISO -->
+            <div class="aviso-planejamento">
+                <strong>Seu planejamento, conectado à sua conta</strong>
+
+                <p>
+                    Você está conectado como {{ user.get_full_name|default:user.username }}.
+                    Suas tarefas são salvas na sua conta. Para acessá-las em outro navegador,
+                    entre com a mesma conta.
+                </p>
+            </div>
+
+
+            <!-- CONFIGURAÇÕES -->
+            <div class="card-configuracoes">
+
+                <div class="icone-configuracoes" aria-hidden="true">{% include 'includes/icone-configuracoes.html' %}</div>
+
+                <h2>Seu planejamento, na sua conta</h2>
+
+                <p class="descricao-configuracoes">
+                    As tarefas são salvas no servidor e vinculadas à sua conta.
+                    Apagar os cookies ou sair da conta encerra o acesso neste navegador,
+                    mas não apaga suas tarefas. Entre novamente com a mesma conta para vê-las.
+                    Em um dispositivo compartilhado, saia da conta ao terminar.
+                </p>
+
+
+                <!-- INFORMAÇÕES DA VERSÃO -->
+                <div class="lista-configuracoes">
+
+                    <div class="linha-configuracao">
+                        <strong>Versão</strong>
+                        <span>Com autenticação de conta</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Acesso às tarefas</strong>
+                        <span>Vinculado à sua conta</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Conta conectada</strong>
+                        <span>{{ user.get_full_name|default:user.username }}{% if user.email %} · {{ user.email }}{% endif %}</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Idioma</strong>
+                        <span>Português (Brasil)</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Horários</strong>
+                        <span>America/Sao_Paulo (horário de Brasília)</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Semana</strong>
+                        <span>Segunda a domingo</span>
+                    </div>
+
+                    <div class="linha-configuracao">
+                        <strong>Lembretes automáticos</strong>
+                        <span>Ainda não disponíveis</span>
+                    </div>
+
+                </div>
+
+
+                <!-- BOTÕES -->
+                <div class="botoes-configuracoes">
+
+                    <a href="{% url 'tarefas' %}" class="botao-configuracoes">
+                        Minhas tarefas
+                    </a>
+
+                    <a href="{% url 'progresso' %}" class="botao-configuracoes">
+                        Meu progresso
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- SEUS DADOS -->
+            <section class="card-configuracoes secao-dados-conta" aria-labelledby="titulo-seus-dados">
+                <h2 id="titulo-seus-dados">Seus dados</h2>
+                <p>
+                    Baixe uma cópia de tudo o que o Timeline guarda sobre você,
+                    ou exclua sua conta e todos os dados dela.
+                </p>
+                <div class="botoes-configuracoes">
+                    <a href="{% url 'baixar_meus_dados' %}" class="botao-configuracoes">Baixar meus dados</a>
+                    <a href="{% url 'excluir_conta' %}" class="botao-configuracoes">Excluir conta</a>
+                </div>
+            </section>
+
+
+            <!-- RODAPÉ -->
+            <footer class="rodape">
+                <p>Timeline · Protótipo acadêmico — PUC-Rio</p>
+                <p>Plan today. Move at your pace.</p>
+            </footer>
+
+        </main>
+
+    </div>
+
+{% include 'includes/tarefa-modal.html' %}
+{% endblock %}

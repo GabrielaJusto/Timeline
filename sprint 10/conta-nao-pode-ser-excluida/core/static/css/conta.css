@@ -1,0 +1,118 @@
+/* BAIXAR DADOS E EXCLUIR CONTA */
+
+.conta-main {
+    max-width: 760px;
+}
+
+.conta-etiqueta {
+    color: #5558c9;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+}
+
+.conta-card {
+    background: #ffffff;
+    border: 1px solid #e3e4ec;
+    border-radius: 16px;
+    padding: 24px;
+    margin: 18px 0;
+    color: #202238;
+}
+
+.conta-card h2 {
+    margin-top: 0;
+    font-size: 18px;
+}
+
+.conta-card ul {
+    padding-left: 20px;
+    line-height: 1.8;
+}
+
+.conta-perigo {
+    border-color: #d95d6a;
+}
+
+.conta-campo {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.conta-campo label {
+    font-weight: 600;
+}
+
+.conta-campo input[type="password"],
+.conta-campo input[type="text"] {
+    border: 1px solid #e3e4ec;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font: inherit;
+    max-width: 360px;
+}
+
+.conta-ciente {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+}
+
+.conta-ciente label {
+    font-weight: 400;
+}
+
+.conta-ciente .errorlist {
+    grid-column: 1 / -1;
+}
+
+.conta-card .errorlist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #d95d6a;
+    font-size: 13px;
+}
+
+.conta-acoes {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.conta-botao {
+    display: inline-block;
+    border: 1px solid #202238;
+    border-radius: 9px;
+    padding: 11px 17px;
+    background: #ffffff;
+    color: #202238;
+    font: inherit;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.conta-botao-perigo {
+    background: #b53a48;
+    border-color: #b53a48;
+    color: #ffffff;
+}
+
+.conta-botao-perigo:hover {
+    background: #962f3b;
+}
+
+.conta-botao:focus-visible {
+    outline: 3px solid #e8a63a;
+    outline-offset: 2px;
+}
+
+.secao-dados-conta {
+    margin-top: 24px;
+}
+
+.secao-dados-conta p {
+    color: #62657a;
+}

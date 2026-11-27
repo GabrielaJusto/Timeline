@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Calendário mensal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/agenda-semana.css' %}">
+    <link rel="stylesheet" href="{% static 'css/agenda-mes.css' %}">
+    <link rel="stylesheet" href="{% static 'css/hoje.css' %}">
+
+<link rel="stylesheet" href="{% static 'css/organizacao.css' %}?v=5">
+{% endblock %}
+{% block page_body %}
+
+
+    <div class="tela">
+        <header class="topo">
+            <div class="titulo-agenda">
+                <h1>Calendário</h1>
+                <p class="navegacao-mes">
+                    <a href="?mes={{ mes_anterior|date:'Y-m-d' }}" class="troca-semana" title="Mês anterior">&#8249;</a>
+                    <span>{{ titulo_mes }}</span>
+                    <a href="?mes={{ proximo_mes|date:'Y-m-d' }}" class="troca-semana" title="Próximo mês">&#8250;</a>
+                </p>
+            </div>
+
+            <nav class="abas">
+                <a href="{% url 'agenda' %}" class="aba">Dia</a>
+                <a href="{% url 'agenda_semana' %}" class="aba">Semana</a>
+                <a href="{% url 'agenda_mes' %}" class="aba ativa">Mês</a>
+            </nav>
+        </header>
+
+        {% include "organizacao/barra_agenda.html" %}<div class="layout">
+            <section class="visao-semanal calendario-mensal">
+                <div class="visao-topo">
+                    <h2>Visão mensal</h2>
+                    <a href="{% url 'novo_compromisso' %}" class="botao-novo">+ Compromisso</a>
+                </div>
+
+                <div class="grade-mensal">
+                    <div class="cabecalho-dia">Seg</div>
+                    <div class="cabecalho-dia">Ter</div>
+                    <div class="cabecalho-dia">Qua</div>
+                    <div class="cabecalho-dia">Qui</div>
+                    <div class="cabecalho-dia">Sex</div>
+                    <div class="cabecalho-dia">Sáb</div>
+                    <div class="cabecalho-dia">Dom</div>
+
+                    {% for semana in semanas %}
+                        {% for dia in semana %}
+                            <div class="celula-dia {% if not dia.mes_atual %}fora-mes{% endif %} {% if dia.hoje %}dia-atual{% endif %}">
+                                <div class="numero-dia">{{ dia.data|date:"d" }}</div>
+
+                                <!--Compromisso-->
+                                {% for compromisso in dia.compromissos %}
+                                    <a class="evento-mensal" href="{% url 'editar_compromisso' compromisso.id %}" title="Editar {{ compromisso.titulo }}">
+                                        <span class="hora-evento">{{ compromisso.inicio|date:"H:i" }}</span>
+                                        <span class="nome-evento">{{ compromisso.titulo }}</span>
+                                    </a>
+                                {% endfor %}
+
+                                {% for sessao in dia.sessoes %}<div class="org-session">{{ sessao.horario_exibicao }} · {{ sessao.atividade.titulo }}</div>{% endfor %}<!--Tarefa-->
+                                {% for tarefa in dia.tarefas %}
+                                    <div class="evento-mensal tarefa" title="{{ tarefa.titulo }}">
+                                        <span class="hora-evento">{{ tarefa.prazo|date:"H:i" }}</span>
+                                        <span class="nome-evento">{{ tarefa.titulo }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

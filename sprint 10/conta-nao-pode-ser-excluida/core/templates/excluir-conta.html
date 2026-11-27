@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_head %}
+    <meta charset="UTF-8">
+    <title>Timeline - Excluir conta</title>
+    <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
+    <link rel="stylesheet" href="{% static 'css/conta.css' %}">
+{% endblock %}
+{% block page_body %}
+    <div class="conteudo-principal">
+        <main class="conta-main">
+
+            <p class="conta-etiqueta">CONFIGURAÇÕES</p>
+            <h1>Excluir conta</h1>
+
+            <section class="conta-card" aria-labelledby="titulo-apagado">
+                <h2 id="titulo-apagado">O que será apagado</h2>
+                <ul>
+                    <li>{{ total_tarefas }} tarefa{{ total_tarefas|pluralize }}, com as etapas, inclusive as que estão na lixeira</li>
+                    <li>{{ total_compromissos }} compromisso{{ total_compromissos|pluralize }}</li>
+                    <li>{{ total_planejamentos }} planejamento{{ total_planejamentos|pluralize }} e as sessões de estudo</li>
+                    <li>Seu perfil, o acesso pelo Google e o usuário <strong>{{ user.get_username }}</strong></li>
+                </ul>
+                <p>Não há como desfazer. Se quiser guardar uma cópia, baixe seus dados antes.</p>
+                <a href="{% url 'baixar_meus_dados' %}" class="conta-botao">Baixar meus dados</a>
+            </section>
+
+            <form method="post" class="conta-card conta-perigo" novalidate>
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <div class="conta-campo">
+                    <label for="{{ form.confirmacao.id_for_label }}">{{ form.confirmacao.label }}</label>
+                    {{ form.confirmacao }}
+                    {{ form.confirmacao.errors }}
+                </div>
+
+                <div class="conta-campo conta-ciente">
+                    {{ form.ciente }}
+                    <label for="{{ form.ciente.id_for_label }}">{{ form.ciente.label }}</label>
+                    {{ form.ciente.errors }}
+                </div>
+
+                <div class="conta-acoes">
+                    <button type="submit" class="conta-botao conta-botao-perigo">Excluir minha conta</button>
+                    <a href="{% url 'configuracoes' %}" class="conta-botao">Cancelar</a>
+                </div>
+            </form>
+
+        </main>
+    </div>
+{% endblock %}
