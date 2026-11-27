@@ -112,3 +112,17 @@
 .dia-atual {
     box-shadow: inset 0 0 0 2px #7477e8;
 }
+
+
+/* COMPROMISSO CLICÁVEL PARA EDIÇÃO */
+
+a.evento-mensal {
+    color: inherit;
+    text-decoration: none;
+}
+
+a.evento-mensal:hover,
+a.evento-mensal:focus-visible {
+    outline: 2px solid #5558c9;
+    outline-offset: 1px;
+}

@@ -1,0 +1,17 @@
+{% extends 'organizacao/base.html' %}
+{% block title %}Editar compromisso{% endblock %}
+{% block content %}
+<a href="{% url 'agenda_semana' %}?semana={{ compromisso.inicio|date:'Y-m-d' }}">← Voltar ao calendário</a>
+<h1>Editar compromisso</h1>
+<form method="post" class="org-card org-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if compromisso.serie_id %}
+        <p>Este compromisso faz parte de uma série. A alteração vale só para esta ocorrência.</p>
+    {% endif %}
+    <div class="org-actions">
+        <button type="submit">Salvar alterações</button>
+        <a href="{% url 'agenda_semana' %}?semana={{ compromisso.inicio|date:'Y-m-d' }}">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
