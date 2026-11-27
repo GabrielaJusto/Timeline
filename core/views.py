@@ -38,9 +38,32 @@ from .forms import CompromissoForm
 from .models import Atividade, Compromisso, Disciplina
 
 
+def destino_depois_do_login(request, destino):
+    """
+    Página para onde a pessoa volta depois de entrar.
+
+    Só aceita endereços deste próprio site: um link como
+    /login/?next=https://site-falso.com não pode levar para fora.
+    """
+
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    if destino and url_has_allowed_host_and_scheme(
+        destino,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return destino
+
+    return "hoje"
+
+
 def pagina_login(request):
+    # A página pedida chega pela URL (?next=) e volta no formulário.
+    proxima = request.POST.get("next") or request.GET.get("next", "")
+
     if request.user.is_authenticated:
-        return redirect("hoje")
+        return redirect(destino_depois_do_login(request, proxima))
 
     if request.method == "POST":
         username = request.POST.get("username")
@@ -54,15 +77,19 @@ def pagina_login(request):
 
         if usuario is not None:
             login(request, usuario)
-            return redirect("hoje")
+            return redirect(destino_depois_do_login(request, proxima))
 
         return render(
             request,
             "login.html",
-            {"erro": "Usuário ou senha incorretos."}
+            {
+                "erro": "Usuário ou senha incorretos.",
+                "usuario_digitado": username or "",
+                "next": proxima,
+            }
         )
 
-    return render(request, "login.html")
+    return render(request, "login.html", {"next": proxima})
 
 def pagina_cadastro(request):
     if request.user.is_authenticated:
