@@ -1,0 +1,7 @@
+{% extends 'auth/base.html' %}
+{% block title %}Conta excluída{% endblock %}
+{% block content %}
+<h2>Sua conta foi excluída</h2>
+<p class="auth-copy">Suas tarefas, compromissos e planejamentos foram apagados do Timeline. Obrigado por ter usado o aplicativo.</p>
+<a class="botao-visitante" href="{% url 'login' %}">Voltar ao início</a>
+{% endblock %}

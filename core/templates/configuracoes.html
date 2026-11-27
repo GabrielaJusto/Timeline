@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline - Configurações</title>
     <link rel="stylesheet" href="{% static 'css/configuracoes.css' %}">
+    <link rel="stylesheet" href="{% static 'css/conta.css' %}">
 
 
 {% endblock %}
@@ -120,6 +121,20 @@
                 </div>
 
             </div>
+
+
+            <!-- SEUS DADOS -->
+            <section class="card-configuracoes secao-dados-conta" aria-labelledby="titulo-seus-dados">
+                <h2 id="titulo-seus-dados">Seus dados</h2>
+                <p>
+                    Baixe uma cópia de tudo o que o Timeline guarda sobre você,
+                    ou exclua sua conta e todos os dados dela.
+                </p>
+                <div class="botoes-configuracoes">
+                    <a href="{% url 'baixar_meus_dados' %}" class="botao-configuracoes">Baixar meus dados</a>
+                    <a href="{% url 'excluir_conta' %}" class="botao-configuracoes">Excluir conta</a>
+                </div>
+            </section>
 
 
             <!-- RODAPÉ -->
