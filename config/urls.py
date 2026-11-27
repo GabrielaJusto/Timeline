@@ -6,10 +6,16 @@ from core import views_compromisso
 from core.auth_views import RecuperarSenhaView, google_login
 from core import views
 from core import views_ia
+from core import views_push
 from core import views_organizacao as organizacao
 from core import views_conta
 
 urlpatterns = [
+    path("service-worker.js", views_push.service_worker, name="service_worker"),
+    path("push/chave-publica/", views_push.chave_publica_push, name="chave_publica_push"),
+    path("push/inscrever/", views_push.inscrever_push, name="inscrever_push"),
+    path("push/cancelar/", views_push.cancelar_push, name="cancelar_push"),
+    path("push/status/", views_push.status_push, name="status_push"),
     path("login/google/", google_login, name="login_google"),
     path("accounts/", include("allauth.urls")),
     path("senha/recuperar/", RecuperarSenhaView.as_view(), name="password_reset"),

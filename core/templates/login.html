@@ -1,19 +1,9 @@
+{% extends 'auth/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar | Timeline</title>
 
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=2">
-<link rel="stylesheet" href="{% static 'css/marca.css' %}?v=3">
-</head>
+{% block title %}Entrar{% endblock %}
 
-<body>
-    <main class="login-card">
-
-        {% include 'includes/marca.html' %}
+{% block content %}
 
         <div class="boas-vindas">
             <h2>Bem-vindo de volta!</h2>
@@ -73,6 +63,4 @@
         <p class="auth-copy">Ainda n&#227;o tem conta? <a class="auth-link" href="{% url 'cadastro' %}">Criar conta</a></p>
         <p class="rodape">Organize seus dias. Respeite seu ritmo.</p>
 
-    </main>
-</body>
-</html>
+{% endblock %}

@@ -1,13 +1,27 @@
+{% extends 'base_global.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% block head %}
 <title>Timeline - Adicionar tarefa</title>
 <link rel="stylesheet" href="{% static 'css/adicionar-tarefa.css' %}">
-<style>body{display:block}.modal{position:relative;top:auto;left:auto;transform:none;width:min(520px,100%);max-height:none;margin:24px auto}</style>
-</head><body>
+<style>
+    body {
+        display: block;
+    }
+
+    .modal {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        width: min(520px, 100%);
+        max-height: none;
+        margin: 24px auto;
+    }
+</style>
+{% endblock %}
+
+{% block global_content %}
     <div class="modal">
 
         <div class="cabecalho-modal">
@@ -142,12 +156,12 @@
                     Lembrete <span>opcional</span>
                 </label>
 
-                <select id="lembrete">
-                    <option selected>Sem lembrete</option>
-                    <option>No horário</option>
-                    <option>30 minutos antes</option>
-                    <option>1 hora antes</option>
-                    <option>1 dia antes</option>
+                <select id="lembrete" name="lembrete_minutos">
+                    <option value="" selected>Sem lembrete</option>
+                    <option value="0">No horário</option>
+                    <option value="30">30 minutos antes</option>
+                    <option value="60">1 hora antes</option>
+                    <option value="1440">1 dia antes</option>
                 </select>
             </div>
 
@@ -175,4 +189,4 @@
     </div>
 
 
-</body></html>
+{% endblock %}

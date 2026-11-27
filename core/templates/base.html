@@ -1,31 +1,64 @@
-{% load static %}<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'base_global.html' %}
+{% load static %}
+
+{% block head %}
 {% block page_head %}{% endblock %}
 <link rel="stylesheet" href="{% static 'css/marca.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'css/notificacoes-modal.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'css/barra-superior.css' %}?v=1">
-</head>
-<body class="timeline-app {% block body_class %}{% endblock %}">
+{% endblock %}
+
+{% block global_body_class %}timeline-app {% block body_class %}{% endblock %}{% endblock %}
+
+{% block global_content %}
+
 <aside class="{% block sidebar_class %}menu-lateral{% endblock %}">
     {% include 'includes/marca.html' %}
+
     <h3 class="titulo-menu">SEU ESPAÇO</h3>
+
     <nav class="menu {% block navigation_class %}{% endblock %}" aria-label="Menu principal">
+
         {% with pagina=request.resolver_match.url_name %}
+
         <a href="{% url 'hoje' %}"{% if pagina == 'hoje' %} class="ativo" aria-current="page"{% endif %}>☼ &nbsp; Hoje</a>
+
         <a href="{% url 'agenda' %}"{% if pagina == 'agenda' or pagina == 'agenda_semana' or pagina == 'agenda_mes' %} class="ativo" aria-current="page"{% endif %}>▦ &nbsp; Calendário</a>
+
         <a href="{% url 'tarefas' %}"{% if pagina == 'tarefas' %} class="ativo" aria-current="page"{% endif %}>☷ &nbsp; Tarefas</a>
+
         <a href="{% url 'planejamento' %}"{% if pagina == 'planejamento' or pagina == 'historico_planejamentos' %} class="ativo" aria-current="page"{% endif %}>✧ &nbsp; Planejamento Inteligente</a>
-        {% if pagina == 'personalizacao_ia' %}<a href="{% url 'personalizacao_ia' %}?semana={{ semana }}" class="ativo" aria-current="page">✦ &nbsp; Personalização com IA</a>{% endif %}
+
+        {% if pagina == 'personalizacao_ia' %}
+        <a href="{% url 'personalizacao_ia' %}?semana={{ semana }}" class="ativo" aria-current="page">✦ &nbsp; Personalização com IA</a>
+        {% endif %}
+
         <a href="{% url 'progresso' %}"{% if pagina == 'progresso' %} class="ativo" aria-current="page"{% endif %}>▥ &nbsp; Progresso</a>
+
         <a href="{% url 'configuracoes' %}"{% if pagina == 'configuracoes' %} class="ativo" aria-current="page"{% endif %}>{% include 'includes/icone-configuracoes.html' %} &nbsp; Configurações</a>
+
         {% endwith %}
+
     </nav>
+
     {% include 'includes/rodape-lateral.html' %}
 </aside>
+
 {% include 'includes/barra-superior.html' %}
+
 {% block page_body %}{% endblock %}
+
+{% endblock %}
+
+{% block global_scripts %}
 <script src="{% static 'js/notificacoes-modal.js' %}?v=2" data-endpoint="{% url 'notificacoes' %}" defer></script>
-</body>
-</html>
+
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js")
+            .catch(function (erro) {
+                console.error("Erro ao registrar Service Worker:", erro);
+            });
+    }
+</script>
+{% endblock %}

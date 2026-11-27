@@ -171,3 +171,11 @@ SOCIALACCOUNT_PROVIDERS = {
         "APP": {"client_id": GOOGLE_CLIENT_ID, "secret": GOOGLE_CLIENT_SECRET, "key": ""},
     }
 }
+
+# Configuracoes de Web Push
+VAPID_PRIVATE_KEY = BASE_DIR / ".env.vapid-private.pem"
+VAPID_PUBLIC_KEY = BASE_DIR / ".env.vapid-public.pem"
+VAPID_SUBJECT = os.environ.get(
+    "VAPID_SUBJECT",
+    "mailto:timeline@example.com"
+)
