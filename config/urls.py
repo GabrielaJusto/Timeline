@@ -6,6 +6,7 @@ from core.auth_views import RecuperarSenhaView, google_login
 from core import views
 from core import views_ia
 from core import views_organizacao as organizacao
+from core import views_conta
 
 urlpatterns = [
     path("login/google/", google_login, name="login_google"),
@@ -30,6 +31,8 @@ urlpatterns = [
     # Autentica??o
     path("login/", views.pagina_login, name="login"),
     path("logout/", views.pagina_logout, name="logout"),
+    path("conta/meus-dados/", views_conta.baixar_meus_dados, name="baixar_meus_dados"),
+    path("conta/excluir/", views_conta.excluir_conta, name="excluir_conta"),
     path("cadastro/", views.pagina_cadastro, name="cadastro"),
 
     # P?gina inicial
