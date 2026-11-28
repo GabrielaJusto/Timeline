@@ -1,4 +1,11 @@
-<details class="org-free">
-<summary>Horários livres · 07h–23h</summary>{% for livre in dia.livres %}<p>
-<a href="{% url 'criar_sessao' %}?data={{ dia.data|date:'Y-m-d' }}&amp;hora={{ livre.hora }}&amp;duracao={{ livre.duracao }}">{{ livre.hora }}–{{ livre.termino }} · Reservar estudo</a>
-</p>{% empty %}<p>Nenhum intervalo disponível de pelo menos 15 minutos.</p>{% endfor %}</details>
+{% if dia.livres %}
+<section class="org-free" aria-label="Horários livres" style="margin-top:12px;padding:10px 8px;background:#edf7f2;border-radius:10px;font-size:12px;line-height:1.5;">
+<strong style="display:block;margin-bottom:6px;font-size:12px;">Horários livres</strong>
+{% for livre in dia.livres %}
+<div style="margin-top:8px;">
+<span style="display:block;white-space:nowrap;font-variant-numeric:tabular-nums;font-size:11px;">{{ livre.hora }}–{{ livre.termino }}</span>
+{% if livre.reservavel %}<a style="display:inline-block;margin-top:3px;color:#28654b;font-size:11px;" href="{% url 'criar_sessao' %}?data={{ dia.data|date:'Y-m-d' }}&amp;hora={{ livre.hora_reserva }}&amp;duracao={{ livre.duracao }}">Reservar estudo</a>{% else %}<small>Horário passado</small>{% endif %}
+</div>
+{% endfor %}
+</section>
+{% endif %}

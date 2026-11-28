@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 
 
 class PerfilAluno(models.Model):
@@ -187,10 +188,30 @@ class Atividade(RegistroRecuperavel):
     importancia = models.IntegerField(null=True, blank=True)
     duracao_estimada_min = models.IntegerField(null=True, blank=True)
     duracao_real_min = models.IntegerField(null=True, blank=True)
+    frequencia = models.CharField(max_length=10, blank=True, default="")
+    repetir_ate = models.DateField(null=True, blank=True)
     status = models.CharField(
         max_length=20, choices=STATUS, default="planejada"
     )
     fragmentavel = models.BooleanField(default=False)
+
+    # Estados em que a atividade ainda espera entrega.
+    PENDENTES = ("planejada", "em_andamento", "em_risco", "atrasada")
+
+    @property
+    def esta_atrasada(self):
+        """
+        Diz se o prazo passou e a atividade continua pendente.
+
+        É calculado na hora, a partir do prazo, e não gravado no banco:
+        assim nunca fica desatualizado e não sobrescreve o status
+        escolhido pelo estudante.
+        """
+
+        if self.status not in self.PENDENTES:
+            return False
+
+        return self.prazo < timezone.now()
     score_prioridade = models.DecimalField(
         max_digits=8, decimal_places=2, default=0
     )

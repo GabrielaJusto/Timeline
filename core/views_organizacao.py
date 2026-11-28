@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count, Q, Sum
+from urllib.parse import parse_qsl, urlencode
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -12,7 +13,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from .models import Atividade, Compromisso, Planejamento, SessaoPlanejada, Subtarefa
 from .forms import AtividadeForm, AtividadeRecorrenteForm, CompromissoRecorrenteForm, SessaoLivreForm
-from .agenda_services import salvar_recorrencias, dados_periodo, horarios_livres, limites, escapar_ics, dobrar_ics
+from .agenda_services import salvar_recorrencias, atualizar_recorrencias, dados_periodo, horarios_livres, limites, escapar_ics, dobrar_ics
 
 
 def ler_data(valor, padrao):
@@ -20,6 +21,19 @@ def ler_data(valor, padrao):
         return date.fromisoformat(valor)
     except (ValueError, TypeError):
         return padrao
+
+
+def retorno_tarefas(request):
+    permitidos = {"busca", "status", "tipo", "ordem", "page", "recorrencia"}
+    parametros = urlencode([(k, v) for k, v in parse_qsl(request.POST.get("retorno", "")) if k in permitidos])
+    return reverse("tarefas") + ("?" + parametros if parametros else "")
+
+
+def aplicar_horario(atividade, dados):
+    atividade.prazo = timezone.make_aware(datetime.combine(dados["data_entrega"], dados["horario"] or time(23, 59)))
+    if dados.get("horario_fim") and dados.get("horario"):
+        fim, inicio = dados["horario_fim"], dados["horario"]
+        atividade.duracao_estimada_min = (fim.hour * 60 + fim.minute) - (inicio.hour * 60 + inicio.minute)
 
 
 @login_required
@@ -30,10 +44,18 @@ def tarefas(request, formulario=None):
     ordem = request.GET.get("ordem", "prazo")
     if busca:
         atividades = atividades.filter(Q(titulo__icontains=busca) | Q(nome_disciplina__icontains=busca) | Q(disciplina__nome__icontains=busca))
-    if status in dict(Atividade.STATUS):
+    if status == "atrasada":
+        # Nenhum registro grava esse status; o atraso vem do prazo.
+        atividades = atividades.filter(prazo__lt=timezone.now(), status__in=Atividade.PENDENTES)
+    elif status in dict(Atividade.STATUS):
         atividades = atividades.filter(status=status)
     if tipo in dict(Atividade.TIPOS):
         atividades = atividades.filter(tipo=tipo)
+    recorrencia = request.GET.get("recorrencia", "")
+    if recorrencia == "sim":
+        atividades = atividades.filter(serie_id__isnull=False)
+    elif recorrencia == "nao":
+        atividades = atividades.filter(serie_id__isnull=True)
     totais = atividades.aggregate(total=Count("id"), concluidas=Count("id", filter=Q(status="concluida")))
     ordenacao = {"prazo_desc": "-prazo", "titulo": "titulo"}.get(ordem, "prazo")
     pagina = Paginator(atividades.order_by(ordenacao, "id").prefetch_related("subtarefas"), 20).get_page(request.GET.get("page"))
@@ -42,7 +64,7 @@ def tarefas(request, formulario=None):
     return render(request, "tarefas.html", {"atividades": pagina, "pagina": pagina, "total": totais["total"],
         "concluidas": totais["concluidas"], "pendentes": totais["total"] - totais["concluidas"],
         "busca": busca, "status_selecionado": status, "tipo_selecionado": tipo, "ordem_selecionada": ordem,
-        "opcoes_status": Atividade.STATUS, "opcoes_tipo": Atividade.TIPOS, "parametros": parametros.urlencode(),
+        "retorno": request.GET.urlencode(), "recorrencia_selecionada": recorrencia, "opcoes_status": Atividade.STATUS, "opcoes_tipo": Atividade.TIPOS, "parametros": parametros.urlencode(),
         "form": formulario if formulario is not None else AtividadeRecorrenteForm()})
 
 
@@ -53,9 +75,9 @@ def adicionar_tarefa(request):
         atividade = form.save(commit=False)
         atividade.usuario_id = request.user.id
         atividade.nome_disciplina = form.cleaned_data["nome_disciplina"].strip()
-        atividade.prazo = timezone.make_aware(datetime.combine(form.cleaned_data["data_entrega"], form.cleaned_data["horario"] or time(23, 59)))
-        salvar_recorrencias(atividade, form.cleaned_data["frequencia"], form.cleaned_data["repetir_ate"])
-        messages.success(request, "Tarefa salva. As repetições, quando solicitadas, já aparecem na agenda.")
+        aplicar_horario(atividade, form.cleaned_data)
+        quantidade = salvar_recorrencias(atividade, form.cleaned_data["frequencia"], form.cleaned_data["repetir_ate"])
+        messages.success(request, f"{quantidade} ocorrência(s) salva(s). Veja as datas em Tarefas ou no Calendário.")
         if request.headers.get("X-Task-Modal") == "1":
             return JsonResponse({"redirect": reverse("tarefas")})
         return redirect("tarefas")
@@ -70,13 +92,21 @@ def adicionar_tarefa(request):
 def editar_tarefa(request, atividade_id):
     atividade = get_object_or_404(Atividade, pk=atividade_id, usuario_id=request.user.id)
     prazo = timezone.localtime(atividade.prazo)
-    form = AtividadeForm(request.POST or None, instance=atividade, initial={"data_entrega": prazo.date(), "horario": prazo.time()})
+    prazo_original, serie_original = atividade.prazo, atividade.serie_id
+    fim = prazo + timedelta(minutes=atividade.duracao_estimada_min or 60)
+    form = AtividadeRecorrenteForm(request.POST or None, instance=atividade, initial={
+        "data_entrega": prazo.date(), "horario": prazo.time(),
+        "horario_fim": fim.time() if fim.date() == prazo.date() else None})
     if request.method == "POST" and form.is_valid():
         atividade = form.save(commit=False)
         atividade.nome_disciplina = form.cleaned_data["nome_disciplina"].strip()
-        atividade.prazo = timezone.make_aware(datetime.combine(form.cleaned_data["data_entrega"], form.cleaned_data["horario"] or time(23, 59)))
-        atividade.save()
-        messages.success(request, "Tarefa atualizada. Em séries recorrentes, apenas esta ocorrência foi alterada.")
+        aplicar_horario(atividade, form.cleaned_data)
+        if form.cleaned_data.get("aplicar_a") == "proximas":
+            quantidade = atualizar_recorrencias(atividade, form.cleaned_data["frequencia"], form.cleaned_data["repetir_ate"], prazo_original, serie_original)
+            messages.success(request, f"{quantidade} ocorrência(s) atualizada(s). As anteriores foram preservadas.")
+        else:
+            atividade.save()
+            messages.success(request, "Esta ocorrência foi atualizada. Para mudar a repetição, escolha esta e as próximas ocorrências.")
         return redirect("tarefas")
     return render(request, "organizacao/formulario.html", {"form": form, "titulo": "Editar tarefa"})
 
@@ -88,7 +118,7 @@ def excluir_tarefa(request, atividade_id):
     atividade.excluido_em = timezone.now()
     atividade.save(update_fields=["excluido_em"])
     messages.success(request, "Tarefa movida para a lixeira. Você pode restaurá-la.")
-    return redirect("tarefas")
+    return redirect(retorno_tarefas(request))
 
 
 @login_required
@@ -97,7 +127,7 @@ def acoes_lote(request):
     ids = request.POST.getlist("atividades")
     if not ids or any(not i.isdecimal() or len(i) > 18 for i in ids):
         messages.error(request, "Selecione ao menos uma tarefa válida.")
-        return redirect("tarefas")
+        return redirect(retorno_tarefas(request))
     tarefas = Atividade.objects.filter(usuario_id=request.user.id, pk__in=ids)
     acao = request.POST.get("acao")
     if acao == "concluir":
@@ -108,7 +138,7 @@ def acoes_lote(request):
         nova_data = ler_data(request.POST.get("nova_data"), None)
         if nova_data is None:
             messages.error(request, "Informe uma data válida. Nenhuma tarefa foi alterada.")
-            return redirect("tarefas")
+            return redirect(retorno_tarefas(request))
         with transaction.atomic():
             registros = list(tarefas.select_for_update())
             for tarefa in registros:
@@ -118,13 +148,14 @@ def acoes_lote(request):
     else:
         return HttpResponseBadRequest("Ação inválida")
     messages.success(request, f"{quantidade} tarefa(s) atualizada(s).")
-    return redirect("tarefas")
+    return redirect(retorno_tarefas(request))
 
 
 @login_required
 @require_POST
+@transaction.atomic
 def subtarefa(request, atividade_id):
-    atividade = get_object_or_404(Atividade, pk=atividade_id, usuario_id=request.user.id)
+    atividade = get_object_or_404(Atividade.objects.select_for_update(), pk=atividade_id, usuario_id=request.user.id)
     if request.POST.get("subtarefa_id"):
         item = get_object_or_404(Subtarefa, pk=request.POST["subtarefa_id"], atividade=atividade)
         item.concluida = not item.concluida
@@ -133,9 +164,16 @@ def subtarefa(request, atividade_id):
         titulo = request.POST.get("titulo", "").strip()
         if not titulo or len(titulo) > 120:
             messages.error(request, "Informe uma etapa de até 120 caracteres.")
-            return redirect("tarefas")
+            return redirect(retorno_tarefas(request))
         Subtarefa.objects.create(atividade=atividade, titulo=titulo)
-    return redirect("tarefas")
+    pendentes = atividade.subtarefas.filter(concluida=False).exists()
+    if not pendentes:
+        atividade.status = "concluida"
+        atividade.save(update_fields=["status"])
+    elif atividade.status == "concluida":
+        atividade.status = "em_andamento"
+        atividade.save(update_fields=["status"])
+    return redirect(retorno_tarefas(request))
 
 
 @login_required
@@ -250,10 +288,10 @@ def criar_sessao(request):
             from django.contrib.auth import get_user_model
             get_user_model().objects.select_for_update().get(pk=request.user.id)
             dia = dados_periodo(request.user.id, data, data)[0]
-            disponivel = any(l["inicio"] <= inicio and inicio + duracao <= l["fim"] for l in horarios_livres(dia))
+            disponivel = any(l["inicio"] <= inicio and inicio + duracao <= l["fim"] for l in horarios_livres(dia, para_reserva=True))
             prazo = timezone.make_aware(datetime.combine(data, hora)) + timedelta(minutes=duracao)
             if not disponivel:
-                form.add_error(None, "O horário está ocupado ou fora da janela de estudo (07h–23h). Escolha outro intervalo.")
+                form.add_error(None, "O horário está ocupado ou fora da janela de estudo (06h–23h). Escolha outro intervalo.")
             elif prazo > dados["atividade"].prazo:
                 form.add_error("data", "A sessão deve terminar antes do prazo da tarefa.")
             else:
